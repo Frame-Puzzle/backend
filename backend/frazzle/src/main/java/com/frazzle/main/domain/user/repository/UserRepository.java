@@ -14,14 +14,14 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     //업데이트시 영속성 컨텍스트를 자동으로 정리해 일치하게함
     @Modifying(clearAutomatically = true)
-    @Transactional
     //업데이트 jpql쿼리
-    @Query("update User u set u.userId =:#{#user.userId}, u.email =:#{#user.email}, u.socialType =:#{user.socialType}")
+    @Transactional
+    @Query("UPDATE User u SET u.userId = :#{#user.userId}, u.email = :#{#user.email}, u.socialType = :#{#user.socialType} WHERE u.userId = :#{#user.userId}")
     int updateUser(@Param("user") User user);
 
     @Modifying(clearAutomatically = true)
     @Transactional
-    @Query("update User u set u.refreshToken =:#{#user.refreshToken} where u.userId=:#{#user.userId}")
+    @Query("UPDATE User u SET u.refreshToken = :#{#user.refreshToken} WHERE u.userId = :#{#user.userId}")
     int updateRefreshToken(@Param("user") User user);
 
 
