@@ -1,4 +1,4 @@
-package com.frazzle.main.domain.auth.models;
+package com.frazzle.main.global.models;
 
 import com.frazzle.main.domain.auth.enums.UserRole;
 import com.frazzle.main.domain.user.entity.User;
