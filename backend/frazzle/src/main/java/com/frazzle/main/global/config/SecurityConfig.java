@@ -1,7 +1,7 @@
 package com.frazzle.main.global.config;
 
 import com.frazzle.main.domain.auth.enums.UserRole;
-import com.frazzle.main.domain.auth.filter.JwtFilter;
+import com.frazzle.main.global.filter.JwtFilter;
 import com.frazzle.main.domain.auth.service.JwtTokenService;
 import com.frazzle.main.domain.user.service.UserService;
 import com.frazzle.main.global.exception.ExceptionHandlerFilter;
@@ -9,10 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
