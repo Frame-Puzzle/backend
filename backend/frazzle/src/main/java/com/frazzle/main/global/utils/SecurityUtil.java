@@ -1,6 +1,6 @@
 package com.frazzle.main.global.utils;
 
-import com.frazzle.main.domain.auth.models.UserPrincipal;
+import com.frazzle.main.global.models.UserPrincipal;
 import com.frazzle.main.global.exception.CustomException;
 import com.frazzle.main.global.exception.ErrorCode;
 import org.springframework.security.core.Authentication;
