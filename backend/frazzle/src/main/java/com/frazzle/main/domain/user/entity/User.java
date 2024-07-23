@@ -1,19 +1,22 @@
 package com.frazzle.main.domain.user.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 
 @Entity
 @Table(name = "users")
 @Getter
+@Builder
+@AllArgsConstructor
 public class User {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
+    private Long userId;
 
     private String nickname;
 
@@ -23,15 +26,13 @@ public class User {
 
     private String profileImg;
 
-    private String token;
+    private String refreshToken;
 
     private String deviceToken;
 
     protected User() {}
 
-    public User(String email, String socialType, String token) {
-        this.email = email;
-        this.socialType = socialType;
-        this.token = token;
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
     }
 }
