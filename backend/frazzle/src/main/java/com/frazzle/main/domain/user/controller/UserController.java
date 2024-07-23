@@ -6,6 +6,7 @@ import com.frazzle.main.domain.user.entity.User;
 import com.frazzle.main.domain.user.service.UserService;
 import com.frazzle.main.global.security.auth.TokenRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -17,10 +18,13 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
-@RequestMapping("oauth")
+@RequestMapping("/users")
 @RequiredArgsConstructor
+@Slf4j
 public class UserController {
 
     private final UserService userService;
@@ -29,6 +33,8 @@ public class UserController {
     public ResponseEntity<?> kakaoLogin(@RequestBody TokenRequest tokenRequest) {
         String accessToken = tokenRequest.getToken();
         RestTemplate restTemplate = new RestTemplate();
+
+        log.info(tokenRequest.getToken());
 
         String userInfoUri = "https://kapi.kakao.com/v2/user/me";
         HttpHeaders headers = new HttpHeaders();
@@ -52,9 +58,12 @@ public class UserController {
         }
 
         User user = new User(email, "kakao", tokenRequest.getToken());
-        userService.login(user);
+        String jwt = userService.login(user);
 
-        return ResponseEntity.ok(response.getBody());
+        Map<String, String> responseBody = new HashMap<>();
+        responseBody.put("token", jwt);
+
+        return ResponseEntity.ok(responseBody);
     }
 }
 
