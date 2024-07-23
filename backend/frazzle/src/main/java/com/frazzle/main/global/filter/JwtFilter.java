@@ -1,6 +1,6 @@
-package com.frazzle.main.domain.auth.filter;
+package com.frazzle.main.global.filter;
 
-import com.frazzle.main.domain.auth.models.UserPrincipal;
+import com.frazzle.main.global.models.UserPrincipal;
 import com.frazzle.main.domain.auth.service.JwtTokenService;
 import com.frazzle.main.domain.user.entity.User;
 import com.frazzle.main.domain.user.service.UserService;
