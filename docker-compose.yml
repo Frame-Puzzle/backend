@@ -37,3 +37,7 @@ services:
 networks:
   backend:
     driver: bridge
+
+volumes:
+  mysql-data:
+    driver: local
