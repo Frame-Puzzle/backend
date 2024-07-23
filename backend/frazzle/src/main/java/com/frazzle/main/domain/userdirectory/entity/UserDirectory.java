@@ -25,6 +25,9 @@ public class UserDirectory {
 //    @JoinColumn(name = "user_id")
 //    private User user;
 
+    @Column(name = "is_accept")
+    private boolean isAccept;
+
 //    private UserDirectory(Directory directory, User user) {
 //        this.directory = directory;
 //        this.user = user;
