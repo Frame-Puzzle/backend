@@ -18,7 +18,7 @@ public class SecurityConfig {
                 .csrf(csrfConfigurer -> csrfConfigurer.disable()) //csrf 비활성화 -> rest api이므로
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
-                                .requestMatchers("/", "/login**", "/error**", "oauth/**").permitAll()
+                                .requestMatchers("/","/api/v1", "/login**", "/error**", "/users/**").permitAll()
                                 .anyRequest().authenticated()
                 ); //모든 사용자는 /, /login, /error 페이지 접근 허용
 //                .oauth2Login(oauth2Login ->
