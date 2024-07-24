@@ -14,9 +14,10 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    @Column(name = "user_id")
+    private int userId;
 
-    private Long userId;
+    private Long loginUserId;
 
     private String nickname;
 
