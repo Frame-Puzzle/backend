@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 public interface UserRepository extends JpaRepository<User, Integer> {
-    User findByUserId(Long id);
+    User findByLoginUserId(Long id);
 
     User findByRefreshToken(String refreshToken);
 
@@ -16,12 +16,12 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     @Modifying(clearAutomatically = true)
     //업데이트 jpql쿼리
     @Transactional
-    @Query("UPDATE User u SET u.userId = :#{#user.userId}, u.email = :#{#user.email}, u.socialType = :#{#user.socialType} WHERE u.userId = :#{#user.userId}")
+    @Query("UPDATE User u SET u.loginUserId = :#{#user.loginUserId}, u.email = :#{#user.email}, u.socialType = :#{#user.socialType} WHERE u.loginUserId = :#{#user.loginUserId}")
     int updateUser(@Param("user") User user);
 
     @Modifying(clearAutomatically = true)
     @Transactional
-    @Query("UPDATE User u SET u.refreshToken = :#{#user.refreshToken} WHERE u.userId = :#{#user.userId}")
+    @Query("UPDATE User u SET u.refreshToken = :#{#user.refreshToken} WHERE u.loginUserId = :#{#user.loginUserId}")
     int updateRefreshToken(@Param("user") User user);
 
 
