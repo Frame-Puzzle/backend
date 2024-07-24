@@ -1,6 +1,6 @@
 package com.frazzle.main.domain.directory.entity;
 
-import com.frazzle.main.domain.directory.dto.RequestCreateDirectoryDto;
+import com.frazzle.main.domain.directory.dto.CreateDirectoryRequestDto;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -40,7 +40,7 @@ public class Directory {
         this.modifyDate = LocalDateTime.now();
     }
 
-    public static Directory createDirectory(RequestCreateDirectoryDto requestDto) {
+    public static Directory createDirectory(CreateDirectoryRequestDto requestDto) {
         return Directory.builder()
                 .directoryName(requestDto.getDirectoryName())
                 .category(requestDto.getCategory())
