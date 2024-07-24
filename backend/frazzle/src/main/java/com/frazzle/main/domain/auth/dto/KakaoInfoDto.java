@@ -1,12 +1,13 @@
 package com.frazzle.main.domain.auth.dto;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-
-import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 
 @Getter
 @AllArgsConstructor
+@Slf4j
 public class KakaoInfoDto {
     //카카오 이용자의 고유id
     private Long id;
@@ -14,8 +15,19 @@ public class KakaoInfoDto {
     private String email;
 
     //json파일에서 id와 email을 찾아 매핑
-    public KakaoInfoDto(Map<String, Object> attributes) {
-        this.id = Long.valueOf(attributes.get("id").toString());
-        this.email = attributes.get("email") != null ? attributes.get("email").toString() : "";
+    public KakaoInfoDto(JsonNode node) {
+        this.id = Long.valueOf(node.get("id").toString());
+
+//        this.email = attributes.get("email") != null ? attributes.get("email").toString() : "";
+
+        System.out.println(node);
+
+        if (node.has("kakao_account")) {
+            this.email = node.path("kakao_account").path("email").asText();
+        } else {
+            this.email = "";
+        }
+        log.info("id: {}", this.id);
+        log.info("email: {}", this.email);
     }
 }
