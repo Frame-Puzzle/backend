@@ -1,43 +1,33 @@
-#backend라는 네트워크 사이에서 통신 가능
-
-version: "3"
+version: '3'
 services:
-  nginx:
-    build:
-      context: ./frontend
-    ports:
-      - 80:80
-    depends_on:
-      - spring
-    networks:
-      - backend
-
-  spring:
-    build:
-      context: ./backend/frazzle
-    ports:
-      - 8080:8080
-    depends_on:
-      - mysql
-    networks:
-      - backend
-
   mysql:
-    image: mysql:8.0
+    image: mysql:latest
     container_name: mysql
     environment:
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      TZ: ${TZ}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     ports:
-      - 3306:3306
-    networks:
-      - backend
+      - "3306:3306"
 
-networks:
   backend:
-    driver: bridge
+    image: ${DOCKER_IMAGE}
+    container_name: backend
+    environment:
+      - SPRING_PROFILES_ACTIVE=develop
+      - TZ=${TZ}
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
 
-volumes:
-  mysql-data:
-    driver: local
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
