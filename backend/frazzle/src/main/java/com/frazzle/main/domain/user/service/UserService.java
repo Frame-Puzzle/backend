@@ -15,7 +15,7 @@ public class UserService {
 
     //UserId로 유저 찾기
     public User findByUserId(Long id) {
-        return userRepository.findByUserId(id);
+        return userRepository.findByLoginUserId(id);
     }
 
     public User save(User user) {
