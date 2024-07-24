@@ -18,10 +18,6 @@ public class KakaoInfoDto {
     public KakaoInfoDto(JsonNode node) {
         this.id = Long.valueOf(node.get("id").toString());
 
-//        this.email = attributes.get("email") != null ? attributes.get("email").toString() : "";
-
-        System.out.println(node);
-
         if (node.has("kakao_account")) {
             this.email = node.path("kakao_account").path("email").asText();
         } else {
