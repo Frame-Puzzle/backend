@@ -26,16 +26,27 @@ public class OauthController {
     @PostMapping("/login/oauth/{provider}")
     public ResponseEntity<OauthResponseDto> login(@PathVariable String provider, @RequestBody OauthRequestDto oauthRequestDto, HttpServletResponse response) {
 
+        String accessToken;
+        OauthResponseDto oauthResponseDto;
+
         //카카오, 구글로그인을 구분해서 받기
         switch (provider) {
             case "kakao":
-                String accessToken = oauthService.loginWithKakao(oauthRequestDto.getAccessToken(), response);
+                accessToken = oauthService.loginWithKakao(oauthRequestDto.getAccessToken(), response);
 
-                OauthResponseDto oauthResponseDto = OauthResponseDto.builder()
+                oauthResponseDto = OauthResponseDto.builder()
                         .accessToken(accessToken)
                         .build();
 
                 return ResponseEntity.ok(oauthResponseDto);
+
+            case "google":
+                accessToken = oauthService.loginWithGoogle(oauthRequestDto.getAccessToken(), response);
+
+                oauthResponseDto = OauthResponseDto.builder()
+                        .accessToken(accessToken)
+                        .build();
+
         }
 
         return ResponseEntity.notFound().build();
@@ -44,7 +55,7 @@ public class OauthController {
     //리프레시 토큰을 보고 있으면 에세스 토큰을 만들고 없으면 예외 처리하기
     @PostMapping("/token/refresh")
     public ResponseEntity<RefreshTokenResponseDto> tokenRefresh(HttpServletRequest request) {
-        RefreshTokenResponseDto refreshTokenResponseDto = new RefreshTokenResponseDto();
+
         Cookie[] list = request.getCookies();
 
         if(list==null) {
@@ -58,7 +69,10 @@ public class OauthController {
         }
 
         String accessToken = oauthService.refreshAccessToken(refreshTokenCookie.getValue());
-        refreshTokenResponseDto.setAccessToken(accessToken);
+
+        RefreshTokenResponseDto refreshTokenResponseDto = RefreshTokenResponseDto.builder()
+                        .accessToken(accessToken)
+                .build();
         return ResponseEntity.ok(refreshTokenResponseDto);
     }
 }
