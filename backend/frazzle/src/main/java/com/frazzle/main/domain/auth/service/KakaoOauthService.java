@@ -1,8 +1,13 @@
 package com.frazzle.main.domain.auth.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.frazzle.main.domain.auth.dto.KakaoInfoDto;
 import com.frazzle.main.domain.user.entity.User;
 import com.frazzle.main.domain.user.service.UserService;
+import com.frazzle.main.global.exception.CustomException;
+import com.frazzle.main.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -47,16 +52,24 @@ public class KakaoOauthService {
     //가져온 accesstoken을 가공해서 email과 id만 찾아서 가져옴
     public User getUserProfileByToken(String accessToken) {
         Map<String, Object> userAttributesByToken = getUserAttributesByToken(accessToken);
-        KakaoInfoDto kakaoInfoDto = new KakaoInfoDto(userAttributesByToken);
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode jsonNode = null;
+        try {
+            jsonNode = mapper.readTree(mapper.writeValueAsString(userAttributesByToken));
+        } catch (JsonProcessingException e) {
+            throw new CustomException(ErrorCode.BAD_REQUEST);
+        }
+
+        KakaoInfoDto kakaoInfoDto = new KakaoInfoDto(jsonNode);
         User user = User.builder()
                 .nickname(generateRandomNickname())
-                .userId(kakaoInfoDto.getId())
+                .loginUserId(kakaoInfoDto.getId())
                 .email(kakaoInfoDto.getEmail())
                 .socialType("kakao")
                 .build();
 
         //db에 존재하면 업데이트 아니면 insert
-        if(userService.findByUserId(user.getUserId()) !=null) {
+        if(userService.findByUserId(user.getLoginUserId()) !=null) {
             userService.update(user);
         }
         else {
