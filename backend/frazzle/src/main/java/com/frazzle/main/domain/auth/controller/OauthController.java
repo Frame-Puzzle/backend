@@ -25,16 +25,20 @@ public class OauthController {
 
     @PostMapping("/login/oauth/{provider}")
     public ResponseEntity<OauthResponseDto> login(@PathVariable String provider, @RequestBody OauthRequestDto oauthRequestDto, HttpServletResponse response) {
-        OauthResponseDto oauthResponseDto = new OauthResponseDto();
 
         //카카오, 구글로그인을 구분해서 받기
         switch (provider) {
             case "kakao":
                 String accessToken = oauthService.loginWithKakao(oauthRequestDto.getAccessToken(), response);
-                oauthResponseDto.setAccessToken(accessToken);
+
+                OauthResponseDto oauthResponseDto = OauthResponseDto.builder()
+                        .accessToken(accessToken)
+                        .build();
+
+                return ResponseEntity.ok(oauthResponseDto);
         }
 
-        return ResponseEntity.ok(oauthResponseDto);
+        return ResponseEntity.notFound().build();
     }
 
     //리프레시 토큰을 보고 있으면 에세스 토큰을 만들고 없으면 예외 처리하기
