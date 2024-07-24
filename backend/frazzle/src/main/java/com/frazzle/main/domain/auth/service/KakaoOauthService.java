@@ -69,7 +69,7 @@ public class KakaoOauthService {
                 .build();
 
         //db에 존재하면 업데이트 아니면 insert
-        if(userService.findByUserId(user.getLoginUserId()) !=null) {
+        if(userService.findByLoginUserId(user.getLoginUserId()) !=null) {
             userService.update(user);
         }
         else {
