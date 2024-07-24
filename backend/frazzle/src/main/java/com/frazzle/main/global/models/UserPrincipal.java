@@ -31,7 +31,7 @@ public class UserPrincipal implements UserDetails {
                 Collections.singletonList(new SimpleGrantedAuthority(UserRole.USER.getRole()));
 
         return new UserPrincipal(
-                user.getUserId(),
+                user.getLoginUserId(),
                 user.getEmail(),
                 "",
                 authorities,
