@@ -8,6 +8,7 @@ import com.frazzle.main.domain.user.entity.User;
 import com.frazzle.main.domain.user.service.UserService;
 import com.frazzle.main.global.exception.CustomException;
 import com.frazzle.main.global.exception.ErrorCode;
+import com.frazzle.main.global.utils.GenerateRandomNickname;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
@@ -18,21 +19,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.security.SecureRandom;
 import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class KakaoOauthService {
-    //초기 닉네임 설정을 위한 랜덤 닉네임 생성기
-    private static final String ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-    private static final int NICKNAMELENGTH = 20;
-    private static final SecureRandom RANDOM = new SecureRandom();
+public class KakaoOauthService implements SocialOauthService {
 
     private final UserService userService;
 
     //프론트에서 가져온 어세스 토큰을 이용해서 카카오에서 정보를 가져옴
+    @Override
     public Map<String, Object> getUserAttributesByToken(String accessToken) {
         RestTemplate restTemplate = new RestTemplate();
 
@@ -52,6 +49,7 @@ public class KakaoOauthService {
 
 
     //가져온 accesstoken을 가공해서 email과 id만 찾아서 가져옴
+    @Override
     public User getUserProfileByToken(String accessToken) {
         Map<String, Object> userAttributesByToken = getUserAttributesByToken(accessToken);
         ObjectMapper mapper = new ObjectMapper();
@@ -64,7 +62,7 @@ public class KakaoOauthService {
 
         KakaoInfoDto kakaoInfoDto = new KakaoInfoDto(jsonNode);
 
-        User user = User.createUser(kakaoInfoDto.getId(), generateRandomNickname(), kakaoInfoDto.getEmail(), "kakao");
+        User user = User.createUser(kakaoInfoDto.getId(), GenerateRandomNickname.generateRandomNickname(), kakaoInfoDto.getEmail(), "kakao");
 
         //db에 존재하면 업데이트 아니면 insert
         if(userService.findByLoginUserId(user.getLoginUserId()) !=null) {
@@ -76,14 +74,4 @@ public class KakaoOauthService {
         return user;
     }
 
-
-    //20글자인 랜덤 닉네임 생성하기
-    public static String generateRandomNickname() {
-        StringBuilder nickname = new StringBuilder(NICKNAMELENGTH);
-        for (int i = 0; i < NICKNAMELENGTH; i++) {
-            int index = RANDOM.nextInt(ALPHABET.length());
-            nickname.append(ALPHABET.charAt(index));
-        }
-        return nickname.toString();
-    }
 }
