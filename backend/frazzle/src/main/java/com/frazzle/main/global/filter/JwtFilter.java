@@ -38,7 +38,7 @@ public class JwtFilter extends GenericFilterBean {
 
         if(StringUtils.hasText(jwt) && jwtTokenService.validateToken(jwt)) {
             Long userId = Long.valueOf(jwtTokenService.getPayload(jwt));
-            User user = userService.findByUserId(userId);
+            User user = userService.findByLoginUserId(userId);
             if(user == null) {
                 throw new CustomException(ErrorCode.NOT_EXIST_USER);
             }
