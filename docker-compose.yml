@@ -23,7 +23,7 @@ services:
       - backend
 
   mysql:
-    image: mysql
+    image: mysql:8.0.37
     container_name: mysql
     environment:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
