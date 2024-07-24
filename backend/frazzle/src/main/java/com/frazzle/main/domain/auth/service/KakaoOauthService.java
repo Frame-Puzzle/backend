@@ -9,6 +9,7 @@ import com.frazzle.main.domain.user.service.UserService;
 import com.frazzle.main.global.exception.CustomException;
 import com.frazzle.main.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -22,6 +23,7 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class KakaoOauthService {
     //초기 닉네임 설정을 위한 랜덤 닉네임 생성기
     private static final String ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -61,12 +63,8 @@ public class KakaoOauthService {
         }
 
         KakaoInfoDto kakaoInfoDto = new KakaoInfoDto(jsonNode);
-        User user = User.builder()
-                .nickname(generateRandomNickname())
-                .loginUserId(kakaoInfoDto.getId())
-                .email(kakaoInfoDto.getEmail())
-                .socialType("kakao")
-                .build();
+
+        User user = User.createUser(kakaoInfoDto.getId(), generateRandomNickname(), kakaoInfoDto.getEmail(), "kakao");
 
         //db에 존재하면 업데이트 아니면 insert
         if(userService.findByLoginUserId(user.getLoginUserId()) !=null) {
