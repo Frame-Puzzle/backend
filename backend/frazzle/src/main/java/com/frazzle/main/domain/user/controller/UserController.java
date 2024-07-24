@@ -20,9 +20,9 @@ public class UserController {
 
     @GetMapping
     public ResponseEntity<User> userInfo() {
-        final long userId = SecurityUtil.getCurrentUserId();
+        final long loginUserId = SecurityUtil.getCurrentUserId();
 
-        User user = userService.findByUserId(userId);
+        User user = userService.findByLoginUserId(loginUserId);
         if(user == null) {
             throw new CustomException(ErrorCode.NOT_EXIST_USER);
         }
