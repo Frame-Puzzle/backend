@@ -14,10 +14,16 @@ public class OauthService {
     private final UserService userService;
     private final JwtTokenService jwtTokenService;
     private final KakaoOauthService kakaoOauthService;
+    private final GoogleOauthService googleOauthService;
 
     //카카오 로그인
     public String loginWithKakao(String accessToken, HttpServletResponse response) {
         User user = kakaoOauthService.getUserProfileByToken(accessToken);
+        return getTokens(user.getLoginUserId(), response);
+    }
+
+    public String loginWithGoogle(String accessToken, HttpServletResponse response) {
+        User user = googleOauthService.getUserProfileByToken(accessToken);
         return getTokens(user.getLoginUserId(), response);
     }
 
