@@ -33,11 +33,11 @@ public class GoogleOauthService implements SocialOauthService {
 
     private static final String GOOGLE_USER_URL = "https://www.googleapis.com/oauth2/v3/userinfo";
 
-    @Value("spring.security.oauth2.client.provider.google.client-id")
+    @Value("${google.client-id}")
     String clientId;// 구글 개발자센터에서 발급 받은 Client ID
-    @Value("spring.security.oauth2.client.provider.google.client-secret")
+    @Value("${google.client-secret}")
     String clientSecret; // 구글 개발자센터에서 발급 받은 Client Secret
-    @Value("spring.security.oauth2.client.provider.google.redirect-url")
+    @Value("${google.redirect-uri}")
     String redirectUri; // 구글 개발자센터에서 등록한 redirect_uri
 
 
