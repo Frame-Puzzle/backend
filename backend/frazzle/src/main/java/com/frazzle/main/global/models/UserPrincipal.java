@@ -19,7 +19,7 @@ import java.util.Map;
 //사용자 정보를 시큐리티에서도 가능하게 함
 public class UserPrincipal implements UserDetails {
 
-    private Long id;
+    private String id;
     private String email;
     private String password;
     private Collection<? extends GrantedAuthority> authorities;
