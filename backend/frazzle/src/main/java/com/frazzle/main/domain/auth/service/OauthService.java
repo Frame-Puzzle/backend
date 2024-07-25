@@ -27,9 +27,9 @@ public class OauthService {
         return getTokens(user.getLoginUserId(), response);
     }
 
-    public String getTokens(Long id, HttpServletResponse response) {
+    public String getTokens(String id, HttpServletResponse response) {
         //사용자 id가지고 access,refresh 토큰 만들기
-        final String accessToken = jwtTokenService.createAccessToken(id.toString());
+        final String accessToken = jwtTokenService.createAccessToken(id);
         final String refreshToken = jwtTokenService.createRefreshToken();
 
         //사용자 리프레시 토큰 업데이트
@@ -53,6 +53,6 @@ public class OauthService {
             throw new CustomException(ErrorCode.INVALID_REFRESH_TOKEN);
         }
 
-        return jwtTokenService.createAccessToken(user.getLoginUserId().toString());
+        return jwtTokenService.createAccessToken(user.getLoginUserId());
     }
 }
