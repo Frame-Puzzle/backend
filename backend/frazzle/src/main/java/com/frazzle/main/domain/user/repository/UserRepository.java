@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 public interface UserRepository extends JpaRepository<User, Integer> {
-    User findByLoginUserId(Long id);
+    User findByLoginUserId(String id);
 
     User findByRefreshToken(String refreshToken);
 
