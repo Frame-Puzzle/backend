@@ -21,7 +21,7 @@ public class DirectoryController {
 
     private final DirectoryService directoryService;
 
-    @PostMapping("")
+    @PostMapping
     public ResponseEntity<?> createDirectory(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @Valid @RequestBody CreateDirectoryRequestDto requestDto) {
