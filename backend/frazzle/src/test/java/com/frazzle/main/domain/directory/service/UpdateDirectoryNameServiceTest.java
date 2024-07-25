@@ -70,4 +70,18 @@ public class UpdateDirectoryNameServiceTest {
         BDDMockito.verify(directoryRepository, BDDMockito.times(1)).updateNameByDirectoryId(directory.getDirectoryId(), requestDto.getDirectoryName());
     }
 
+    @Test
+    @DisplayName("디렉토리 이름 수정 권한 없음 실패 테스트")
+    public void 디렉토리_이름_수정_권한_없음_실패_테스트() {
+        // given
+        BDDMockito.given(userPrincipal.getId()).willReturn(loginUserId);
+        BDDMockito.given(userRepository.findByLoginUserId(loginUserId)).willReturn(user);
+        BDDMockito.given(directoryRepository.findByDirectoryId(directory.getDirectoryId())).willReturn(directory);
+        BDDMockito.given(userDirectoryRepository.existsByDirectoryAndUserAndIsAccept(directory, user, true)).willReturn(false);
+
+        // when & then
+        Assertions.assertThatThrownBy(() -> directoryService.updateDirectoryName(userPrincipal, requestDto, directory.getDirectoryId()))
+                .isInstanceOf(CustomException.class)
+                .hasMessageContaining(ErrorCode.DENIED_UPDATE.getMessage());
+    }
 }
