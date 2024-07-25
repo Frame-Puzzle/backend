@@ -50,7 +50,7 @@ public class DirectoryService {
         if(userDirectoryRepository.existsByDirectoryAndUserAndIsAccept(directory, user, true)) {
           directoryRepository.updateNameByDirectoryId(directoryId, requestDto.getDirectoryName());
         }else {
-            throw new CustomException(ErrorCode.DENIEND_UPDATE);
+            throw new CustomException(ErrorCode.DENIED_UPDATE);
         }
 
     }
