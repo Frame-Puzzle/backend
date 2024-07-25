@@ -5,5 +5,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface DirectoryRepository extends JpaRepository<Directory, Integer> {
+public interface DirectoryRepository extends JpaRepository<Directory, Integer>, DirectoryRepositoryCustom {
+
+    Directory findByDirectoryId(int directoryId);
+
+    @Override
+    long updateNameByDirectoryId(int directoryId, String directoryName);
 }
