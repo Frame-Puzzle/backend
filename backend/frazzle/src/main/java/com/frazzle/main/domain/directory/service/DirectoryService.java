@@ -50,12 +50,13 @@ public class DirectoryService {
         User user = userRepository.findByLoginUserId(userPrincipal.getId());
         Directory directory = directoryRepository.findByDirectoryId(directoryId);
 
-        //2. 유저가 디렉토리에 가입되어 있으면 수정, 아니면 에러
-        if(userDirectoryRepository.existsByDirectoryAndUserAndIsAccept(directory, user, true)) {
-          directoryRepository.updateNameByDirectoryId(directoryId, requestDto.getDirectoryName());
-        }else {
-            throw new CustomException(ErrorCode.DENIED_UPDATE);
+        //2. 유저가 디렉토리에 가입되어 있지 않으면 에러
+        if(!userDirectoryRepository.existsByDirectoryAndUserAndIsAccept(directory, user, true)) {
+          throw new CustomException(ErrorCode.DENIED_UPDATE);
         }
+
+        //3. 유저가 디렉토리에 가입되어 있으면 수정
+        directoryRepository.updateNameByDirectoryId(directoryId, requestDto.getDirectoryName());
     }
 
     @Transactional
