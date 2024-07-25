@@ -1,13 +1,15 @@
 package com.frazzle.main.domain.directory.entity;
 
-import com.frazzle.main.domain.directory.dto.RequestCreateDirectoryDto;
+import com.frazzle.main.domain.directory.dto.CreateDirectoryRequestDto;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -20,8 +22,9 @@ public class Directory {
     @Column(name = "directory_id")
     private int directoryId;
 
-    @Column(name = "modify_date", nullable = false)
-    private LocalDateTime modifyDate;
+    @UpdateTimestamp
+    @Column(name = "modified_at", nullable = false, columnDefinition = "TIMESTAMP")
+    private LocalDateTime modifiedAt;
 
     @Column(name = "directory_name", nullable = false, length = 32)
     private String directoryName;
@@ -37,10 +40,9 @@ public class Directory {
         this.directoryName = directoryName;
         this.category = category;
         this.peopleNumber = peopleNumber;
-        this.modifyDate = LocalDateTime.now();
     }
 
-    public static Directory createDirectory(RequestCreateDirectoryDto requestDto) {
+    public static Directory createDirectory(CreateDirectoryRequestDto requestDto) {
         return Directory.builder()
                 .directoryName(requestDto.getDirectoryName())
                 .category(requestDto.getCategory())

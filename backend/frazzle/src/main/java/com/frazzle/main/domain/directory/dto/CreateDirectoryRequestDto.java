@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class RequestCreateDirectoryDto {
+public class CreateDirectoryRequestDto {
 
     @NotBlank
     private String category;

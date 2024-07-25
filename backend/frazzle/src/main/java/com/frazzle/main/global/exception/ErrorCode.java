@@ -8,7 +8,9 @@ public enum ErrorCode {
     INVALID_ACCESS_TOKEN("유효하지않은 액세스 토큰입니다.", HttpStatus.UNAUTHORIZED),
     INVALID_REFRESH_TOKEN("유효하지않은 리프레시 토큰입니다.", HttpStatus.UNAUTHORIZED),
     BAD_REQUEST("잘못된 요청입니다.", HttpStatus.BAD_REQUEST),
-    NOT_EXIST_USER("존재하지 않는 유저입니다.", HttpStatus.UNAUTHORIZED);
+    NOT_EXIST_USER("존재하지 않는 유저입니다.", HttpStatus.UNAUTHORIZED),
+    DENIED_UPDATE("수정 권한이 없습니다.", HttpStatus.FORBIDDEN),
+    DENIED_FIND_MEMBER("멤버 조회 권한이 없습니다", HttpStatus.FORBIDDEN),;
 
     private final String message;
     private final HttpStatus httpStatus;
