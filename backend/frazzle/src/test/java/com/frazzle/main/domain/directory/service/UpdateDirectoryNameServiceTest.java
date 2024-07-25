@@ -43,7 +43,6 @@ public class UpdateDirectoryNameServiceTest {
     private Directory directory;
     private long loginUserId;
     private User user;
-    private UserDirectory userDirectory;
 
     @BeforeEach
     public void setUp() {
@@ -51,7 +50,6 @@ public class UpdateDirectoryNameServiceTest {
         loginUserId = 1;
         user = User.createUser(loginUserId,"김싸피", "ssafy@ssafy.com", "kakao");
         requestDto = new UpdateDirectoryNameRequestDto("B208");
-        userDirectory = UserDirectory.createUserDirectory(directory, user, true);
     }
 
     @Test

@@ -1,6 +1,7 @@
 package com.frazzle.main.domain.directory.service;
 
 import com.frazzle.main.domain.directory.dto.CreateDirectoryRequestDto;
+import com.frazzle.main.domain.directory.dto.UserByEmailResponseDto;
 import com.frazzle.main.domain.directory.dto.UpdateDirectoryNameRequestDto;
 import com.frazzle.main.domain.directory.entity.Directory;
 import com.frazzle.main.domain.directory.repository.DirectoryRepository;
@@ -15,6 +16,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -46,12 +50,35 @@ public class DirectoryService {
         User user = userRepository.findByLoginUserId(userPrincipal.getId());
         Directory directory = directoryRepository.findByDirectoryId(directoryId);
 
-        //2. 유저가 디렉토리에 가입되어 있으면 수정, 아니면 에러
-        if(userDirectoryRepository.existsByDirectoryAndUserAndIsAccept(directory, user, true)) {
-          directoryRepository.updateNameByDirectoryId(directoryId, requestDto.getDirectoryName());
-        }else {
-            throw new CustomException(ErrorCode.DENIED_UPDATE);
+        //2. 유저가 디렉토리에 가입되어 있지 않으면 에러
+        if(!userDirectoryRepository.existsByDirectoryAndUserAndIsAccept(directory, user, true)) {
+          throw new CustomException(ErrorCode.DENIED_UPDATE);
         }
 
+        //3. 유저가 디렉토리에 가입되어 있으면 수정
+        directoryRepository.updateNameByDirectoryId(directoryId, requestDto.getDirectoryName());
+    }
+
+    @Transactional
+    public List<UserByEmailResponseDto> findUserByEmail(UserPrincipal userPrincipal, String email, int directoryId) {
+        //1. 유저 정보 및 디렉토리 정보 확인
+        User user = userRepository.findByLoginUserId(userPrincipal.getId());
+        Directory directory = directoryRepository.findByDirectoryId(directoryId);
+
+        //2. 유저가 디렉토리에 가입되어 있지 않으면 에러
+        if(!userDirectoryRepository.existsByDirectoryAndUserAndIsAccept(directory, user, true)) {
+            throw new CustomException(ErrorCode.DENIED_FIND_MEMBER);
+        }
+
+        //3. 유저가 디렉토리게 가입되어 있으면 멤버 조회
+        List<User> users = userRepository.findUsersByEmail(email, directory);
+
+        List<UserByEmailResponseDto> response = new ArrayList<>();
+
+        for(User u : users) {
+            response.add(UserByEmailResponseDto.createFindUserByEmailResponseDto(u));
+        }
+
+        return response;
     }
 }
