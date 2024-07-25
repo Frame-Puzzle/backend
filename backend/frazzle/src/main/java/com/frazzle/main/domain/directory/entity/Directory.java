@@ -6,8 +6,10 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -20,8 +22,9 @@ public class Directory {
     @Column(name = "directory_id")
     private int directoryId;
 
-    @Column(name = "modify_date", nullable = false)
-    private LocalDateTime modifyDate;
+    @UpdateTimestamp
+    @Column(name = "modified_at", nullable = false, columnDefinition = "TIMESTAMP")
+    private LocalDateTime modifiedAt;
 
     @Column(name = "directory_name", nullable = false, length = 32)
     private String directoryName;
@@ -37,7 +40,6 @@ public class Directory {
         this.directoryName = directoryName;
         this.category = category;
         this.peopleNumber = peopleNumber;
-        this.modifyDate = LocalDateTime.now();
     }
 
     public static Directory createDirectory(CreateDirectoryRequestDto requestDto) {
