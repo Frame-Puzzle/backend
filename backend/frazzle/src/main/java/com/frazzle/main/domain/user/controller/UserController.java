@@ -24,7 +24,7 @@ public class UserController {
 
         log.info(String.valueOf(userPrincipal.getId()));
 
-        Long loginUserId = userPrincipal.getId();
+        String loginUserId = userPrincipal.getId();
 
         User user = userService.findByLoginUserId(loginUserId);
         if(user == null) {

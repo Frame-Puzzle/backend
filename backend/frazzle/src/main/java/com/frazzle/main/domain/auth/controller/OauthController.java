@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
+@CrossOrigin(origins = "*")
 public class OauthController {
     private final OauthService oauthService;
 
@@ -30,6 +31,7 @@ public class OauthController {
         OauthResponseDto oauthResponseDto;
 
         //카카오, 구글로그인을 구분해서 받기
+        log.info(provider);
         switch (provider) {
             case "kakao":
                 accessToken = oauthService.loginWithKakao(oauthRequestDto.getAccessToken(), response);
@@ -46,7 +48,7 @@ public class OauthController {
                 oauthResponseDto = OauthResponseDto.builder()
                         .accessToken(accessToken)
                         .build();
-
+                return ResponseEntity.ok(oauthResponseDto);
         }
 
         return ResponseEntity.notFound().build();

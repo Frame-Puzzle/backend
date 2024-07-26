@@ -9,20 +9,19 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 @Slf4j
 public class GoogleInfoDto {
-    //카카오 이용자의 고유id
-    private Long id;
-    //카카오 이용자의 email
+    //구글 이용자의 고유 id
+    private String id;
+    //구글 이용자의 email
     private String email;
 
-    //json파일에서 id와 email을 찾아 매핑
+    //json 파일에서 id와 email 을 찾아 매핑
     public GoogleInfoDto(JsonNode node) {
-        this.id = Long.valueOf(node.get("id").toString());
+        //구글의 경우 sub의 크기가 long보다 커서 string으로 받았음
+        String sub = node.get("sub").toString().replace("\"", "");
 
-        if (node.has("kakao_account")) {
-            this.email = node.path("kakao_account").path("email").asText();
-        } else {
-            this.email = "";
-        }
+        this.id = sub;
+        //이메일의 경우 따옴표가 존재하여 제거하고 저장
+        this.email = node.get("email").toString().replace("\"","");
         log.info("id: {}", this.id);
         log.info("email: {}", this.email);
     }

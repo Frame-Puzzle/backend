@@ -16,7 +16,7 @@ public class User {
     private int userId;
 
     @Column(name = "login_user_id", nullable = false)
-    private Long loginUserId;
+    private String loginUserId;
 
     @Column(name = "nickname", length = 32, nullable = false)
     private String nickname;
@@ -30,14 +30,14 @@ public class User {
     @Column(name = "profile_img")
     private String profileImg;
 
-    @Column(name = "refresh_token", nullable = false)
+    @Column(name = "refresh_token")
     private String refreshToken;
 
     @Column(name = "device_token")
     private String deviceToken;
 
     @Builder
-    private User(Long loginUserId, String nickname, String email, String socialType, String profileImg, String refreshToken, String deviceToken) {
+    private User(String loginUserId, String nickname, String email, String socialType, String profileImg, String refreshToken, String deviceToken) {
         this.loginUserId = loginUserId;
         this.nickname = nickname;
         this.email = email;
@@ -51,7 +51,7 @@ public class User {
         this.refreshToken = refreshToken;
     }
 
-    public static User createUser(Long loginUserId, String nickname, String email, String socialType) {
+    public static User createUser(String loginUserId, String nickname, String email, String socialType) {
         return User.builder()
                 .loginUserId(loginUserId)
                 .nickname(nickname)
