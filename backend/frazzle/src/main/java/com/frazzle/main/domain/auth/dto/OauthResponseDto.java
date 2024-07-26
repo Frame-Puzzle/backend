@@ -8,4 +8,5 @@ import lombok.*;
 @NoArgsConstructor
 public class OauthResponseDto {
     private String accessToken;
+    private String refreshToken;
 }
