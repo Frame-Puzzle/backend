@@ -46,15 +46,15 @@ public class FindUserByEmailServiceTest {
     private Directory directory;
     private User user1;
     private User user2;
-    private long loginUserId1;
-    private long loginUserId2;
+    private String loginUserId1;
+    private String loginUserId2;
     private List<User> users;
 
     @BeforeEach
     public void setup(){
-        loginUserId1 = 1;
+        loginUserId1 = "1";
         user1 = User.createUser(loginUserId1,"김싸피", "ssafy@ssafy.com", "kakao");
-        loginUserId2 = 2;
+        loginUserId2 = "2";
         user2 = User.createUser(loginUserId2,"SSafy", "ssafy1@ssafy.com", "kakao");
 
         users = new ArrayList<>();
