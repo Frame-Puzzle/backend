@@ -38,13 +38,13 @@ public class CreateDirectoryServiceTest {
 
     private CreateDirectoryRequestDto requestDto;
     private User user;
-    private long loginUserId;
+    private String  loginUserId;
     private Directory directory;
     private UserDirectory userDirectory;
 
     @BeforeEach
     public void setUp() {
-        loginUserId = 1;
+        loginUserId = "1";
         user = User.createUser(loginUserId,"김싸피", "ssafy@ssafy.com", "kakao");
         requestDto = new CreateDirectoryRequestDto(
                 "친구", "B208"

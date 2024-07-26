@@ -41,13 +41,13 @@ public class UpdateDirectoryNameServiceTest {
 
     private UpdateDirectoryNameRequestDto requestDto;
     private Directory directory;
-    private long loginUserId;
+    private String loginUserId;
     private User user;
 
     @BeforeEach
     public void setUp() {
         directory = Directory.createDirectory(new CreateDirectoryRequestDto("친구", "싸피"));
-        loginUserId = 1;
+        loginUserId = "1";
         user = User.createUser(loginUserId,"김싸피", "ssafy@ssafy.com", "kakao");
         requestDto = new UpdateDirectoryNameRequestDto("B208");
     }
