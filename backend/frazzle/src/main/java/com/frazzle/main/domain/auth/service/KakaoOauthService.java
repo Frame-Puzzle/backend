@@ -28,7 +28,7 @@ public class KakaoOauthService implements SocialOauthService {
 
     private final UserService userService;
 
-    //프론트에서 가져온 어세스 토큰을 이용해서 카카오에서 정보를 가져옴
+    //프론트에서 가져온 access 토큰을 이용해서 카카오에서 정보를 가져옴
     @Override
     public Map<String, Object> getUserAttributesByToken(String accessToken) {
         RestTemplate restTemplate = new RestTemplate();
