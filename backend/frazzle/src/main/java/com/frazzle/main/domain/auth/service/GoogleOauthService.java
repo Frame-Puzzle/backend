@@ -42,7 +42,7 @@ public class GoogleOauthService implements SocialOauthService {
 
 
 
-    //프론트에서 가져온 인가 토큰을 이용해서 구글 정보를 가져옴
+    //프론트에서 가져온 access 토큰을 이용해서 구글 정보를 가져옴
     @Override
     public Map<String, Object> getUserAttributesByToken(String token) {
 
