@@ -8,6 +8,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Service
 @RequiredArgsConstructor
 public class OauthService {
@@ -17,17 +20,17 @@ public class OauthService {
     private final GoogleOauthService googleOauthService;
 
     //카카오 로그인
-    public String loginWithKakao(String accessToken, HttpServletResponse response) {
+    public Map<String,String> loginWithKakao(String accessToken, HttpServletResponse response) {
         User user = kakaoOauthService.getUserProfileByToken(accessToken);
         return getTokens(user.getLoginUserId(), response);
     }
 
-    public String loginWithGoogle(String accessToken, HttpServletResponse response) {
+    public Map<String,String> loginWithGoogle(String accessToken, HttpServletResponse response) {
         User user = googleOauthService.getUserProfileByToken(accessToken);
         return getTokens(user.getLoginUserId(), response);
     }
 
-    public String getTokens(String id, HttpServletResponse response) {
+    public Map<String,String> getTokens(String id, HttpServletResponse response) {
         //사용자 id가지고 access,refresh 토큰 만들기
         final String accessToken = jwtTokenService.createAccessToken(id);
         final String refreshToken = jwtTokenService.createRefreshToken();
@@ -39,7 +42,11 @@ public class OauthService {
 
         jwtTokenService.addRefreshTokenToCookie(refreshToken, response);
 
-        return accessToken;
+        Map<String,String> tokenMap = new HashMap<>();
+        tokenMap.put("accessToken", accessToken);
+        tokenMap.put("refreshToken", refreshToken);
+
+        return tokenMap;
     }
 
     //리프레시 토큰으로 accessToken만들기
