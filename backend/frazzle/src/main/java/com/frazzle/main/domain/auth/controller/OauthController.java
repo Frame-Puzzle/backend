@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -27,26 +28,29 @@ public class OauthController {
     @PostMapping("/login/oauth/{provider}")
     public ResponseEntity<OauthResponseDto> login(@PathVariable String provider, @RequestBody OauthRequestDto oauthRequestDto, HttpServletResponse response) {
 
-        String accessToken;
+//        String accessToken;
+        Map<String, String> tokenMap;
         OauthResponseDto oauthResponseDto;
 
         //카카오, 구글로그인을 구분해서 받기
         log.info(provider);
         switch (provider) {
             case "kakao":
-                accessToken = oauthService.loginWithKakao(oauthRequestDto.getAccessToken(), response);
+                tokenMap = oauthService.loginWithKakao(oauthRequestDto.getAccessToken(), response);
 
                 oauthResponseDto = OauthResponseDto.builder()
-                        .accessToken(accessToken)
+                        .accessToken(tokenMap.get("accessToken"))
+                        .refreshToken(tokenMap.get("refreshToken"))
                         .build();
 
                 return ResponseEntity.ok(oauthResponseDto);
 
             case "google":
-                accessToken = oauthService.loginWithGoogle(oauthRequestDto.getAccessToken(), response);
+                tokenMap = oauthService.loginWithGoogle(oauthRequestDto.getAccessToken(), response);
 
                 oauthResponseDto = OauthResponseDto.builder()
-                        .accessToken(accessToken)
+                        .accessToken(tokenMap.get("accessToken"))
+                        .refreshToken(tokenMap.get("refreshToken"))
                         .build();
                 return ResponseEntity.ok(oauthResponseDto);
         }
