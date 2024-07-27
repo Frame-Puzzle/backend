@@ -70,9 +70,16 @@ public class UserController {
 
         User user = userService.findByUserId(userId);
 
+        log.info("before "+user.getNickname());
+
         Long result = userService.updateUserByNicknameOrImg(user, updateUserRequestDto);
 
-        return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "유저 정보 수정에 성공했습니다."));
+        user = userService.findByUserId(userId);
+        log.info("after "+user.getNickname());
+
+        UserInfoResponseDto userInfoResponseDto = UserInfoResponseDto.createUserInfoResponse(user);
+
+        return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "유저 정보 수정에 성공했습니다.", userInfoResponseDto));
     }
 
     //닉네임 찾기
