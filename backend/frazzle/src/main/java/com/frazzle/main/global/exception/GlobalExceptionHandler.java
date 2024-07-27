@@ -1,5 +1,6 @@
 package com.frazzle.main.global.exception;
 
+import com.frazzle.main.global.utils.ResultDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
