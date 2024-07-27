@@ -40,12 +40,12 @@ public class UserService {
         Long result = null;
 
         //만약 닉네임 변경시 여기서 발생
-        if(requestDto.getNickname() != null && requestDto.getNickname().isBlank()) {
+        if(requestDto.getNickname() != null && !requestDto.getNickname().isBlank()) {
             result = userRepository.updateNickname(user, requestDto);
         }
 
         //만약 프로필 사진만 변경시 여기서 발생
-        else if(requestDto.getProfileImg() != null && requestDto.getProfileImg().isBlank()) {
+        else if(requestDto.getProfileImg() != null && !requestDto.getProfileImg().isBlank()) {
             result = userRepository.updateProfileImg(user, requestDto);
         }
 
