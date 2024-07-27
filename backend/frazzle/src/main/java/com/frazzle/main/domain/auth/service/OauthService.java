@@ -22,23 +22,23 @@ public class OauthService {
     //카카오 로그인
     public Map<String,String> loginWithKakao(String accessToken, HttpServletResponse response) {
         User user = kakaoOauthService.getUserProfileByToken(accessToken);
-        return getTokens(user.getLoginUserId(), response);
+        return getTokens(user.getUserId(), response);
     }
 
     public Map<String,String> loginWithGoogle(String accessToken, HttpServletResponse response) {
         User user = googleOauthService.getUserProfileByToken(accessToken);
-        return getTokens(user.getLoginUserId(), response);
+        return getTokens(user.getUserId(), response);
     }
 
-    public Map<String,String> getTokens(String id, HttpServletResponse response) {
+    public Map<String,String> getTokens(int id, HttpServletResponse response) {
         //사용자 id가지고 access,refresh 토큰 만들기
-        final String accessToken = jwtTokenService.createAccessToken(id);
+        final String accessToken = jwtTokenService.createAccessToken(String.valueOf(id));
         final String refreshToken = jwtTokenService.createRefreshToken();
 
         //사용자 리프레시 토큰 업데이트
-        User user = userService.findByLoginUserId(id);
-        user.setRefreshToken(refreshToken);
-        userService.updateRefreshToken(user);
+        User user = userService.findByUserId(id);
+
+        userService.updateRefreshToken(user, refreshToken);
 
         jwtTokenService.addRefreshTokenToCookie(refreshToken, response);
 
