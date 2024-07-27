@@ -16,9 +16,9 @@ public class UserService {
     private final UserRepository userRepository;
 
     //UserId로 유저 찾기
-    public User findByLoginUserId(String id) {
-        return userRepository.findByLoginUserId(id);
-    }
+//    public User findByLoginUserId(String id) {
+//        return userRepository.findByLoginUserId(id);
+//    }
 
     //insert문
     public User save(User user) {
