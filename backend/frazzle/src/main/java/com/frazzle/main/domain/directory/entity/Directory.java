@@ -49,4 +49,8 @@ public class Directory {
                 .peopleNumber(1)
                 .build();
     }
+
+    public void changeDirectoryName(String newDirectoryName) {
+        this.directoryName = newDirectoryName;
+    }
 }
