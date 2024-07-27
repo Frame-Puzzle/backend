@@ -29,7 +29,7 @@ public class UserController {
     @GetMapping
     public ResponseEntity<ResultDto> userInfo(@AuthenticationPrincipal UserPrincipal userPrincipal) {
 
-        log.info(String.valueOf(userPrincipal.getId()));
+        log.info("user "+String.valueOf(userPrincipal.getId()));
 
         int userId = userPrincipal.getId();
 
