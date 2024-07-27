@@ -65,9 +65,9 @@ public class KakaoOauthService implements SocialOauthService {
         User user = User.createUser(kakaoInfoDto.getId(), GenerateRandomNickname.generateRandomNickname(), kakaoInfoDto.getEmail(), "kakao");
 
         //db에 존재하면 업데이트 아니면 insert
-        if(userService.findByLoginUserId(user.getLoginUserId()) !=null) {
+        if(userService.findByUserId(user.getUserId()) !=null) {
 
-            User findUser = userService.findByLoginUserId(user.getLoginUserId());
+            User findUser = userService.findByUserId(user.getUserId());
 
             userService.upateUser(user, findUser);
         }
