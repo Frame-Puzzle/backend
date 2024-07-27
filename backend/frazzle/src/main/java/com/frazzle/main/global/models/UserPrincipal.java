@@ -19,7 +19,8 @@ import java.util.Map;
 //사용자 정보를 시큐리티에서도 가능하게 함
 public class UserPrincipal implements UserDetails {
 
-    private String id;
+    //사용자의 pk값
+    private int id;
     private String email;
     private String password;
     private Collection<? extends GrantedAuthority> authorities;
@@ -31,7 +32,7 @@ public class UserPrincipal implements UserDetails {
                 Collections.singletonList(new SimpleGrantedAuthority(UserRole.USER.getRole()));
 
         return new UserPrincipal(
-                user.getLoginUserId(),
+                user.getUserId(),
                 user.getEmail(),
                 "",
                 authorities,
