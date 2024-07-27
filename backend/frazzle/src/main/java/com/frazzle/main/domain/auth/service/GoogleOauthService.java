@@ -125,8 +125,8 @@ public class GoogleOauthService implements SocialOauthService {
         User user = User.createUser(googleInfoDto.getId(), GenerateRandomNickname.generateRandomNickname(), googleInfoDto.getEmail(), "google");
 
         //db에 존재하면 업데이트 아니면 insert
-        if(userService.findByLoginUserId(user.getLoginUserId()) !=null) {
-            User findUser = userService.findByLoginUserId(user.getLoginUserId());
+        if(userService.findByUserId(user.getUserId()) !=null) {
+            User findUser = userService.findByUserId(user.getUserId());
             userService.upateUser(findUser, user);
 
         }
