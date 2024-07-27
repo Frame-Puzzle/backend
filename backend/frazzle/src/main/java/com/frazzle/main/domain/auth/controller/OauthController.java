@@ -6,11 +6,13 @@ import com.frazzle.main.domain.auth.dto.RefreshTokenResponseDto;
 import com.frazzle.main.domain.auth.service.OauthService;
 import com.frazzle.main.global.exception.CustomException;
 import com.frazzle.main.global.exception.ErrorCode;
+import com.frazzle.main.global.utils.ResultDto;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,7 +28,7 @@ public class OauthController {
     private final OauthService oauthService;
 
     @PostMapping("/login/oauth/{provider}")
-    public ResponseEntity<OauthResponseDto> login(@PathVariable String provider, @RequestBody OauthRequestDto oauthRequestDto, HttpServletResponse response) {
+    public ResponseEntity<ResultDto> login(@PathVariable String provider, @RequestBody OauthRequestDto oauthRequestDto, HttpServletResponse response) {
 
 //        String accessToken;
         Map<String, String> tokenMap;
@@ -43,7 +45,7 @@ public class OauthController {
                         .refreshToken(tokenMap.get("refreshToken"))
                         .build();
 
-                return ResponseEntity.ok(oauthResponseDto);
+                return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "로그인에 성공했습니다.", oauthResponseDto));
 
             case "google":
                 tokenMap = oauthService.loginWithGoogle(oauthRequestDto.getAccessToken(), response);
@@ -52,15 +54,16 @@ public class OauthController {
                         .accessToken(tokenMap.get("accessToken"))
                         .refreshToken(tokenMap.get("refreshToken"))
                         .build();
-                return ResponseEntity.ok(oauthResponseDto);
+
+                return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "로그인에 성공했습니다.", oauthResponseDto));
         }
 
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ResultDto.res(HttpStatus.NOT_FOUND.value(), "로그인에 실패했습니다."));
     }
 
     //리프레시 토큰을 보고 있으면 에세스 토큰을 만들고 없으면 예외 처리하기
     @PostMapping("/token/refresh")
-    public ResponseEntity<RefreshTokenResponseDto> tokenRefresh(HttpServletRequest request) {
+    public ResponseEntity<ResultDto> tokenRefresh(HttpServletRequest request) {
 
         Cookie[] list = request.getCookies();
 
@@ -79,6 +82,7 @@ public class OauthController {
         RefreshTokenResponseDto refreshTokenResponseDto = RefreshTokenResponseDto.builder()
                         .accessToken(accessToken)
                 .build();
-        return ResponseEntity.ok(refreshTokenResponseDto);
+
+        return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "성공적으로 재발급 했습니다.", refreshTokenResponseDto));
     }
 }
