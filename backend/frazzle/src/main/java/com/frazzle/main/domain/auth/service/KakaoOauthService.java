@@ -69,12 +69,11 @@ public class KakaoOauthService implements SocialOauthService {
 
             User findUser = userService.findByUserId(user.getUserId());
 
-            userService.upateUser(user, findUser);
+            userService.updateUser(user, findUser);
+
+            return user;
         }
-        else {
-            userService.save(user);
-        }
-        return user;
+        return userService.save(user);
     }
 
 }
