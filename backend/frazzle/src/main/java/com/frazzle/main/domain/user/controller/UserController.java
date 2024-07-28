@@ -31,8 +31,6 @@ public class UserController {
     private final UserService userService;
 
     //유저 찾기
-<<<<<<< backend/frazzle/src/main/java/com/frazzle/main/domain/user/controller/UserController.java
-=======
     @Operation(summary = "유저 정보 조회", description = "로그인한 유저의 정보를 조회합니다.")
     //가능한 엔드포인트와 설명
     @ApiResponses(value = {
@@ -42,7 +40,6 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "유저를 찾을 수 없습니다.",
                     content = @Content(schema = @Schema(implementation = ResultDto.class)))
     })
->>>>>>> backend/frazzle/src/main/java/com/frazzle/main/domain/user/controller/UserController.java
     @GetMapping
     public ResponseEntity<ResultDto> userInfo(@AuthenticationPrincipal UserPrincipal userPrincipal) {
 
@@ -63,8 +60,6 @@ public class UserController {
     }
 
     //유저 삭제
-<<<<<<< backend/frazzle/src/main/java/com/frazzle/main/domain/user/controller/UserController.java
-=======
     @Operation(summary = "유저 삭제", description = "로그인한 유저를 삭제합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "회원 탈퇴가 성공했습니다.",
@@ -72,7 +67,6 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "유저를 찾을 수 없습니다.",
                     content = @Content(schema = @Schema(implementation = ResultDto.class)))
     })
->>>>>>> backend/frazzle/src/main/java/com/frazzle/main/domain/user/controller/UserController.java
     @DeleteMapping
     public ResponseEntity<ResultDto> deleteUser(@AuthenticationPrincipal UserPrincipal userPrincipal) {
 
@@ -83,15 +77,11 @@ public class UserController {
         if(result > 0) {
             return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "회원 탈퇴가 성공했습니다."));
         }
-        else {
-            throw new CustomException(ErrorCode.NOT_EXIST_USER);
-        }
 
+        throw new CustomException(ErrorCode.NOT_EXIST_USER);
     }
 
-    //유저 정보 업데이트
-<<<<<<< backend/frazzle/src/main/java/com/frazzle/main/domain/user/controller/UserController.java
-=======
+    //유저 정보 업데이
     @Operation(summary = "유저 정보 수정", description = "로그인한 유저의 정보를 수정합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "유저 정보 수정에 성공했습니다.",
@@ -99,7 +89,6 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "유저를 찾을 수 없습니다.",
                     content = @Content(schema = @Schema(implementation = ResultDto.class)))
     })
->>>>>>> backend/frazzle/src/main/java/com/frazzle/main/domain/user/controller/UserController.java
     @PutMapping
     public ResponseEntity<ResultDto> updateUser(@AuthenticationPrincipal UserPrincipal userPrincipal, @Validated @RequestBody UpdateUserRequestDto updateUserRequestDto) {
 
@@ -107,12 +96,15 @@ public class UserController {
 
         User user = userService.findByUserId(userId);
 
-        log.info("before "+user.getNickname());
+        //만약 닉네임 변경시 여기서 발생
+        if(updateUserRequestDto.getNickname() != null && !updateUserRequestDto.getNickname().isBlank()) {
+            Long result = userService.updateUserByNickname(user, updateUserRequestDto);
+        }
 
-        Long result = userService.updateUserByNicknameOrImg(user, updateUserRequestDto);
-
-        user = userService.findByUserId(userId);
-        log.info("after "+user.getNickname());
+        //만약 프로필 사진만 변경시 여기서 발생
+        if(updateUserRequestDto.getProfileImg() != null && !updateUserRequestDto.getProfileImg().isBlank()) {
+            Long result = userService.updateUserByProfileImg(user, updateUserRequestDto);
+        }
 
         UserInfoResponseDto userInfoResponseDto = UserInfoResponseDto.createUserInfoResponse(user);
 
@@ -120,14 +112,11 @@ public class UserController {
     }
 
     //닉네임 찾기
-<<<<<<< backend/frazzle/src/main/java/com/frazzle/main/domain/user/controller/UserController.java
-=======
     @Operation(summary = "닉네임 중복 체크", description = "닉네임의 중복 여부를 확인합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "닉네임 조회에 성공했습니다.",
                     content = @Content(schema = @Schema(implementation = ResultDto.class)))
     })
->>>>>>> backend/frazzle/src/main/java/com/frazzle/main/domain/user/controller/UserController.java
     @GetMapping("/find")
     public ResponseEntity<ResultDto> checkNickname(@RequestParam("nickname") String nickname) {
         Boolean isExist = userService.findByNickname(nickname);
