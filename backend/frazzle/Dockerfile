@@ -3,7 +3,7 @@ FROM openjdk:17-jdk
 WORKDIR /app
 
 COPY build/libs/*.jar application.jar
-COPY./application-develop.properties /app/secret/application-develop.properties
+COPY ./application-develop.properties /app/secret/application-develop.properties
 
 EXPOSE 8080
  
