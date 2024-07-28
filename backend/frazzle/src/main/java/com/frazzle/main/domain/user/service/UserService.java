@@ -26,7 +26,8 @@ public class UserService {
     }
 
     //주어진 정보로 업데이트
-    public Long upateUser(User findUser, User inputUser) {
+    @Transactional
+    public Long updateUser(User findUser, User inputUser) {
         return userRepository.updateUser(findUser, inputUser);
     }
 
@@ -35,22 +36,16 @@ public class UserService {
         return userRepository.findByUserId(id);
     }
 
-    public Long updateUserByNicknameOrImg(User user, UpdateUserRequestDto requestDto) {
-
-        Long result = null;
-
-        //만약 닉네임 변경시 여기서 발생
-        if(requestDto.getNickname() != null && !requestDto.getNickname().isBlank()) {
-            result = userRepository.updateNickname(user, requestDto);
-        }
-
-        //만약 프로필 사진만 변경시 여기서 발생
-        else if(requestDto.getProfileImg() != null && !requestDto.getProfileImg().isBlank()) {
-            result = userRepository.updateProfileImg(user, requestDto);
-        }
-
-        return result;
+    @Transactional
+    public Long updateUserByNickname(User user, UpdateUserRequestDto requestDto) {
+        return userRepository.updateNickname(user, requestDto);
     }
+
+    @Transactional
+    public Long updateUserByProfileImg(User user, UpdateUserRequestDto requestDto) {
+        return userRepository.updateProfileImg(user, requestDto);
+    }
+
 
     //닉네임 존재 여부 체크
     public Boolean findByNickname(String nickname) {
