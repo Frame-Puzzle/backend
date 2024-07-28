@@ -126,13 +126,14 @@ public class GoogleOauthService implements SocialOauthService {
 
         //db에 존재하면 업데이트 아니면 insert
         if(userService.findByUserId(user.getUserId()) !=null) {
-            User findUser = userService.findByUserId(user.getUserId());
-            userService.upateUser(findUser, user);
 
+            User findUser = userService.findByUserId(user.getUserId());
+
+            userService.updateUser(findUser, user);
+
+            return user;
         }
-        else {
-            userService.save(user);
-        }
-        return user;
+
+        return userService.save(user);
     }
 }
