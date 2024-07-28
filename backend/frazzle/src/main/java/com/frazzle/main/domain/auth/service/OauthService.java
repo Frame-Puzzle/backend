@@ -20,13 +20,13 @@ public class OauthService {
     private final GoogleOauthService googleOauthService;
 
     //카카오 로그인
-    public Map<String,String> loginWithKakao(String accessToken, HttpServletResponse response) {
-        User user = kakaoOauthService.getUserProfileByToken(accessToken);
+    public Map<String,String> loginWithKakao(String code, HttpServletResponse response) {
+        User user = kakaoOauthService.getUserProfileByToken(code);
         return getTokens(user.getUserId(), response);
     }
 
-    public Map<String,String> loginWithGoogle(String accessToken, HttpServletResponse response) {
-        User user = googleOauthService.getUserProfileByToken(accessToken);
+    public Map<String,String> loginWithGoogle(String code, HttpServletResponse response) {
+        User user = googleOauthService.getUserProfileByToken(code);
         return getTokens(user.getUserId(), response);
     }
 
