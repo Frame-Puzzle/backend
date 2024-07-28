@@ -9,6 +9,11 @@ import com.frazzle.main.domain.user.service.UserService;
 import com.frazzle.main.global.exception.CustomException;
 import com.frazzle.main.global.exception.ErrorCode;
 import com.frazzle.main.global.utils.ResultDto;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -26,6 +31,18 @@ public class UserController {
     private final UserService userService;
 
     //유저 찾기
+<<<<<<< backend/frazzle/src/main/java/com/frazzle/main/domain/user/controller/UserController.java
+=======
+    @Operation(summary = "유저 정보 조회", description = "로그인한 유저의 정보를 조회합니다.")
+    //가능한 엔드포인트와 설명
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "유저 정보 조회에 성공했습니다.",
+                    //응답 본문의 구조를 설명
+                    content = @Content(schema = @Schema(implementation = ResultDto.class))),
+            @ApiResponse(responseCode = "404", description = "유저를 찾을 수 없습니다.",
+                    content = @Content(schema = @Schema(implementation = ResultDto.class)))
+    })
+>>>>>>> backend/frazzle/src/main/java/com/frazzle/main/domain/user/controller/UserController.java
     @GetMapping
     public ResponseEntity<ResultDto> userInfo(@AuthenticationPrincipal UserPrincipal userPrincipal) {
 
@@ -46,6 +63,16 @@ public class UserController {
     }
 
     //유저 삭제
+<<<<<<< backend/frazzle/src/main/java/com/frazzle/main/domain/user/controller/UserController.java
+=======
+    @Operation(summary = "유저 삭제", description = "로그인한 유저를 삭제합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "회원 탈퇴가 성공했습니다.",
+                    content = @Content(schema = @Schema(implementation = ResultDto.class))),
+            @ApiResponse(responseCode = "404", description = "유저를 찾을 수 없습니다.",
+                    content = @Content(schema = @Schema(implementation = ResultDto.class)))
+    })
+>>>>>>> backend/frazzle/src/main/java/com/frazzle/main/domain/user/controller/UserController.java
     @DeleteMapping
     public ResponseEntity<ResultDto> deleteUser(@AuthenticationPrincipal UserPrincipal userPrincipal) {
 
@@ -63,6 +90,16 @@ public class UserController {
     }
 
     //유저 정보 업데이트
+<<<<<<< backend/frazzle/src/main/java/com/frazzle/main/domain/user/controller/UserController.java
+=======
+    @Operation(summary = "유저 정보 수정", description = "로그인한 유저의 정보를 수정합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "유저 정보 수정에 성공했습니다.",
+                    content = @Content(schema = @Schema(implementation = ResultDto.class))),
+            @ApiResponse(responseCode = "404", description = "유저를 찾을 수 없습니다.",
+                    content = @Content(schema = @Schema(implementation = ResultDto.class)))
+    })
+>>>>>>> backend/frazzle/src/main/java/com/frazzle/main/domain/user/controller/UserController.java
     @PutMapping
     public ResponseEntity<ResultDto> updateUser(@AuthenticationPrincipal UserPrincipal userPrincipal, @Validated @RequestBody UpdateUserRequestDto updateUserRequestDto) {
 
@@ -83,6 +120,14 @@ public class UserController {
     }
 
     //닉네임 찾기
+<<<<<<< backend/frazzle/src/main/java/com/frazzle/main/domain/user/controller/UserController.java
+=======
+    @Operation(summary = "닉네임 중복 체크", description = "닉네임의 중복 여부를 확인합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "닉네임 조회에 성공했습니다.",
+                    content = @Content(schema = @Schema(implementation = ResultDto.class)))
+    })
+>>>>>>> backend/frazzle/src/main/java/com/frazzle/main/domain/user/controller/UserController.java
     @GetMapping("/find")
     public ResponseEntity<ResultDto> checkNickname(@RequestParam("nickname") String nickname) {
         Boolean isExist = userService.findByNickname(nickname);

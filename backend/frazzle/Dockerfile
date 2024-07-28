@@ -5,5 +5,5 @@ WORKDIR /app
 COPY build/libs/*.jar application.jar
 
 EXPOSE 8080
-
-CMD ["java", "-jar", "application.jar"]
+ 
+ENTRYPOINT ["java","-Dspring.config.location=/secret/application-develop.properties","-jar","/app/application.jar"]
