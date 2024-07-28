@@ -42,7 +42,7 @@ public class GoogleOauthService implements SocialOauthService {
 
 
 
-    //프론트에서 가져온 인가 토큰을 이용해서 구글 정보를 가져옴
+    //프론트에서 가져온 access 토큰을 이용해서 구글 정보를 가져옴
     @Override
     public Map<String, Object> getUserAttributesByToken(String token) {
 
@@ -125,12 +125,15 @@ public class GoogleOauthService implements SocialOauthService {
         User user = User.createUser(googleInfoDto.getId(), GenerateRandomNickname.generateRandomNickname(), googleInfoDto.getEmail(), "google");
 
         //db에 존재하면 업데이트 아니면 insert
-        if(userService.findByLoginUserId(user.getLoginUserId()) !=null) {
-            userService.update(user);
+        if(userService.findByUserId(user.getUserId()) !=null) {
+
+            User findUser = userService.findByUserId(user.getUserId());
+
+            userService.updateUser(findUser, user);
+
+            return user;
         }
-        else {
-            userService.save(user);
-        }
-        return user;
+
+        return userService.save(user);
     }
 }

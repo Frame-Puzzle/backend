@@ -10,21 +10,15 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 public interface UserRepository extends JpaRepository<User, Integer>, UserRepositoryCustom {
-    User findByLoginUserId(String id);
+    User findByLoginUserId(String loginUserId);
+
+    User findByUserId(int id);
 
     User findByRefreshToken(String refreshToken);
 
-    //업데이트시 영속성 컨텍스트를 자동으로 정리해 일치하게함
-    @Modifying(clearAutomatically = true)
-    //업데이트 jpql쿼리
-    @Transactional
-    @Query("UPDATE User u SET u.loginUserId = :#{#user.loginUserId}, u.email = :#{#user.email}, u.socialType = :#{#user.socialType} WHERE u.loginUserId = :#{#user.loginUserId}")
-    int updateUser(@Param("user") User user);
+    Long deleteByUserId(int userId);
 
-    @Modifying(clearAutomatically = true)
-    @Transactional
-    @Query("UPDATE User u SET u.refreshToken = :#{#user.refreshToken} WHERE u.loginUserId = :#{#user.loginUserId}")
-    int updateRefreshToken(@Param("user") User user);
+    Boolean existsByNickname(String nickname);
 
     @Override
     List<User> findUsersByEmail(String email, Directory directory);

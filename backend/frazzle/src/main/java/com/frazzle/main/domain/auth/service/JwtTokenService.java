@@ -19,7 +19,7 @@ import java.util.Random;
 
 @Service
 public class JwtTokenService implements InitializingBean {
-    private long accessTokenExpirationInSeconds;
+    private Long accessTokenExpirationInSeconds;
     private Long refreshTokenExpiractionInSeconds;
     private final String secretKey;
     private static Key key;

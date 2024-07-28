@@ -38,7 +38,7 @@ public class CreateDirectoryServiceTest {
 
     private CreateDirectoryRequestDto requestDto;
     private User user;
-    private String  loginUserId;
+    private String loginUserId;
     private Directory directory;
     private UserDirectory userDirectory;
 

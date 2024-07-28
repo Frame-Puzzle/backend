@@ -77,13 +77,11 @@ public class UserController {
         if(result > 0) {
             return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "회원 탈퇴가 성공했습니다."));
         }
-        else {
-            throw new CustomException(ErrorCode.NOT_EXIST_USER);
-        }
 
+        throw new CustomException(ErrorCode.NOT_EXIST_USER);
     }
 
-    //유저 정보 업데이트
+    //유저 정보 업데이
     @Operation(summary = "유저 정보 수정", description = "로그인한 유저의 정보를 수정합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "유저 정보 수정에 성공했습니다.",
@@ -98,12 +96,15 @@ public class UserController {
 
         User user = userService.findByUserId(userId);
 
-        log.info("before "+user.getNickname());
+        //만약 닉네임 변경시 여기서 발생
+        if(updateUserRequestDto.getNickname() != null && !updateUserRequestDto.getNickname().isBlank()) {
+            Long result = userService.updateUserByNickname(user, updateUserRequestDto);
+        }
 
-        Long result = userService.updateUserByNicknameOrImg(user, updateUserRequestDto);
-
-        user = userService.findByUserId(userId);
-        log.info("after "+user.getNickname());
+        //만약 프로필 사진만 변경시 여기서 발생
+        if(updateUserRequestDto.getProfileImg() != null && !updateUserRequestDto.getProfileImg().isBlank()) {
+            Long result = userService.updateUserByProfileImg(user, updateUserRequestDto);
+        }
 
         UserInfoResponseDto userInfoResponseDto = UserInfoResponseDto.createUserInfoResponse(user);
 

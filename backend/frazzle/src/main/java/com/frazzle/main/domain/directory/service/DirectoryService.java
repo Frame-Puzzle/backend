@@ -33,7 +33,7 @@ public class DirectoryService {
     @Transactional
     public void createDirectory(UserPrincipal userPrincipal, CreateDirectoryRequestDto requestDto) {
         //1. 유저 정보 확인
-        User user = userRepository.findByLoginUserId(userPrincipal.getId());
+        User user = userRepository.findByUserId(userPrincipal.getId());
 
         //2. 디렉토리 생성
         Directory directory = Directory.createDirectory(requestDto);
@@ -47,7 +47,7 @@ public class DirectoryService {
     @Transactional
     public void updateDirectoryName(UserPrincipal userPrincipal, UpdateDirectoryNameRequestDto requestDto, int directoryId){
         //1. 유저 정보 및 디렉토리 정보 확인
-        User user = userRepository.findByLoginUserId(userPrincipal.getId());
+        User user = userRepository.findByUserId(userPrincipal.getId());
         Directory directory = directoryRepository.findByDirectoryId(directoryId);
 
         //2. 디렉토리 존재 여부 확인
@@ -68,7 +68,7 @@ public class DirectoryService {
     @Transactional
     public List<UserByEmailResponseDto> findUserByEmail(UserPrincipal userPrincipal, String email, int directoryId) {
         //1. 유저 정보 및 디렉토리 정보 확인
-        User user = userRepository.findByLoginUserId(userPrincipal.getId());
+        User user = userRepository.findByUserId(userPrincipal.getId());
         Directory directory = directoryRepository.findByDirectoryId(directoryId);
 
         //2. 유저가 디렉토리에 가입되어 있지 않으면 에러

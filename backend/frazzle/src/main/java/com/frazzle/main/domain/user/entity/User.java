@@ -1,8 +1,11 @@
 package com.frazzle.main.domain.user.entity;
 
+import com.frazzle.main.domain.userdirectory.entity.UserDirectory;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -36,6 +39,10 @@ public class User {
     @Column(name = "device_token")
     private String deviceToken;
 
+    //다대일 관계
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<UserDirectory> userDirectory;
+
     @Builder
     private User(String loginUserId, String nickname, String email, String socialType, String profileImg, String refreshToken, String deviceToken) {
         this.loginUserId = loginUserId;
@@ -45,10 +52,6 @@ public class User {
         this.profileImg = profileImg;
         this.refreshToken = refreshToken;
         this.deviceToken = deviceToken;
-    }
-
-    public void setRefreshToken(String refreshToken) {
-        this.refreshToken = refreshToken;
     }
 
     public static User createUser(String loginUserId, String nickname, String email, String socialType) {

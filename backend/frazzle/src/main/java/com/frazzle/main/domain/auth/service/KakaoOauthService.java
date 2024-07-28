@@ -28,7 +28,7 @@ public class KakaoOauthService implements SocialOauthService {
 
     private final UserService userService;
 
-    //프론트에서 가져온 어세스 토큰을 이용해서 카카오에서 정보를 가져옴
+    //프론트에서 가져온 access 토큰을 이용해서 카카오에서 정보를 가져옴
     @Override
     public Map<String, Object> getUserAttributesByToken(String accessToken) {
         RestTemplate restTemplate = new RestTemplate();
@@ -65,13 +65,15 @@ public class KakaoOauthService implements SocialOauthService {
         User user = User.createUser(kakaoInfoDto.getId(), GenerateRandomNickname.generateRandomNickname(), kakaoInfoDto.getEmail(), "kakao");
 
         //db에 존재하면 업데이트 아니면 insert
-        if(userService.findByLoginUserId(user.getLoginUserId()) !=null) {
-            userService.update(user);
+        if(userService.findByUserId(user.getUserId()) !=null) {
+
+            User findUser = userService.findByUserId(user.getUserId());
+
+            userService.updateUser(user, findUser);
+
+            return user;
         }
-        else {
-            userService.save(user);
-        }
-        return user;
+        return userService.save(user);
     }
 
 }
