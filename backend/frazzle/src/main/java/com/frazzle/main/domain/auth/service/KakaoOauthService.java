@@ -86,8 +86,8 @@ public class KakaoOauthService implements SocialOauthService {
 
     //가져온 accesstoken을 가공해서 email과 id만 찾아서 가져옴
     @Override
-    public User getUserProfileByToken(String accessToken) {
-        Map<String, Object> userAttributesByToken = getUserAttributesByToken(accessToken);
+    public User getUserProfileByToken(String code) {
+        Map<String, Object> userAttributesByToken = getUserAttributesByToken(code);
         ObjectMapper mapper = new ObjectMapper();
         JsonNode jsonNode = null;
         try {
