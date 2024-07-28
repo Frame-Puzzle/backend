@@ -41,7 +41,6 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
     }
 
     @Override
-    @Transactional
     public Long updateUser(User findUser ,User updateUser) {
         //유저 정보를 이용해 업데이트
         Long result = queryFactory
@@ -59,7 +58,6 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
     }
 
     @Override
-    @Transactional
     //리프레시 토큰 업데이트
     public Long updateRefreshToken(User updateUser, String refreshToken) {
         Long result = queryFactory
@@ -76,7 +74,6 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
     }
 
     @Override
-    @Transactional
     //닉네임 업데이트
     public Long updateNickname(User updateUser, UpdateUserRequestDto requestDto) {
         Long result = queryFactory
@@ -92,7 +89,6 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
     }
 
     @Override
-    @Transactional
     //프로필 업데이트
     public Long updateProfileImg(User updateUser, UpdateUserRequestDto requestDto) {
         Long result = queryFactory
