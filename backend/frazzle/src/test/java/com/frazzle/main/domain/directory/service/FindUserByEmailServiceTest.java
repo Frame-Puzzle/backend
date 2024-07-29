@@ -23,6 +23,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
 public class FindUserByEmailServiceTest {
@@ -46,16 +47,16 @@ public class FindUserByEmailServiceTest {
     private Directory directory;
     private User user1;
     private User user2;
-    private String loginUserId1;
-    private String loginUserId2;
+    private int userId1;
+    private int userId2;
     private List<User> users;
 
     @BeforeEach
     public void setup(){
-        loginUserId1 = "1";
-        user1 = User.createUser(loginUserId1,"김싸피", "ssafy@ssafy.com", "kakao");
-        loginUserId2 = "2";
-        user2 = User.createUser(loginUserId2,"SSafy", "ssafy1@ssafy.com", "kakao");
+        userId1 = 1;
+        user1 = User.createUser("1","김싸피", "ssafy@ssafy.com", "kakao");
+        userId2 = 2;
+        user2 = User.createUser("2","SSafy", "ssafy1@ssafy.com", "kakao");
 
         users = new ArrayList<>();
         users.add(user2);
@@ -69,9 +70,9 @@ public class FindUserByEmailServiceTest {
     @DisplayName("이메일로 멤버 정보 조회 성공 테스트")
     public void 이메일로_멤버_정보_조회_성공_테스트(){
         //given
-        BDDMockito.given(userPrincipal.getId()).willReturn(loginUserId1);
-        BDDMockito.given(userRepository.findByLoginUserId(loginUserId1)).willReturn(user1);
-        BDDMockito.given(directoryRepository.findByDirectoryId(directory.getDirectoryId())).willReturn(directory);
+        BDDMockito.given(userPrincipal.getId()).willReturn(userId1);
+        BDDMockito.given(userRepository.findByUserId(userId1)).willReturn(user1);
+        BDDMockito.given(directoryRepository.findByDirectoryId(directory.getDirectoryId())).willReturn(Optional.ofNullable(directory));
         BDDMockito.given(userDirectoryRepository.existsByDirectoryAndUserAndIsAccept(directory, user1, true)).willReturn(true);
         BDDMockito.given(userRepository.findUsersByEmail(email, directory)).willReturn(users);
 
@@ -86,9 +87,9 @@ public class FindUserByEmailServiceTest {
     @DisplayName("이메일로 멤버 정보 조회 권한 없음 실패 테스트")
     public void 이메일로_멤버_정보_조회_권한_없음_실패_테스트(){
         //given
-        BDDMockito.given(userPrincipal.getId()).willReturn(loginUserId2);
-        BDDMockito.given(userRepository.findByLoginUserId(loginUserId2)).willReturn(user2);
-        BDDMockito.given(directoryRepository.findByDirectoryId(directory.getDirectoryId())).willReturn(directory);
+        BDDMockito.given(userPrincipal.getId()).willReturn(userId2);
+        BDDMockito.given(userRepository.findByUserId(userId2)).willReturn(user2);
+        BDDMockito.given(directoryRepository.findByDirectoryId(directory.getDirectoryId())).willReturn(Optional.ofNullable(directory));
         BDDMockito.given(userDirectoryRepository.existsByDirectoryAndUserAndIsAccept(directory, user2, true)).willReturn(false);
 
         Assertions.assertThatThrownBy(() -> directoryService.findUserByEmail(userPrincipal, email, directory.getDirectoryId()))

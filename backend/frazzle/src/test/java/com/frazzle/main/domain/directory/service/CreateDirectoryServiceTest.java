@@ -38,14 +38,14 @@ public class CreateDirectoryServiceTest {
 
     private CreateDirectoryRequestDto requestDto;
     private User user;
-    private String loginUserId;
+    private int userId;
     private Directory directory;
     private UserDirectory userDirectory;
 
     @BeforeEach
     public void setUp() {
-        loginUserId = "1";
-        user = User.createUser(loginUserId,"김싸피", "ssafy@ssafy.com", "kakao");
+        userId = 1;
+        user = User.createUser("1","김싸피", "ssafy@ssafy.com", "kakao");
         requestDto = new CreateDirectoryRequestDto(
                 "친구", "B208"
         );
@@ -57,8 +57,8 @@ public class CreateDirectoryServiceTest {
     @DisplayName("디렉토리 생성 성공 테스트")
     public void 디렉토리_생성_성공_테스트(){
         //given
-        BDDMockito.given(userPrincipal.getId()).willReturn(loginUserId);
-        BDDMockito.given(userRepository.findByLoginUserId(loginUserId)).willReturn(user);
+        BDDMockito.given(userPrincipal.getId()).willReturn(userId);
+        BDDMockito.given(userRepository.findByUserId(userId)).willReturn(user);
         BDDMockito.given(directoryRepository.save(BDDMockito.any(Directory.class))).willReturn(directory);
         BDDMockito.given(userDirectoryRepository.save(BDDMockito.any(UserDirectory.class))).willReturn(userDirectory);
 
