@@ -135,4 +135,29 @@ public class InviteMemberServiceTest {
                 .hasMessageContaining(ErrorCode.NOT_EXIST_USER.getMessage());
     }
 
+    @Test
+    @DisplayName("멤버 초대 중복 실패 테스트")
+    public void 멤버_초대_중복_실패_테스트() {
+        // given
+        BDDMockito.given(userRepository.findByUserId(userPrincipal.getId()))
+                .willReturn(Optional.of(user));
+        BDDMockito.given(directoryRepository.findByDirectoryId(directory.getDirectoryId()))
+                .willReturn(Optional.of(directory));
+        BDDMockito.given(userDirectoryRepository.existsByDirectoryAndUserAndIsAccept(
+                        BDDMockito.any(Directory.class),
+                        BDDMockito.any(User.class),
+                        BDDMockito.eq(true)))
+                .willReturn(true);
+        BDDMockito.given(userRepository.findByUserId(requestDto.getUserId()))
+                .willReturn(Optional.of(member));
+        BDDMockito.given(userDirectoryRepository.existsByUserAndDirectory(
+                        BDDMockito.any(User.class),
+                        BDDMockito.any(Directory.class)))
+                .willReturn(true);
+
+        // when
+        Assertions.assertThatThrownBy(()->directoryService.inviteMember(userPrincipal, requestDto, directory.getDirectoryId()))
+                .isInstanceOf(CustomException.class)
+                .hasMessageContaining(ErrorCode.DUPLICATED_DIRECTORY_MEMBER.getMessage());
+    }
 }
