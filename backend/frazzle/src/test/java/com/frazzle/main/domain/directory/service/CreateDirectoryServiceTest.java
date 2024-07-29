@@ -18,6 +18,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Optional;
+
 @ExtendWith(MockitoExtension.class)
 public class CreateDirectoryServiceTest {
 
@@ -58,7 +60,7 @@ public class CreateDirectoryServiceTest {
     public void 디렉토리_생성_성공_테스트(){
         //given
         BDDMockito.given(userPrincipal.getId()).willReturn(userId);
-        BDDMockito.given(userRepository.findByUserId(userId)).willReturn(user);
+        BDDMockito.given(userRepository.findByUserId(userId)).willReturn(Optional.ofNullable(user));
         BDDMockito.given(directoryRepository.save(BDDMockito.any(Directory.class))).willReturn(directory);
         BDDMockito.given(userDirectoryRepository.save(BDDMockito.any(UserDirectory.class))).willReturn(userDirectory);
 
