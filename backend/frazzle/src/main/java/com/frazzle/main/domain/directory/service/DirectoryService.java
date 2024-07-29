@@ -58,7 +58,6 @@ public class DirectoryService {
 
         //3. 유저가 디렉토리에 가입되어 있으면 수정
         directory.changeDirectoryName(requestDto.getDirectoryName());
-        directoryRepository.save(directory);
     }
 
     @Transactional
