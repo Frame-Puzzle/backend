@@ -103,7 +103,7 @@ public class DirectoryService {
 
         //2. 유저가 디렉토리에 가입되어 있지 않으면 에러
         if(!userDirectoryRepository.existsByDirectoryAndUserAndIsAccept(directory, user, true)) {
-            throw new CustomException(ErrorCode.DENIED_FIND_MEMBER);
+            throw new CustomException(ErrorCode.DENIED_INVITE_MEMBER);
         }
 
         //3. 초대하려는 유저가 존재하지 않거나 디렉토리에 가입되어 있으면 에러
