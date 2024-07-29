@@ -3,6 +3,7 @@ package com.frazzle.main.domain.directory.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.frazzle.main.domain.directory.dto.CreateDirectoryRequestDto;
+import com.frazzle.main.domain.directory.dto.UpdateDirectoryNameRequestDto;
 import com.frazzle.main.domain.directory.entity.Directory;
 import com.frazzle.main.domain.directory.service.DirectoryService;
 import com.frazzle.main.domain.user.entity.User;
@@ -47,13 +48,16 @@ public class DirectoryControllerTest {
 
     private User user;
     private Directory directory;
-    private CreateDirectoryRequestDto requestDto;
+    private CreateDirectoryRequestDto createDirectoryRequestDto;
+    private UpdateDirectoryNameRequestDto updateDirectoryNameRequestDto;
+    private int directoryId;
 
     @BeforeEach
     public void setup(){
         user = User.createUser("1", "김싸피", "ssafy@ssafy.com", "kakao");
-        requestDto = new CreateDirectoryRequestDto("친구", "B208");
-
+        createDirectoryRequestDto = new CreateDirectoryRequestDto("친구", "B208");
+        updateDirectoryNameRequestDto = new UpdateDirectoryNameRequestDto("싸피공통");
+        directoryId = 1;
     }
 
     @Test
@@ -61,13 +65,33 @@ public class DirectoryControllerTest {
     @WithMockAuthUser(email = "ssafy@gmail.com")
     public void 디렉토리_생성_성공_테스트() throws Exception {
         //given
-        String requestBody = objectMapper.writeValueAsString(requestDto);
+        String requestBody = objectMapper.writeValueAsString(createDirectoryRequestDto);
 
         //when
-        BDDMockito.doNothing().when(directoryService).createDirectory(BDDMockito.any(UserPrincipal.class), BDDMockito.any(CreateDirectoryRequestDto.class));
+        BDDMockito.doNothing().when(directoryService).createDirectory(userPrincipal, createDirectoryRequestDto);
 
         //then
         ResultActions result = mockMvc.perform(MockMvcRequestBuilders.post("/directories")
+                .with(SecurityMockMvcRequestPostProcessors.csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody)
+        );
+
+        result.andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    @Test
+    @DisplayName("디렉토리 수정 성공 테스트")
+    @WithMockAuthUser(email = "ssafy@ssafy.com")
+    public void 디렉토리_수정_성공_테스트() throws Exception{
+        //given
+        String requestBody = objectMapper.writeValueAsString(updateDirectoryNameRequestDto);
+
+        //when
+        BDDMockito.doNothing().when(directoryService).updateDirectoryName(userPrincipal, updateDirectoryNameRequestDto, directoryId);
+
+        //then
+        ResultActions result = mockMvc.perform(MockMvcRequestBuilders.put("/directories/{directoryId}", directoryId)
                 .with(SecurityMockMvcRequestPostProcessors.csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody)
