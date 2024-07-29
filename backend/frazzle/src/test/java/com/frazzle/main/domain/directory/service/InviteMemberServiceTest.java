@@ -121,4 +121,18 @@ public class InviteMemberServiceTest {
                 .isInstanceOf(CustomException.class)
                 .hasMessageContaining(ErrorCode.DENIED_INVITE_MEMBER.getMessage());
     }
+
+    @Test
+    @DisplayName("멤버 초대 멤버 없음 실패 테스트")
+    public void 멤버_초대_멤버_없음_실패_테스트() {
+        // given
+        BDDMockito.given(userRepository.findByUserId(requestDto.getUserId()))
+                .willReturn(Optional.empty());
+
+        // when
+        Assertions.assertThatThrownBy(()->directoryService.inviteMember(userPrincipal, requestDto, directory.getDirectoryId()))
+                .isInstanceOf(CustomException.class)
+                .hasMessageContaining(ErrorCode.NOT_EXIST_USER.getMessage());
+    }
+
 }
