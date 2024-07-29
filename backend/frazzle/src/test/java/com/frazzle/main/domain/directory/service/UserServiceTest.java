@@ -28,32 +28,23 @@ public class UserServiceTest {
     @Mock
     private UserPrincipal userPrincipal;
 
-    private User user1;
-    private User user2;
-    private String loginUserId1;
-    private String loginUserId2;
-    private List<User> users;
+    private User user;
+    private int userId;
 
     @BeforeEach
     public void setup(){
-        loginUserId1 = "1";
-        user1 = User.createUser(loginUserId1,"김싸피", "ssafy@ssafy.com", "kakao");
-        loginUserId2 = "2";
-        user2 = User.createUser(loginUserId2,"SSafy", "ssafy1@ssafy.com", "kakao");
-
-        users = new ArrayList<>();
-        users.add(user2);
-
+        userId = 1;
+        user = User.createUser("1","김싸피", "ssafy@ssafy.com", "kakao");
     }
 
     @Test
     @DisplayName("유저 조회 성공 테스트")
     public void 유저_조회_성공_테스트() {
-        userService.save(user1);
+        userService.save(user);
 
-        User user = userService.findByLoginUserId(loginUserId1);
+        User user = userService.findByUserId(userId);
 
-        Assertions.assertEquals(user, user1);
+        Assertions.assertEquals(user, user);
 
     }
 
