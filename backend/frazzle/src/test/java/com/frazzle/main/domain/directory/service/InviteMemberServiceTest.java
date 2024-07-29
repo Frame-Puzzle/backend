@@ -7,6 +7,8 @@ import com.frazzle.main.domain.user.entity.User;
 import com.frazzle.main.domain.user.repository.UserRepository;
 import com.frazzle.main.domain.userdirectory.entity.UserDirectory;
 import com.frazzle.main.domain.userdirectory.repository.UserDirectoryRepository;
+import com.frazzle.main.global.exception.CustomException;
+import com.frazzle.main.global.exception.ErrorCode;
 import com.frazzle.main.global.models.UserPrincipal;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -100,4 +102,23 @@ public class InviteMemberServiceTest {
                 .should(times(1)).changePeopleNumber(1);
     }
 
+    @Test
+    @DisplayName("멤버 초대 권한 없음 실패 테스트")
+    public void 멤버_초대_권한_없음_실패_테스트() {
+        // given
+        BDDMockito.given(userRepository.findByUserId(userPrincipal.getId()))
+                .willReturn(Optional.of(user));
+        BDDMockito.given(directoryRepository.findByDirectoryId(directory.getDirectoryId()))
+                .willReturn(Optional.of(directory));
+        BDDMockito.given(userDirectoryRepository.existsByDirectoryAndUserAndIsAccept(
+                        BDDMockito.any(Directory.class),
+                        BDDMockito.any(User.class),
+                        BDDMockito.eq(true)))
+                .willReturn(false);
+
+        // when
+        Assertions.assertThatThrownBy(()->directoryService.inviteMember(userPrincipal, requestDto, directory.getDirectoryId()))
+                .isInstanceOf(CustomException.class)
+                .hasMessageContaining(ErrorCode.DENIED_INVITE_MEMBER.getMessage());
+    }
 }
