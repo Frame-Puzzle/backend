@@ -1,6 +1,7 @@
 package com.frazzle.main.domain.directory.service;
 
 import com.frazzle.main.domain.directory.dto.CreateDirectoryRequestDto;
+import com.frazzle.main.domain.directory.dto.InviteMemberRequestDto;
 import com.frazzle.main.domain.directory.dto.UserByEmailResponseDto;
 import com.frazzle.main.domain.directory.dto.UpdateDirectoryNameRequestDto;
 import com.frazzle.main.domain.directory.entity.Directory;
@@ -33,7 +34,9 @@ public class DirectoryService {
     @Transactional
     public void createDirectory(UserPrincipal userPrincipal, CreateDirectoryRequestDto requestDto) {
         //1. 유저 정보 확인
-        User user = userRepository.findByUserId(userPrincipal.getId());
+        User user = userRepository.findByUserId(userPrincipal.getId()).orElseThrow(
+                () -> new CustomException(ErrorCode.NOT_EXIST_USER)
+        );;
 
         //2. 디렉토리 생성
         Directory directory = Directory.createDirectory(requestDto);
@@ -47,7 +50,9 @@ public class DirectoryService {
     @Transactional
     public void updateDirectoryName(UserPrincipal userPrincipal, UpdateDirectoryNameRequestDto requestDto, int directoryId){
         //1. 유저 정보 및 디렉토리 정보 확인
-        User user = userRepository.findByUserId(userPrincipal.getId());
+        User user = userRepository.findByUserId(userPrincipal.getId()).orElseThrow(
+                () -> new CustomException(ErrorCode.NOT_EXIST_USER)
+        );;
         Directory directory = directoryRepository.findByDirectoryId(directoryId).orElseThrow(
                 () -> new CustomException(ErrorCode.NOT_EXIST_DIRECTORY));
 
@@ -63,7 +68,9 @@ public class DirectoryService {
     @Transactional
     public List<UserByEmailResponseDto> findUserByEmail(UserPrincipal userPrincipal, String email, int directoryId) {
         //1. 유저 정보 및 디렉토리 정보 확인
-        User user = userRepository.findByUserId(userPrincipal.getId());
+        User user = userRepository.findByUserId(userPrincipal.getId()).orElseThrow(
+                () -> new CustomException(ErrorCode.NOT_EXIST_USER)
+        );;
         Directory directory = directoryRepository.findByDirectoryId(directoryId).orElseThrow(
                 () -> new CustomException(ErrorCode.NOT_EXIST_DIRECTORY));
 
@@ -82,5 +89,36 @@ public class DirectoryService {
         }
 
         return response;
+    }
+
+    @Transactional
+    public void inviteMember(UserPrincipal userPrincipal, InviteMemberRequestDto requestDto, int directoryId) {
+        //1. 유저 정보 및 디렉토리 정보 확인
+        User user = userRepository.findByUserId(userPrincipal.getId()).orElseThrow(
+                () -> new CustomException(ErrorCode.NOT_EXIST_USER)
+        );
+        Directory directory = directoryRepository.findByDirectoryId(directoryId).orElseThrow(
+                () -> new CustomException(ErrorCode.NOT_EXIST_DIRECTORY)
+        );
+
+        //2. 유저가 디렉토리에 가입되어 있지 않으면 에러
+        if(!userDirectoryRepository.existsByDirectoryAndUserAndIsAccept(directory, user, true)) {
+            throw new CustomException(ErrorCode.DENIED_FIND_MEMBER);
+        }
+
+        //3. 초대하려는 유저가 존재하지 않거나 디렉토리에 가입되어 있으면 에러
+        User member = userRepository.findByUserId(requestDto.getUserId()).orElseThrow(
+                ()->new CustomException(ErrorCode.NOT_EXIST_USER));
+
+        if(userDirectoryRepository.existsByUserAndDirectory(member, directory)) {
+            throw new CustomException(ErrorCode.DUPLICATED_DIRECTORY_MEMBER);
+        }
+
+        //4. 멤버 초대
+        userDirectoryRepository.save(UserDirectory.createUserDirectory(directory, member, false));
+        directory.changePeopleNumber(1);
+        /*
+        fcm 코드
+         */
     }
 }
