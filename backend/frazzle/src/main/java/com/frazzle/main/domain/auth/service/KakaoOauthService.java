@@ -15,6 +15,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
@@ -26,30 +28,44 @@ import java.util.Map;
 public class KakaoOauthService implements SocialOauthService {
 
     private final UserService userService;
-
     @Value("${kakao.client-id}")
     String clientId;// 카카오 rest api 키
     @Value("${kakao.redirect-uri}")
     String redirectUri; // 카카오에 등록한 redirect_uri
 
-    //프론트에서 가져온 access 토큰을 이용해서 카카오에서 정보를 가져옴
+
+    //프론트에서 가져온 어세스 토큰을 이용해서 카카오에서 정보를 가져옴
     @Override
     public Map<String, Object> getUserAttributesByToken(String code) {
+
+        log.info("getUserAttributesByToken");
+
+        log.info("code: {}", code);
+
         RestTemplate restTemplate = new RestTemplate();
         String getKakaoAccessTokenUri = "https://kauth.kakao.com/oauth/token";
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        headers.add("Accept", "application/json");
 
-        Map<String, String> body = new HashMap<>();
-        body.put("grant_type","authorization_code");
-        body.put("client_id",clientId);
-        body.put("redirect_uri",redirectUri);
-        body.put("code", code);
+        // 요청 본문 설정
+        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+        body.add("grant_type", "authorization_code");
+        body.add("client_id", clientId);
+        body.add("redirect_uri", redirectUri);
+        body.add("code", code);
 
-        ResponseEntity<String> response = restTemplate.postForEntity(getKakaoAccessTokenUri, body, String.class);
+        // HttpEntity 생성
+        HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(body, headers);
+
+        // 요청 전송 및 응답 받기
+        ResponseEntity<String> response = restTemplate.postForEntity(getKakaoAccessTokenUri, requestEntity, String.class);
+        log.info("responseBody: {}", response.getBody());
 
         String responseBody = response.getBody();
+
+
 
         String accessToken = null;
 
@@ -76,12 +92,16 @@ public class KakaoOauthService implements SocialOauthService {
         //바디와 헤더 설정
         HttpEntity<String> entity = new HttpEntity<>("", headers);
 
+
         //uri, 메서드, 헤더 또는 엔티티, 반환 타입
         ResponseEntity<Map<String, Object>> accessTokenResponse = restTemplate.exchange(userInfoUri, HttpMethod.GET, entity, new ParameterizedTypeReference<Map<String, Object>>() {
         });
 
+        log.info("accessTokenResponse: {}", accessTokenResponse.getBody());
+
         return accessTokenResponse.getBody();
     }
+
 
 
     //가져온 accesstoken을 가공해서 email과 id만 찾아서 가져옴
