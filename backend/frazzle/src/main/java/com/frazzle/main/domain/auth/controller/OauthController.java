@@ -57,6 +57,8 @@ public class OauthController {
                         .refreshToken(tokenMap.get("refreshToken"))
                         .build();
 
+                log.info(oauthResponseDto.toString());
+
                 return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "로그인에 성공했습니다.", oauthResponseDto));
 
             case "google":
@@ -66,6 +68,8 @@ public class OauthController {
                         .accessToken(tokenMap.get("accessToken"))
                         .refreshToken(tokenMap.get("refreshToken"))
                         .build();
+
+                log.info(oauthResponseDto.toString());
 
                 return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "로그인에 성공했습니다.", oauthResponseDto));
         }
