@@ -1,6 +1,7 @@
 package com.frazzle.main.domain.directory.controller;
 
 import com.frazzle.main.domain.directory.dto.CreateDirectoryRequestDto;
+import com.frazzle.main.domain.directory.dto.InviteMemberRequestDto;
 import com.frazzle.main.domain.directory.dto.UserByEmailResponseDto;
 import com.frazzle.main.domain.directory.dto.UpdateDirectoryNameRequestDto;
 import com.frazzle.main.domain.directory.service.DirectoryService;
@@ -33,7 +34,7 @@ public class DirectoryController {
         return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "디렉토리 등록에 성공했습니다."));
     }
 
-    @PutMapping("{directoryId}")
+    @PutMapping("/{directoryId}")
     public ResponseEntity<?> updateDirectoryName(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @Valid @RequestBody UpdateDirectoryNameRequestDto requestDto,
@@ -43,12 +44,22 @@ public class DirectoryController {
         return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "디렉토리 이름을 수정하였습니다."));
     }
 
-    @GetMapping("{directoryId}/users/find")
+    @GetMapping("/{directoryId}/users/find")
     public ResponseEntity<?> findUserByEmail(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable("directoryId") int directoryId,
             @RequestParam("email") String email) {
         List<UserByEmailResponseDto> responses = directoryService.findUserByEmail(userPrincipal, email, directoryId);
         return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "조회에 성공했습니다", responses));
+    }
+
+    @PostMapping("/{directoryId}/user")
+    public ResponseEntity<?> inviteMember(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable("directoryId") int directoryId,
+            @RequestBody InviteMemberRequestDto requestDto
+    ){
+        directoryService.inviteMember(userPrincipal, requestDto, directoryId);
+        return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "초대에 성공했습니다."));
     }
 }

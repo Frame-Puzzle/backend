@@ -53,4 +53,8 @@ public class Directory {
     public void changeDirectoryName(String newDirectoryName) {
         this.directoryName = newDirectoryName;
     }
+
+    public  void changePeopleNumber(int number) {
+        this.peopleNumber += number;
+    }
 }

@@ -71,7 +71,7 @@ public class FindUserByEmailServiceTest {
     public void 이메일로_멤버_정보_조회_성공_테스트(){
         //given
         BDDMockito.given(userPrincipal.getId()).willReturn(userId1);
-        BDDMockito.given(userRepository.findByUserId(userId1)).willReturn(user1);
+        BDDMockito.given(userRepository.findByUserId(userId1)).willReturn(Optional.ofNullable(user1));
         BDDMockito.given(directoryRepository.findByDirectoryId(directory.getDirectoryId())).willReturn(Optional.ofNullable(directory));
         BDDMockito.given(userDirectoryRepository.existsByDirectoryAndUserAndIsAccept(directory, user1, true)).willReturn(true);
         BDDMockito.given(userRepository.findUsersByEmail(email, directory)).willReturn(users);
@@ -88,7 +88,7 @@ public class FindUserByEmailServiceTest {
     public void 이메일로_멤버_정보_조회_권한_없음_실패_테스트(){
         //given
         BDDMockito.given(userPrincipal.getId()).willReturn(userId2);
-        BDDMockito.given(userRepository.findByUserId(userId2)).willReturn(user2);
+        BDDMockito.given(userRepository.findByUserId(userId2)).willReturn(Optional.ofNullable(user2));
         BDDMockito.given(directoryRepository.findByDirectoryId(directory.getDirectoryId())).willReturn(Optional.ofNullable(directory));
         BDDMockito.given(userDirectoryRepository.existsByDirectoryAndUserAndIsAccept(directory, user2, true)).willReturn(false);
 

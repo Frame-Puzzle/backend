@@ -3,6 +3,8 @@ package com.frazzle.main.domain.user.service;
 import com.frazzle.main.domain.user.dto.UpdateUserRequestDto;
 import com.frazzle.main.domain.user.entity.User;
 import com.frazzle.main.domain.user.repository.UserRepository;
+import com.frazzle.main.global.exception.CustomException;
+import com.frazzle.main.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -33,7 +35,9 @@ public class UserService {
 
     //유저id로 유저 찾기
     public User findByUserId(int id) {
-        return userRepository.findByUserId(id);
+        return userRepository.findByUserId(id).orElseThrow(
+                ()->new CustomException(ErrorCode.NOT_EXIST_USER)
+        );
     }
 
     @Transactional
@@ -66,7 +70,9 @@ public class UserService {
 
     //리프레시 토큰으로 사용자 찾기
     public User findByRefreshToken(String refreshToken) {
-        return userRepository.findByRefreshToken(refreshToken);
+        return userRepository.findByRefreshToken(refreshToken).orElseThrow(
+                () -> new CustomException(ErrorCode.NOT_EXIST_USER)
+        );
     }
 
 
