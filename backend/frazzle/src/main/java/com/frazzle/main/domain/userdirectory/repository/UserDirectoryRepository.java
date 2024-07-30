@@ -11,4 +11,5 @@ public interface UserDirectoryRepository extends JpaRepository<UserDirectory, In
 
     boolean existsByDirectoryAndUserAndIsAccept(Directory directory, User user, boolean isAccept);
     boolean existsByUserAndDirectory(User user, Directory directory);
+    void deleteByUserAndDirectory(User user, Directory directory);
 }
