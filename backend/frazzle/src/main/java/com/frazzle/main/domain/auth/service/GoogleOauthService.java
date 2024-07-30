@@ -128,8 +128,9 @@ public class GoogleOauthService implements SocialOauthService {
         Optional<User> findUser = userService.findByEmail(user.getEmail());
 
         //db에 존재하면 업데이트 아니면 insert
-        findUser.ifPresent(userService::save);
-
+        if(findUser.isPresent()) {
+            return userService.save(findUser.get());
+        }
         return userService.save(user);
     }
 }
