@@ -21,7 +21,7 @@ public class FindPeopleCountFromImg {
     //사진 url 입력받는 메서드 
     public static int inputImgUrl(String imgUrl) {
         //사진 경로
-        Path path = Path.of("./image.jpg");
+        Path path = Path.of(imgUrl);
         
         //사람 최대 인원 수
         int maxResults = 10;
