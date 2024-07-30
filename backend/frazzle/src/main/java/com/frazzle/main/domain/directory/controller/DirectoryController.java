@@ -1,7 +1,7 @@
 package com.frazzle.main.domain.directory.controller;
 
 import com.frazzle.main.domain.directory.dto.CreateDirectoryRequestDto;
-import com.frazzle.main.domain.directory.dto.InviteMemberRequestDto;
+import com.frazzle.main.domain.directory.dto.InviteOrCancelMemberRequestDto;
 import com.frazzle.main.domain.directory.dto.UserByEmailResponseDto;
 import com.frazzle.main.domain.directory.dto.UpdateDirectoryNameRequestDto;
 import com.frazzle.main.domain.directory.service.DirectoryService;
@@ -57,7 +57,7 @@ public class DirectoryController {
     public ResponseEntity<?> inviteMember(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable("directoryId") int directoryId,
-            @RequestBody InviteMemberRequestDto requestDto
+            @RequestBody InviteOrCancelMemberRequestDto requestDto
     ){
         directoryService.inviteMember(userPrincipal, requestDto, directoryId);
         return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "초대에 성공했습니다."));

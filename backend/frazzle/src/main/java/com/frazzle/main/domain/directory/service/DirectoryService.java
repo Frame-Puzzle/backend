@@ -1,7 +1,7 @@
 package com.frazzle.main.domain.directory.service;
 
 import com.frazzle.main.domain.directory.dto.CreateDirectoryRequestDto;
-import com.frazzle.main.domain.directory.dto.InviteMemberRequestDto;
+import com.frazzle.main.domain.directory.dto.InviteOrCancelMemberRequestDto;
 import com.frazzle.main.domain.directory.dto.UserByEmailResponseDto;
 import com.frazzle.main.domain.directory.dto.UpdateDirectoryNameRequestDto;
 import com.frazzle.main.domain.directory.entity.Directory;
@@ -92,7 +92,7 @@ public class DirectoryService {
     }
 
     @Transactional
-    public void inviteMember(UserPrincipal userPrincipal, InviteMemberRequestDto requestDto, int directoryId) {
+    public void inviteMember(UserPrincipal userPrincipal, InviteOrCancelMemberRequestDto requestDto, int directoryId) {
         //1. 유저 정보 및 디렉토리 정보 확인
         User user = userRepository.findByUserId(userPrincipal.getId()).orElseThrow(
                 () -> new CustomException(ErrorCode.NOT_EXIST_USER)

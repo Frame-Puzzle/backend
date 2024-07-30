@@ -1,6 +1,6 @@
 package com.frazzle.main.domain.directory.service;
 
-import com.frazzle.main.domain.directory.dto.InviteMemberRequestDto;
+import com.frazzle.main.domain.directory.dto.InviteOrCancelMemberRequestDto;
 import com.frazzle.main.domain.directory.entity.Directory;
 import com.frazzle.main.domain.directory.repository.DirectoryRepository;
 import com.frazzle.main.domain.user.entity.User;
@@ -47,13 +47,13 @@ public class InviteMemberServiceTest {
 
     @Mock
     private Directory directory;
-    private InviteMemberRequestDto requestDto;
+    private InviteOrCancelMemberRequestDto requestDto;
 
     @BeforeEach
     public void setUp() {
         user = User.createUser("1", "김싸피", "ssafy@ssafy.com", "kakao");
         member = User.createUser("2", "싸피", "ssafy@gmail.com", "kakao");
-        requestDto = new InviteMemberRequestDto(member.getUserId());
+        requestDto = new InviteOrCancelMemberRequestDto(member.getUserId());
     }
 
     @Test
