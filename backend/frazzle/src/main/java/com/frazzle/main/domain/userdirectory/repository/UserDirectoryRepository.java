@@ -10,4 +10,6 @@ import org.springframework.stereotype.Repository;
 public interface UserDirectoryRepository extends JpaRepository<UserDirectory, Integer> {
 
     boolean existsByDirectoryAndUserAndIsAccept(Directory directory, User user, boolean isAccept);
+
+    Long deleteByUser(User user);
 }
