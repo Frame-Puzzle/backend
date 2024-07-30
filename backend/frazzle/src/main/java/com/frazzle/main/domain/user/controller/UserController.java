@@ -73,13 +73,9 @@ public class UserController {
 
         int userId = userPrincipal.getId();
 
-        Long result = userService.deleteUser(userId);
+        userService.deleteUser(userId);
 
-        if(result > 0) {
-            return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "회원 탈퇴가 성공했습니다."));
-        }
-
-        throw new CustomException(ErrorCode.NOT_EXIST_USER);
+        return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "회원 탈퇴가 성공했습니다."));
     }
 
     //유저 정보 업데이트
@@ -99,7 +95,6 @@ public class UserController {
 
         //만약 닉네임 변경시 여기서 발생
         userService.updateUserByNickname(user, requestDto);
-
 
         UserInfoResponseDto userInfoResponseDto = UserInfoResponseDto.createUserInfoResponse(user);
 
@@ -121,10 +116,10 @@ public class UserController {
 
         User user = userService.findByUserId(userId);
 
-        log.info(profileImg.toString());
-
+        //사용자가 업로드한 파일의 확장자
         String extension = awsService.uploadFile(profileImg, user.getLoginUserId());
 
+        //사용자가 업로드한 파일의 프사url
         String url = awsService.getProfileUri(user.getLoginUserId());
 
         userService.updateUserByProfileImg(user, url+extension);
