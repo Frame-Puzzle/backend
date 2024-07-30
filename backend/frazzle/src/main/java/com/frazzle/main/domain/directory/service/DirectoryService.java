@@ -121,4 +121,32 @@ public class DirectoryService {
         fcm 코드
          */
     }
+
+    @Transactional
+    public void cancelMemberInvitation(UserPrincipal userPrincipal, InviteOrCancelMemberRequestDto requestDto, int directoryId) {
+        //1. 유저 및 디렉토리 확인
+        User user = userRepository.findByUserId(userPrincipal.getId()).orElseThrow(
+                () -> new CustomException(ErrorCode.NOT_EXIST_USER)
+        );
+        Directory directory = directoryRepository.findByDirectoryId(directoryId).orElseThrow(
+                () -> new CustomException(ErrorCode.NOT_EXIST_DIRECTORY)
+        );
+        User member = userRepository.findByUserId(requestDto.getUserId()).orElseThrow(
+                () -> new CustomException(ErrorCode.NOT_EXIST_USER)
+        );
+
+        //2. 멤버 초대 취소 권한 확인
+        //초대하는 사람이 디렉토리에 가입된 멤버가 아니면 에러
+        if(!userDirectoryRepository.existsByDirectoryAndUserAndIsAccept(directory, user, true)) {
+            throw new CustomException(ErrorCode.DENIED_CANCEL_MEMBER);
+        }
+        //초대 취소되는 사람이 디렉토리에 초대가 되었고 승인하기 전이 아니면 에러
+        if(!userDirectoryRepository.existsByDirectoryAndUserAndIsAccept(directory, member, false)){
+            throw new CustomException(ErrorCode.DENIED_CANCEL_MEMBER);
+        }
+
+        //3. 초대 취소
+        userDirectoryRepository.deleteByUserAndDirectory(user, directory);
+        directory.changePeopleNumber(-1);
+    }
 }
