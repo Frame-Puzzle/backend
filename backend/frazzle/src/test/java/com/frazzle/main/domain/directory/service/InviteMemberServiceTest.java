@@ -53,7 +53,7 @@ public class InviteMemberServiceTest {
     public void setUp() {
         user = User.createUser("1", "김싸피", "ssafy@ssafy.com", "kakao");
         member = User.createUser("2", "싸피", "ssafy@gmail.com", "kakao");
-        requestDto = new InviteMemberRequestDto(member.getUserId(), member.getEmail());
+        requestDto = new InviteMemberRequestDto(member.getUserId());
     }
 
     @Test
