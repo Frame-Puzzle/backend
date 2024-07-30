@@ -14,7 +14,4 @@ public class InviteMemberRequestDto {
 
     @NotNull
     private int userId;
-
-    @NotBlank
-    private String email;
 }
