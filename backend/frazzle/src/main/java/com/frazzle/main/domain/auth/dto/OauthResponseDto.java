@@ -6,6 +6,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 public class OauthResponseDto {
     private String accessToken;
     private String refreshToken;
