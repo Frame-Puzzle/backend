@@ -62,21 +62,12 @@ public class User {
                 .build();
     }
 
-    private void setProfileImg(String profileImg) {
+    public void updateUserProfileImg(String profileImg) {
         this.profileImg = profileImg;
     }
 
-    private void setNickname(String nickname) {
+    public void updateUserNickname(String nickname) {
         this.nickname = nickname;
     }
 
-    public static User UpdateUserProfileImg(User user, String url) {
-        user.setProfileImg(url);
-        return user;
-    }
-
-    public static User UpdateUserNickname(User user, String nickname) {
-        user.setNickname(nickname);
-        return user;
-    }
 }
