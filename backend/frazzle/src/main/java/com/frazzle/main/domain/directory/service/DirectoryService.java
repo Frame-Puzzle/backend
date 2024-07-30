@@ -146,7 +146,7 @@ public class DirectoryService {
         }
 
         //3. 초대 취소
-        userDirectoryRepository.deleteByUserAndDirectory(user, directory);
+        userDirectoryRepository.deleteByUserAndDirectory(member, directory);
         directory.changePeopleNumber(-1);
     }
 }
