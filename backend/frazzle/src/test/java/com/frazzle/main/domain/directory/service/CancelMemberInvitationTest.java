@@ -105,6 +105,23 @@ public class CancelMemberInvitationTest {
     }
 
     @Test
+    @DisplayName("멤버 초대 취소 권한 없음 실패 테스트")
+    public void 멤버_초대_취소_권한_없음_실패_테스트(){
+        BDDMockito.given(userRepository.findByUserId(userPrincipal.getId())).willReturn(Optional.ofNullable(user));
+        BDDMockito.given(directoryRepository.findByDirectoryId(directory.getDirectoryId())).willReturn(Optional.of(directory));
+        BDDMockito.given(userRepository.findByUserId(member.getUserId())).willReturn(Optional.ofNullable(member));
+        BDDMockito.given(userDirectoryRepository.existsByDirectoryAndUserAndIsAccept(
+                BDDMockito.any(Directory.class),
+                BDDMockito.any(User.class),
+                BDDMockito.eq(true)
+        )).willReturn(false);
+
+        Assertions.assertThatThrownBy(()->directoryService.cancelMemberInvitation(userPrincipal, requestDto, directory.getDirectoryId()))
+                .isInstanceOf(CustomException.class)
+                .hasMessageContaining(ErrorCode.DENIED_CANCEL_MEMBER.getMessage());
+    }
+
+    @Test
     @DisplayName("멤버 초대 취소 실패 테스트")
     public void 멤버_초대_취소_실패_테스트() {
         BDDMockito.given(userRepository.findByUserId(userPrincipal.getId())).willReturn(
