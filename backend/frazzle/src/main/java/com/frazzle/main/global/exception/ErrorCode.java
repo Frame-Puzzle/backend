@@ -12,8 +12,10 @@ public enum ErrorCode {
     DENIED_UPDATE("수정 권한이 없습니다.", HttpStatus.FORBIDDEN),
     DENIED_FIND_MEMBER("멤버 조회 권한이 없습니다", HttpStatus.FORBIDDEN),
     DENIED_INVITE_MEMBER("멤버 초대 권한이 없습니다", HttpStatus.FORBIDDEN),
+    DENIED_CANCEL_MEMBER("멤버 초대 취소 권한이 없습니다", HttpStatus.FORBIDDEN),
     NOT_EXIST_DIRECTORY("존재하지 않는 디렉토리입니다.", HttpStatus.NOT_FOUND),
-    DUPLICATED_DIRECTORY_MEMBER("이미 초대된 회원입니다.", HttpStatus.BAD_REQUEST);
+    DUPLICATED_DIRECTORY_MEMBER("이미 초대된 회원입니다.", HttpStatus.BAD_REQUEST),
+    ;
 
     private final String message;
     private final HttpStatus httpStatus;
