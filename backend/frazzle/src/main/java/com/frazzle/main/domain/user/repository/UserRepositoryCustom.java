@@ -19,9 +19,4 @@ public interface UserRepositoryCustom {
     Long updateUser(User findUser ,User updateUser);
 
     Long updateRefreshToken(User updateUser, String refreshToken);
-
-    Long updateNickname(User updateUser, UpdateUserNicknameRequestDto requestDto);
-
-    Long updateProfileImg(User updateUser, UpdateUserProfileRequestDto requestDto);
-
 }
