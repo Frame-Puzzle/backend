@@ -17,6 +17,7 @@ import java.nio.charset.StandardCharsets;
 @Configuration
 public class FirebaseConfig {
 
+    //파이어베이스 설정 파일
     @Bean
     public FirebaseMessaging firebaseMessaging() throws IOException {
         FileInputStream serviceAccount = new FileInputStream("src/main/resources/frazzle-firebase.json");

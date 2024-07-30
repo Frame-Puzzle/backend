@@ -26,6 +26,7 @@ public class AwsService {
 
     private final AmazonS3 s3Client;
 
+    //사용자의 loginUserId를 통해 파일명을 바꾸고 S3에 업로드
     public String uploadFile(MultipartFile file, String loginUserId) {
         try {
             File fileObj = convertMultiPartFileToFile(file);
@@ -34,6 +35,7 @@ public class AwsService {
 
             String extension = "";
             int dotIndex = originalFilename.lastIndexOf('.');
+
             if (dotIndex > 0) {
                 extension = originalFilename.substring(dotIndex);
             }
@@ -43,27 +45,17 @@ public class AwsService {
             s3Client.putObject(new PutObjectRequest(name, uniqueFileName, fileObj));
             fileObj.delete();
 
-
-
             return extension;
+
         } catch (Exception e) {
             log.error(e.getMessage());
             throw new CustomException(ErrorCode.FAILED_CONVERT_FILE);
         }
     }
 
+    //S3에서 받은 url을 string으로 변환 후 반환
     public String getProfileUri(String loginUserId) {
         URL url = s3Client.getUrl(name, loginUserId);
         return ""+url;
     }
-
-//    private String generateUniqueFileName(String loginUserId, String originalFilename) {
-//        String extension = "";
-//        int dotIndex = originalFilename.lastIndexOf('.');
-//        if (dotIndex > 0) {
-//            extension = originalFilename.substring(dotIndex);
-//        }
-//        return loginUserId + extension;
-//    }
-
 }
