@@ -37,16 +37,21 @@ public class FindMyDirectoryServiceTest {
     private UserPrincipal userPrincipal;
 
     private User user;
-    private List<Directory> responseDto;
+    private List<Directory> responseAll;
+    private List<Directory> responseCategory;
     private String category;
 
     @BeforeEach
     public void setUp() {
         user = User.createUser("1", "싸피", "ssafy@ssafy.com", "google");
-        responseDto = new ArrayList<>();
-        responseDto.add(Directory.createDirectory(new CreateDirectoryRequestDto("친구", "B208")));
-        responseDto.add(Directory.createDirectory(new CreateDirectoryRequestDto("가족", "우리가족")));
+        responseAll = new ArrayList<>();
         category = "친구";
+        Directory directory = Directory.createDirectory(new CreateDirectoryRequestDto(category, "B208"));
+        responseAll.add(directory);
+        responseAll.add(Directory.createDirectory(new CreateDirectoryRequestDto("가족", "우리가족")));
+
+        responseCategory = new ArrayList<>();
+        responseCategory.add(directory);
     }
 
     @Test
@@ -54,11 +59,27 @@ public class FindMyDirectoryServiceTest {
     public void 내_전체_디렉토리_조회_성공_테스트(){
         //given
         BDDMockito.given(userRepository.findByUserId(userPrincipal.getId())).willReturn(Optional.ofNullable(user));
-        BDDMockito.given(directoryRepository.findMyDirectory(user, null)).willReturn(responseDto);
+        BDDMockito.given(directoryRepository.findMyDirectory(user, null)).willReturn(responseAll);
 
+        //when
         List<FindMyDirectoryResponseDto> responses = directoryService.findMyDirectory(userPrincipal, null);
 
+        //then
         Assertions.assertThat(responses.size()).isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("내 카테고리 디렉토리 조회 성공 테스트")
+    public void 내_카테고리_디렉토리_조회_성공_테스트(){
+        //given
+        BDDMockito.given(userRepository.findByUserId(userPrincipal.getId())).willReturn(Optional.ofNullable(user));
+        BDDMockito.given(directoryRepository.findMyDirectory(user, category)).willReturn(responseCategory);
+
+        //when
+        List<FindMyDirectoryResponseDto> responses = directoryService.findMyDirectory(userPrincipal, category);
+
+        //then
+        Assertions.assertThat(responses.size()).isEqualTo(1);
     }
 
 }
