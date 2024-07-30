@@ -21,6 +21,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -121,14 +122,11 @@ public class KakaoOauthService implements SocialOauthService {
         User user = User.createUser(kakaoInfoDto.getId(), GenerateRandomNickname.generateRandomNickname(), kakaoInfoDto.getEmail(), "kakao");
 
         //db에 존재하면 업데이트 아니면 insert
-        if(userService.findByUserId(user.getUserId()) !=null) {
+        Optional<User> findUser = userService.findByEmail(user.getEmail());
 
-            User findUser = userService.findByUserId(user.getUserId());
+        //db에 존재하면 업데이트 아니면 insert
+        findUser.ifPresent(userService::save);
 
-            userService.updateUser(user, findUser);
-
-            return user;
-        }
         return userService.save(user);
     }
 
