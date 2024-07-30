@@ -3,7 +3,7 @@ package com.frazzle.main.domain.directory.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.frazzle.main.domain.directory.dto.CreateDirectoryRequestDto;
-import com.frazzle.main.domain.directory.dto.InviteMemberRequestDto;
+import com.frazzle.main.domain.directory.dto.InviteOrCancelMemberRequestDto;
 import com.frazzle.main.domain.directory.dto.UpdateDirectoryNameRequestDto;
 import com.frazzle.main.domain.directory.dto.UserByEmailResponseDto;
 import com.frazzle.main.domain.directory.service.DirectoryService;
@@ -56,7 +56,7 @@ public class DirectoryControllerTest {
     private String email;
     private User member;
     private List<UserByEmailResponseDto> userByEmailResponseDtos;
-    private InviteMemberRequestDto inviteMemberRequestDto;
+    private InviteOrCancelMemberRequestDto inviteOrCancelMemberRequestDto;
 
     @BeforeEach
     public void setup(){
@@ -67,7 +67,7 @@ public class DirectoryControllerTest {
         email = "s";
         userByEmailResponseDtos = new ArrayList<>();
         userByEmailResponseDtos.add(UserByEmailResponseDto.createFindUserByEmailResponseDto(member));
-        inviteMemberRequestDto = new InviteMemberRequestDto(member.getUserId(), member.getEmail());
+        inviteOrCancelMemberRequestDto = new InviteOrCancelMemberRequestDto(member.getUserId());
     }
 
     @Test
@@ -127,11 +127,26 @@ public class DirectoryControllerTest {
     @DisplayName("멤버 초대 성공 테스트")
     @WithMockAuthUser(email = "ssafy@ssafy.com")
     public void 멤버_초대_성공_테스트() throws Exception {
-        String requestBody = objectMapper.writeValueAsString(inviteMemberRequestDto);
+        String requestBody = objectMapper.writeValueAsString(inviteOrCancelMemberRequestDto);
 
-        BDDMockito.doNothing().when(directoryService).inviteMember(userPrincipal, inviteMemberRequestDto, directoryId);
+        BDDMockito.doNothing().when(directoryService).inviteMember(userPrincipal, inviteOrCancelMemberRequestDto, directoryId);
 
         ResultActions result = mockMvc.perform(MockMvcRequestBuilders.post("/directories/{directoryId}/user", directoryId)
+                .with(SecurityMockMvcRequestPostProcessors.csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody)
+        ).andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    @Test
+    @DisplayName("멤버 초대 취소 성공 테스트")
+    @WithMockAuthUser(email = "ssafy@ssafy.com")
+    public void 멤버_초대_취소_성공_테스트() throws Exception{
+        String requestBody = objectMapper.writeValueAsString(updateDirectoryNameRequestDto);
+
+        BDDMockito.doNothing().when(directoryService).cancelMemberInvitation(userPrincipal, inviteOrCancelMemberRequestDto, directoryId);
+
+        ResultActions result = mockMvc.perform(MockMvcRequestBuilders.delete("/directories/{directoryId}/user", directoryId)
                 .with(SecurityMockMvcRequestPostProcessors.csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody)
