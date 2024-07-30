@@ -6,6 +6,8 @@ import com.frazzle.main.domain.directory.repository.DirectoryRepository;
 import com.frazzle.main.domain.user.entity.User;
 import com.frazzle.main.domain.user.repository.UserRepository;
 import com.frazzle.main.domain.userdirectory.repository.UserDirectoryRepository;
+import com.frazzle.main.global.exception.CustomException;
+import com.frazzle.main.global.exception.ErrorCode;
 import com.frazzle.main.global.models.UserPrincipal;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -100,5 +102,31 @@ public class CancelMemberInvitationTest {
                 BDDMockito.any(Directory.class)
         );
         BDDMockito.then(directory).should(times(1)).changePeopleNumber(-1);
+    }
+
+    @Test
+    @DisplayName("멤버 초대 취소 권한 없음 테스트")
+    public void 멤버_초대_취소_권한_없음_테스트() {
+        BDDMockito.given(userRepository.findByUserId(userPrincipal.getId())).willReturn(
+                Optional.ofNullable(user));
+        BDDMockito.given(directoryRepository.findByDirectoryId(directory.getDirectoryId())).willReturn(
+                Optional.ofNullable(directory));
+        BDDMockito.given(userRepository.findByUserId(member.getUserId())).willReturn(
+                Optional.ofNullable(user)
+        );
+        BDDMockito.given(userDirectoryRepository.existsByDirectoryAndUserAndIsAccept(
+                BDDMockito.any(Directory.class),
+                BDDMockito.any(User.class),
+                BDDMockito.eq(true)
+        )).willReturn(true);
+        BDDMockito.given(userDirectoryRepository.existsByDirectoryAndUserAndIsAccept(
+                BDDMockito.any(Directory.class),
+                BDDMockito.any(User.class),
+                BDDMockito.eq(false)
+        )).willReturn(false);
+
+        Assertions.assertThatThrownBy(() -> directoryService.cancelMemberInvitation(userPrincipal, requestDto, directory.getDirectoryId()))
+                .isInstanceOf(CustomException.class)
+                .hasMessageContaining(ErrorCode.DENIED_CANCEL_MEMBER.getMessage());
     }
 }
