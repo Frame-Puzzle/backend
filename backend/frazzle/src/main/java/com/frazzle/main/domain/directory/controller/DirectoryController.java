@@ -62,4 +62,14 @@ public class DirectoryController {
         directoryService.inviteMember(userPrincipal, requestDto, directoryId);
         return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "초대에 성공했습니다."));
     }
+
+    @DeleteMapping("/{directoryId}/user")
+    public ResponseEntity<?> cancelMemberInvitation(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable("directoryId") int directoryId,
+            @RequestBody InviteOrCancelMemberRequestDto requestDto
+    ){
+        directoryService.cancelMemberInvitation(userPrincipal, requestDto, directoryId);
+        return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "초대 취소에 성공했습니다."));
+    }
 }
