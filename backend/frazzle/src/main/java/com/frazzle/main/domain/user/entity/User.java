@@ -39,9 +39,8 @@ public class User {
     @Column(name = "device_token")
     private String deviceToken;
 
-    //다대일 관계
-    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    private List<UserDirectory> userDirectory;
+//    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+//    private List<UserDirectory> userDirectory;
 
     @Builder
     private User(String loginUserId, String nickname, String email, String socialType, String profileImg, String refreshToken, String deviceToken) {
@@ -61,5 +60,23 @@ public class User {
                 .email(email)
                 .socialType(socialType)
                 .build();
+    }
+
+    private void setProfileImg(String profileImg) {
+        this.profileImg = profileImg;
+    }
+
+    private void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public static User UpdateUserProfileImg(User user, String url) {
+        user.setProfileImg(url);
+        return user;
+    }
+
+    public static User UpdateUserNickname(User user, String nickname) {
+        user.setNickname(nickname);
+        return user;
     }
 }
