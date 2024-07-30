@@ -23,6 +23,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -44,10 +45,10 @@ public class GoogleOauthService implements SocialOauthService {
 
     //프론트에서 가져온 access 토큰을 이용해서 구글 정보를 가져옴
     @Override
-    public Map<String, Object> getUserAttributesByToken(String token) {
+    public Map<String, Object> getUserAttributesByToken(String unEncodedCode) {
 
         //구글의 경우 디코딩하지 않은 상태로 오기 때문에 디코딩 해줌
-        String code = URLDecoder.decode(token, StandardCharsets.UTF_8);
+        String code = URLDecoder.decode(unEncodedCode, StandardCharsets.UTF_8);
 
         //프론트에서 온 인가 토큰을 통해 구글의 accessToken을 가져온다
         RestTemplate restTemplate = new RestTemplate();
@@ -83,8 +84,8 @@ public class GoogleOauthService implements SocialOauthService {
 
     //가져온 accesstoken을 가공해서 email과 id만 찾아서 가져옴
     @Override
-    public User getUserProfileByToken(String accessToken) {
-        Map<String, Object> userAttributesByToken = getUserAttributesByToken(accessToken);
+    public User getUserProfileByToken(String code) {
+        Map<String, Object> userAttributesByToken = getUserAttributesByToken(code);
 
         ObjectMapper mapper = new ObjectMapper();
         JsonNode jsonNode = null;
@@ -124,15 +125,10 @@ public class GoogleOauthService implements SocialOauthService {
         //유저를 생성한다
         User user = User.createUser(googleInfoDto.getId(), GenerateRandomNickname.generateRandomNickname(), googleInfoDto.getEmail(), "google");
 
+        Optional<User> findUser = userService.findByEmail(user.getEmail());
+
         //db에 존재하면 업데이트 아니면 insert
-        if(userService.findByUserId(user.getUserId()) !=null) {
-
-            User findUser = userService.findByUserId(user.getUserId());
-
-            userService.updateUser(findUser, user);
-
-            return user;
-        }
+        findUser.ifPresent(userService::save);
 
         return userService.save(user);
     }
