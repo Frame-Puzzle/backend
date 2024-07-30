@@ -105,8 +105,8 @@ public class CancelMemberInvitationTest {
     }
 
     @Test
-    @DisplayName("멤버 초대 취소 권한 없음 테스트")
-    public void 멤버_초대_취소_권한_없음_테스트() {
+    @DisplayName("멤버 초대 취소 실패 테스트")
+    public void 멤버_초대_취소_실패_테스트() {
         BDDMockito.given(userRepository.findByUserId(userPrincipal.getId())).willReturn(
                 Optional.ofNullable(user));
         BDDMockito.given(directoryRepository.findByDirectoryId(directory.getDirectoryId())).willReturn(
