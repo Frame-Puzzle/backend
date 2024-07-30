@@ -1,9 +1,6 @@
 package com.frazzle.main.domain.directory.service;
 
-import com.frazzle.main.domain.directory.dto.CreateDirectoryRequestDto;
-import com.frazzle.main.domain.directory.dto.InviteOrCancelMemberRequestDto;
-import com.frazzle.main.domain.directory.dto.UserByEmailResponseDto;
-import com.frazzle.main.domain.directory.dto.UpdateDirectoryNameRequestDto;
+import com.frazzle.main.domain.directory.dto.*;
 import com.frazzle.main.domain.directory.entity.Directory;
 import com.frazzle.main.domain.directory.repository.DirectoryRepository;
 import com.frazzle.main.domain.user.entity.User;
@@ -146,7 +143,25 @@ public class DirectoryService {
         }
 
         //3. 초대 취소
-        userDirectoryRepository.deleteByUserAndDirectory(user, directory);
+        userDirectoryRepository.deleteByUserAndDirectory(member, directory);
         directory.changePeopleNumber(-1);
+    }
+
+    @Transactional
+    public List<FindMyDirectoryResponseDto> findMyDirectory(UserPrincipal userPrincipal, String category){
+        //1. 유저 인증
+        User user = userRepository.findByUserId(userPrincipal.getId()).orElseThrow(
+                () -> new CustomException(ErrorCode.NOT_EXIST_USER)
+        );
+
+        //2. 유저 디렉토리 조회
+        List<Directory> directories = directoryRepository.findMyDirectory(user, category);
+        List<FindMyDirectoryResponseDto> response = new ArrayList<>();
+
+        for(Directory d : directories) {
+            response.add(FindMyDirectoryResponseDto.createFindMyDirectoryResponseDto(d));
+        }
+
+        return response;
     }
 }

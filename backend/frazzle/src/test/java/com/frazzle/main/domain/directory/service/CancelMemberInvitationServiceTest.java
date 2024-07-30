@@ -24,7 +24,7 @@ import java.util.Optional;
 import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
-public class CancelMemberInvitationTest {
+public class CancelMemberInvitationServiceTest {
 
     @InjectMocks
     private DirectoryService directoryService;
