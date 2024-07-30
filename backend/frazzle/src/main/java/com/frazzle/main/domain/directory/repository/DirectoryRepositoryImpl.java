@@ -31,6 +31,7 @@ public class DirectoryRepositoryImpl implements DirectoryRepositoryCustom{
         BooleanBuilder builder = new BooleanBuilder();
         builder.and(directory.in(subquery));
 
+        //카테고리가 null이 아니면 where절에 추가
         if(category != null) {
             builder.and(directory.category.eq(category));
         }

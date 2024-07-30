@@ -149,10 +149,12 @@ public class DirectoryService {
 
     @Transactional
     public List<FindMyDirectoryResponseDto> findMyDirectory(UserPrincipal userPrincipal, String category){
+        //1. 유저 인증
         User user = userRepository.findByUserId(userPrincipal.getId()).orElseThrow(
                 () -> new CustomException(ErrorCode.NOT_EXIST_USER)
         );
 
+        //2. 유저 디렉토리 조회
         List<Directory> directories = directoryRepository.findMyDirectory(user, category);
         List<FindMyDirectoryResponseDto> response = new ArrayList<>();
 
