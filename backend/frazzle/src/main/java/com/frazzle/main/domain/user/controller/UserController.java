@@ -103,7 +103,7 @@ public class UserController {
 
         UserInfoResponseDto userInfoResponseDto = UserInfoResponseDto.createUserInfoResponse(user);
 
-        return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "유저 정보 수정에 성공했습니다.", userInfoResponseDto));
+        return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "유저 닉네임 정보 수정에 성공했습니다.", userInfoResponseDto));
     }
 
     //유저 정보 업데이트
@@ -131,7 +131,7 @@ public class UserController {
 
         UserInfoResponseDto userInfoResponseDto = UserInfoResponseDto.createUserInfoResponse(user);
 
-        return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "유저 정보 수정에 성공했습니다.", userInfoResponseDto));
+        return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "유저 프로필 정보 수정에 성공했습니다.", userInfoResponseDto));
     }
 
     //닉네임 찾기
