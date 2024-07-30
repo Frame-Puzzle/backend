@@ -1,9 +1,6 @@
 package com.frazzle.main.domain.directory.controller;
 
-import com.frazzle.main.domain.directory.dto.CreateDirectoryRequestDto;
-import com.frazzle.main.domain.directory.dto.InviteOrCancelMemberRequestDto;
-import com.frazzle.main.domain.directory.dto.UserByEmailResponseDto;
-import com.frazzle.main.domain.directory.dto.UpdateDirectoryNameRequestDto;
+import com.frazzle.main.domain.directory.dto.*;
 import com.frazzle.main.domain.directory.service.DirectoryService;
 import com.frazzle.main.global.models.UserPrincipal;
 import com.frazzle.main.global.utils.ResultDto;
@@ -13,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -71,5 +69,14 @@ public class DirectoryController {
     ){
         directoryService.cancelMemberInvitation(userPrincipal, requestDto, directoryId);
         return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "초대 취소에 성공했습니다."));
+    }
+
+    @GetMapping("")
+    public ResponseEntity<?> findMyDirectory(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @RequestParam(value = "category", required = false) String category
+     ){
+        List<FindMyDirectoryResponseDto> response = directoryService.findMyDirectory(userPrincipal, category);
+        return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "조회에 성공했습니다.", response));
     }
 }
