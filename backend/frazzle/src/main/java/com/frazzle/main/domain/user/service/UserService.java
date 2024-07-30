@@ -1,5 +1,7 @@
 package com.frazzle.main.domain.user.service;
 
+import com.frazzle.main.domain.user.dto.UpdateUserNicknameRequestDto;
+import com.frazzle.main.domain.user.dto.UpdateUserProfileRequestDto;
 import com.frazzle.main.domain.user.dto.UpdateUserRequestDto;
 import com.frazzle.main.domain.user.entity.User;
 import com.frazzle.main.domain.user.repository.UserRepository;
@@ -37,13 +39,15 @@ public class UserService {
     }
 
     @Transactional
-    public Long updateUserByNickname(User user, UpdateUserRequestDto requestDto) {
-        return userRepository.updateNickname(user, requestDto);
+    public User updateUserByNickname(User user, UpdateUserNicknameRequestDto requestDto) {
+        User updateUser = User.UpdateUserNickname(user, requestDto.getNickname());
+        return userRepository.save(updateUser);
     }
 
     @Transactional
-    public Long updateUserByProfileImg(User user, UpdateUserRequestDto requestDto) {
-        return userRepository.updateProfileImg(user, requestDto);
+    public User updateUserByProfileImg(User user, String url) {
+        User updateUser = User.UpdateUserProfileImg(user, url);
+        return userRepository.save(updateUser);
     }
 
 
