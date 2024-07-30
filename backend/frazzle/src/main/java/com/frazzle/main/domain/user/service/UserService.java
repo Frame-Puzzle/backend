@@ -5,6 +5,10 @@ import com.frazzle.main.domain.user.dto.UpdateUserProfileRequestDto;
 import com.frazzle.main.domain.user.dto.UpdateUserRequestDto;
 import com.frazzle.main.domain.user.entity.User;
 import com.frazzle.main.domain.user.repository.UserRepository;
+import com.frazzle.main.domain.userdirectory.entity.UserDirectory;
+import com.frazzle.main.domain.userdirectory.repository.UserDirectoryRepository;
+import com.frazzle.main.global.exception.CustomException;
+import com.frazzle.main.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final UserDirectoryRepository userDirectoryRepository;
 
     //UserId로 유저 찾기
 //    public User findByLoginUserId(String id) {
@@ -40,16 +45,15 @@ public class UserService {
 
     @Transactional
     public User updateUserByNickname(User user, UpdateUserNicknameRequestDto requestDto) {
-        User updateUser = User.UpdateUserNickname(user, requestDto.getNickname());
-        return userRepository.save(updateUser);
+        user.updateUserNickname(requestDto.getNickname());
+        return userRepository.save(user);
     }
 
     @Transactional
     public User updateUserByProfileImg(User user, String url) {
-        User updateUser = User.UpdateUserProfileImg(user, url);
-        return userRepository.save(updateUser);
+        user.updateUserProfileImg(url);
+        return userRepository.save(user);
     }
-
 
     //닉네임 존재 여부 체크
     public Boolean findByNickname(String nickname) {
@@ -59,7 +63,15 @@ public class UserService {
     //사용자 삭제
     @Transactional
     public Long deleteUser(int userId) {
-        return userRepository.deleteByUserId(userId);
+        User user = userRepository.findByUserId(userId);
+
+        //유저가 있으면
+        if(user != null) {
+            userDirectoryRepository.deleteByUser(user);
+            return userRepository.deleteByUserId(userId);
+        }
+
+        throw new CustomException(ErrorCode.NOT_EXIST_USER);
     }
 
     //리프레시 토큰 업데이트
