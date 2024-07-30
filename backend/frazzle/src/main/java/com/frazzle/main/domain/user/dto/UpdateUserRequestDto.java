@@ -6,12 +6,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
-@Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
-@AtLeastOneNotBlank //적어도 하나의 값은 존재해야함
-public class UpdateUserRequestDto {
-    private String nickname;
-    private String profileImg;
+public interface UpdateUserRequestDto {
 }
