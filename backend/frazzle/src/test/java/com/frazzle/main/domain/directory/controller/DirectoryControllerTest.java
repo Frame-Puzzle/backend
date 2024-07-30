@@ -67,7 +67,7 @@ public class DirectoryControllerTest {
         email = "s";
         userByEmailResponseDtos = new ArrayList<>();
         userByEmailResponseDtos.add(UserByEmailResponseDto.createFindUserByEmailResponseDto(member));
-        inviteMemberRequestDto = new InviteMemberRequestDto(member.getUserId(), member.getEmail());
+        inviteMemberRequestDto = new InviteMemberRequestDto(member.getUserId());
     }
 
     @Test
