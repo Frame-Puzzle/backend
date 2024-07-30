@@ -137,4 +137,19 @@ public class DirectoryControllerTest {
                 .content(requestBody)
         ).andExpect(MockMvcResultMatchers.status().isOk());
     }
+
+    @Test
+    @DisplayName("멤버 초대 취소 성공 테스트")
+    @WithMockAuthUser(email = "ssafy@ssafy.com")
+    public void 멤버_초대_취소_성공_테스트() throws Exception{
+        String requestBody = objectMapper.writeValueAsString(updateDirectoryNameRequestDto);
+
+        BDDMockito.doNothing().when(directoryService).cancelMemberInvitation(userPrincipal, inviteOrCancelMemberRequestDto, directoryId);
+
+        ResultActions result = mockMvc.perform(MockMvcRequestBuilders.delete("/directories/{directoryId}/user", directoryId)
+                .with(SecurityMockMvcRequestPostProcessors.csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody)
+        ).andExpect(MockMvcResultMatchers.status().isOk());
+    }
 }
