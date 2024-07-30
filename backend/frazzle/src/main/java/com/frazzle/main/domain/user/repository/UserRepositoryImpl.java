@@ -74,35 +74,4 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
 
         return result;
     }
-
-    @Override
-    //닉네임 업데이트
-    public Long updateNickname(User updateUser, UpdateUserNicknameRequestDto requestDto) {
-        Long result = queryFactory
-                .update(user)
-                .where(user.eq(updateUser))
-                .set(user.nickname, requestDto.getNickname())
-                .execute();
-
-        em.flush();
-        em.clear();
-
-        return result;
-    }
-
-    @Override
-    //프로필 업데이트
-    public Long updateProfileImg(User updateUser, UpdateUserProfileRequestDto requestDto) {
-//        Long result = queryFactory
-//                .update(user)
-//                .where(user.eq(updateUser))
-//                .set(user.profileImg, requestDto.getProfileImg())
-//                .execute();
-//
-//        em.flush();
-//        em.clear();
-//
-//        return result;
-        return null;
-    }
 }
