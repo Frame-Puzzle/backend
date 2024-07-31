@@ -12,11 +12,11 @@ import java.time.LocalDateTime;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-@Table(name = "push_notifications")
+@Table(name = "notifications")
 public class Notification {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "push_id")
-    private int push_id;
+    @Column(name = "notification_id")
+    private int notificationId;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMP")
