@@ -20,11 +20,11 @@ public class Board {
     @Column(name = "board_id")
     private int boardId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "directory_id")
     private Directory directory;
 
@@ -53,7 +53,7 @@ public class Board {
     private int pieceCount;
 
     //퍼즐 게임 클리어 시 삽입될 이미지
-    @Column(name = "thumbnail_url", nullable = false, length = 255)
+    @Column(name = "thumbnail_url", nullable = true, length = 255)
     private String thumbnailUrl;
 
     @Column(name = "is_vote", nullable = false)
@@ -69,6 +69,7 @@ public class Board {
     @Builder
     private Board(User user,
                   Directory directory,
+                  String keyword,
                   int boardSize,
                   int clearType,
                   int pieceCount,
@@ -80,6 +81,7 @@ public class Board {
     {
         this.user = user;
         this.directory = directory;
+        this.keyword = keyword;
         this.boardSize = boardSize;
         this.clearType = clearType;
         this.pieceCount = pieceCount;
@@ -93,6 +95,7 @@ public class Board {
         return Board.builder()
                 .user(user)
                 .directory(directory)
+                .keyword(boardDto.getKeyword())
                 .boardSize(boardDto.getBoardSize())
                 .clearType(BoardClearTypeFlag.NONE.getValue())
                 .pieceCount(boardDto.getBoardSize())
