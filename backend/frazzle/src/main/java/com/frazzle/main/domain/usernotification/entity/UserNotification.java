@@ -53,4 +53,12 @@ public class UserNotification {
                 .acceptStatus(acceptStatus)
                 .build();
     }
+
+    public void updateRead() {
+        this.isRead = true;
+    }
+
+    public void updateStatus(String status) {
+        this.acceptStatus = status;
+    }
 }
