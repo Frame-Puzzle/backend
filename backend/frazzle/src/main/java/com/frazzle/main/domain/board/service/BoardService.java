@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -52,14 +53,14 @@ public class BoardService {
                              int directoryID)
     {
         //유저 확인
-        User user = userRepository.findByUserId(userPrincipal.getId());
+        Optional<User> user = userRepository.findByUserId(userPrincipal.getId());
 
         //디렉토리 탐색
         Directory directory = directoryRepository.findByDirectoryId(directoryID)
                 .orElseThrow(()-> new CustomException(ErrorCode.NOT_EXIST_DIRECTORY));
 
         //디렉토리 유저 인증
-        if(!userDirectoryRepository.existsByDirectoryAndUserAndIsAccept(directory, user, true)) {
+        if(!userDirectoryRepository.existsByDirectoryAndUserAndIsAccept(directory, user.get(), true)) {
             throw new CustomException(ErrorCode.DENIED_UPDATE);
         }
 
