@@ -12,7 +12,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.net.URL;
-import java.util.UUID;
 
 import static com.frazzle.main.global.utils.FileUtil.convertMultiPartFileToFile;
 
@@ -26,36 +25,39 @@ public class AwsService {
 
     private final AmazonS3 s3Client;
 
-    //사용자의 loginUserId를 통해 파일명을 바꾸고 S3에 업로드
+    // 사용자의 loginUserId를 통해 파일명을 바꾸고 S3에 업로드
     public String uploadFile(MultipartFile file, String loginUserId) {
         try {
             File fileObj = convertMultiPartFileToFile(file);
 
             String originalFilename = file.getOriginalFilename();
 
+            //확장자 저장
             String extension = "";
             int dotIndex = originalFilename.lastIndexOf('.');
+<<<<<<< HEAD
 
+=======
+            
+>>>>>>> 8662a7e1c62320584268cbb58ae9295bed4bdd78
             if (dotIndex > 0) {
                 extension = originalFilename.substring(dotIndex);
             }
 
+            //loginUserId로 이름 설정
             String uniqueFileName = loginUserId + extension;
 
             s3Client.putObject(new PutObjectRequest(name, uniqueFileName, fileObj));
             fileObj.delete();
-
-            return extension;
-
+            return uniqueFileName;
         } catch (Exception e) {
             log.error(e.getMessage());
             throw new CustomException(ErrorCode.FAILED_CONVERT_FILE);
         }
     }
 
-    //S3에서 받은 url을 string으로 변환 후 반환
-    public String getProfileUri(String loginUserId) {
-        URL url = s3Client.getUrl(name, loginUserId);
-        return ""+url;
+    public String getProfileUrl(String userUrl) {
+        URL url = s3Client.getUrl(name, userUrl);
+        return "" + url;
     }
 }
