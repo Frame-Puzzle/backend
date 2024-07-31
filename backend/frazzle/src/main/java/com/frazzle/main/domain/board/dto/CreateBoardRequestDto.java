@@ -1,6 +1,7 @@
 package com.frazzle.main.domain.board.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Getter
@@ -12,6 +13,7 @@ public class CreateBoardRequestDto {
 
     private String keyword;
 
-    @NotBlank
+    //review : int형은 NotBlank보다 NotNull이 더 적합
+    @NotNull
     private int boardSize;
 }

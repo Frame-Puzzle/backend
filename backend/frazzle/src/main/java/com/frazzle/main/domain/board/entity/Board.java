@@ -28,12 +28,11 @@ public class Board {
     @JoinColumn(name = "directory_id")
     private Directory directory;
 
-    //디렉토리에 포함될 예정
-//    @Column(name = "board_in_number")
-//    private int boardInNumber;
+    @Column(name = "board_in_number")
+    private int boardInNumber;
 
     //최대 3가지 키워드를 '#'으로 구분해서 담아둔다.
-    @Column(name = "keyword", nullable = false, length = 64)
+    @Column(name = "keyword", length = 64)
     private String keyword;
 
     @Column(name = "board_size", nullable = false)
@@ -69,6 +68,7 @@ public class Board {
     @Builder
     private Board(User user,
                   Directory directory,
+                  int boardInNumber,
                   String keyword,
                   int boardSize,
                   int clearType,
@@ -81,6 +81,7 @@ public class Board {
     {
         this.user = user;
         this.directory = directory;
+        this.boardInNumber = boardInNumber;
         this.keyword = keyword;
         this.boardSize = boardSize;
         this.clearType = clearType;
@@ -91,14 +92,16 @@ public class Board {
         //this.isComplete = isComplete;
     }
 
-    public static Board createBoard(CreateBoardRequestDto boardDto, User user, Directory directory){
+    public static Board createBoard(CreateBoardRequestDto boardDto, Directory directory){
         return Board.builder()
-                .user(user)
+                //.user(user)
                 .directory(directory)
+                //TODO: 디렉토리에서 퍼즐판 수 조회하기
+                //.boardInNumber(directory.get)
                 .keyword(boardDto.getKeyword())
                 .boardSize(boardDto.getBoardSize())
-                .clearType(BoardClearTypeFlag.NONE.getValue())
-                .pieceCount(boardDto.getBoardSize())
+                .clearType(0)
+                .pieceCount(0)
                 .thumbnailUrl(null)
                 .isVote(false)
                 .voteNumber(0)

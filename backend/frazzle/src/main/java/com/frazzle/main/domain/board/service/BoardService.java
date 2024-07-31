@@ -7,6 +7,7 @@ import com.frazzle.main.domain.directory.entity.Directory;
 import com.frazzle.main.domain.directory.repository.DirectoryRepository;
 import com.frazzle.main.domain.user.entity.User;
 import com.frazzle.main.domain.user.repository.UserRepository;
+import com.frazzle.main.domain.userdirectory.repository.UserDirectoryRepository;
 import com.frazzle.main.global.exception.CustomException;
 import com.frazzle.main.global.exception.ErrorCode;
 import com.frazzle.main.global.models.UserPrincipal;
@@ -26,7 +27,9 @@ public class BoardService {
 
     private final UserRepository userRepository;
     private final DirectoryRepository directoryRepository;
+    private final UserDirectoryRepository userDirectoryRepository;
     private final BoardRepository boardRepository;
+
 
     public List<Board> findBoardsByDirectoryId(int directoryId)
     {
@@ -45,15 +48,20 @@ public class BoardService {
                              CreateBoardRequestDto boardDto,
                              int directoryID)
     {
-        //1. 유저 확인
+        //유저 확인
         User user = userRepository.findByUserId(userPrincipal.getId());
 
         //디렉토리 탐색
         Directory directory = directoryRepository.findByDirectoryId(directoryID)
                 .orElseThrow(()-> new CustomException(ErrorCode.NOT_EXIST_DIRECTORY));
 
+        //디렉토리 유저 인증
+        if(!userDirectoryRepository.existsByDirectoryAndUserAndIsAccept(directory, user, true)) {
+            throw new CustomException(ErrorCode.DENIED_UPDATE);
+        }
+
         //보드 생성
-        Board board = Board.createBoard(boardDto, user, directory);
+        Board board = Board.createBoard(boardDto, directory);
         boardRepository.save(board);
         return board;
     }
