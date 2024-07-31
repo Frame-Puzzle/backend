@@ -119,6 +119,11 @@ public class Board {
         this.pieceCount++;
     }
 
+    public void changePieceCount(int number)
+    {
+        this.pieceCount = number;
+    }
+
     //toggle
     public void changeVote(){
         this.isVote = !this.isVote;

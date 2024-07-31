@@ -89,7 +89,7 @@ class BoardServiceTest {
         //directoryRepo.save(directory);
 
         //보드판 생성
-        Board board = Board.createBoard(boardDto, null, directory);
+        Board board = Board.createBoard(boardDto, directory);
 
         // when
         //Board createdBoard = boardService.createBoard(userPrincipal, boardDto, directory.getDirectoryId());

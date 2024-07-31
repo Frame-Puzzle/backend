@@ -2,6 +2,7 @@ package com.frazzle.main.domain.board.service;
 
 import com.frazzle.main.domain.board.dto.CreateBoardRequestDto;
 import com.frazzle.main.domain.board.entity.Board;
+import com.frazzle.main.domain.board.entity.BoardClearTypeFlag;
 import com.frazzle.main.domain.board.repository.BoardRepository;
 import com.frazzle.main.domain.directory.entity.Directory;
 import com.frazzle.main.domain.directory.repository.DirectoryRepository;
@@ -31,12 +32,14 @@ public class BoardService {
     private final BoardRepository boardRepository;
 
 
+    @Transactional
     public List<Board> findBoardsByDirectoryId(int directoryId)
     {
         //response
         return null;
     }
 
+    @Transactional
     public Board findBoardByBoardId(int boardId)
     {
         //response
@@ -66,9 +69,44 @@ public class BoardService {
         return board;
     }
 
-    public void updateBoard(Board board)
+    //썸네일 유저 등록
+    @Transactional
+    public void updateUserFromBoard(UserPrincipal userPrincipal)
     {
 
+    }
+
+    //썸네일 사진 등록
+    @Transactional
+    public void updateThumbnailUrl(String thumbnailUrl)
+    {
+
+    }
+
+    //클리어 타입 변경
+    @Transactional
+    public void updateClearType(Board board, BoardClearTypeFlag flag)
+    {
+        board.changeClearType(flag);
+    }
+
+    //투표 여부 변경
+    @Transactional
+    public void changeIsVote(Board board)
+    {
+        board.changeVote();
+    }
+
+    @Transactional
+    public void updateVoteCount(Board board, int voteCount)
+    {
+        board.changeVoteNumber(voteCount);
+    }
+
+    @Transactional
+    public void updatePieceCount(Board board, int pieceCount)
+    {
+        board.changePieceCount(pieceCount);
     }
 
     @Transactional
