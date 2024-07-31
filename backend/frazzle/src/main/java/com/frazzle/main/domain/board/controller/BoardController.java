@@ -13,12 +13,12 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("directories/")
+@RequestMapping("/directories/{directoryID}/boards")
 public class BoardController {
 
     private final BoardService boardService;
 
-    @PostMapping("{directoryID}/boards")
+    @PostMapping
     public ResponseEntity<ResultDto> createBoard(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @Valid @RequestBody CreateBoardRequestDto requestDto,
