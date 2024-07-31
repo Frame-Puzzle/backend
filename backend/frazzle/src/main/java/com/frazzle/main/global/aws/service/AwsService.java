@@ -35,11 +35,7 @@ public class AwsService {
             //확장자 저장
             String extension = "";
             int dotIndex = originalFilename.lastIndexOf('.');
-<<<<<<< HEAD
 
-=======
-            
->>>>>>> 8662a7e1c62320584268cbb58ae9295bed4bdd78
             if (dotIndex > 0) {
                 extension = originalFilename.substring(dotIndex);
             }
