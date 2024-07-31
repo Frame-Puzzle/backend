@@ -40,14 +40,14 @@ public class UserService {
 
     @Transactional
     public User updateUserByNickname(User user, UpdateUserNicknameRequestDto requestDto) {
-        User updateUser = User.UpdateUserNickname(user, requestDto.getNickname());
-        return userRepository.save(updateUser);
+        user.updateNickname(requestDto.getNickname());
+        return userRepository.save(user);
     }
 
     @Transactional
     public User updateUserByProfileImg(User user, String url) {
-        User updateUser = User.UpdateUserProfileImg(user, url);
-        return userRepository.save(updateUser);
+        user.updateProfileImg(url);
+        return userRepository.save(user);
     }
 
 
