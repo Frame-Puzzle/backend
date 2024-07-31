@@ -1,10 +1,13 @@
 package com.frazzle.main.domain.notification.controller;
 
+import com.frazzle.main.domain.notification.dto.AcceptNotificationRequestDto;
 import com.frazzle.main.domain.notification.dto.NotificationListResponseDto;
 import com.frazzle.main.domain.notification.entity.Notification;
 import com.frazzle.main.domain.notification.service.NotificationService;
 import com.frazzle.main.domain.user.entity.User;
 import com.frazzle.main.domain.user.service.UserService;
+import com.frazzle.main.domain.usernotification.entity.UserNotification;
+import com.frazzle.main.domain.usernotification.repository.UserNotificationRepository;
 import com.frazzle.main.global.models.UserPrincipal;
 import com.frazzle.main.global.utils.ResultDto;
 import io.swagger.v3.oas.annotations.Operation;
@@ -12,16 +15,14 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -53,6 +54,30 @@ public class NotificationController {
 
         return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "알림 전체 조회가 성공했습니다.", responseDto));
     }
+
+
+    @Operation(summary = "알림 읽음, 수락", description = "사용자가 알림을 읽음 또는 수락합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "조회에 성공했습니다.",
+                    content = @Content(schema = @Schema(implementation = ResultDto.class))),
+            @ApiResponse(responseCode = "404", description = "조회에 실패했습니다.",
+                    content = @Content(schema = @Schema(implementation = ResultDto.class)))
+    })
+    @PutMapping("/{notificationId}")
+    public ResponseEntity<ResultDto> acceptNotification(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable("notificationId") int notificationId,
+            @Valid @RequestBody AcceptNotificationRequestDto requestDto) {
+
+        int userId = userPrincipal.getId();
+
+        User user = userService.findByUserId(userId);
+
+        notificationService.updateUserNotification(user, notificationId, requestDto);
+
+        return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "알림 전체 조회가 성공했습니다."));
+    }
+
 
 
 }
