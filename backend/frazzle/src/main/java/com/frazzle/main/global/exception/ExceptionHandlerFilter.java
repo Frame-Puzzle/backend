@@ -1,6 +1,7 @@
 package com.frazzle.main.global.exception;
 
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.frazzle.main.global.utils.ResultDto;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,7 +18,6 @@ public class ExceptionHandlerFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-
         try {
             filterChain.doFilter(request, response);
         } catch (CustomException e) {
@@ -28,14 +28,15 @@ public class ExceptionHandlerFilter extends OncePerRequestFilter {
     }
 
     public void setErrorResponse(HttpStatus status, HttpServletResponse response, Throwable ex) throws IOException {
-        log.error("[ExceptionHandlerFilter] errMsg : "+ ex.getMessage());
+        log.error("[ExceptionHandlerFilter] errMsg : " + ex.getMessage());
 
         response.setStatus(status.value());
-        response.setContentType("application/json; charset-UTF-8");
+        response.setContentType("application/json; charset=UTF-8");
+
+        ResultDto<Object> errorResponse = ResultDto.res(status.value(), ex.getMessage());
 
         response.getWriter().write(
-                new ErrorResponse(ex.getMessage())
-                        .convertToJson()
+                new ObjectMapper().writeValueAsString(errorResponse)
         );
     }
 }
