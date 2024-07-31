@@ -39,8 +39,7 @@ public class User {
     @Column(name = "device_token")
     private String deviceToken;
 
-//    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
-//    private List<UserDirectory> userDirectory;
+
 
     @Builder
     private User(String loginUserId, String nickname, String email, String socialType, String profileImg, String refreshToken, String deviceToken) {
@@ -61,7 +60,6 @@ public class User {
                 .socialType(socialType)
                 .build();
     }
-
     public void updateUserProfileImg(String profileImg) {
         this.profileImg = profileImg;
     }
@@ -69,5 +67,4 @@ public class User {
     public void updateUserNickname(String nickname) {
         this.nickname = nickname;
     }
-
 }
