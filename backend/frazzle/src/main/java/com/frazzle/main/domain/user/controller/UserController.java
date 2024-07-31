@@ -18,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/users")
 @RequiredArgsConstructor
 @Slf4j
+@CrossOrigin(origins = "*")
 public class UserController {
 
     private final UserService userService;
@@ -94,7 +94,7 @@ public class UserController {
         User user = userService.findByUserId(userId);
 
         //만약 닉네임 변경시 여기서 발생
-        userService.updateUserByNickname(user, requestDto);
+        user = userService.updateUserByNickname(user, requestDto);
 
         UserInfoResponseDto userInfoResponseDto = UserInfoResponseDto.createUserInfoResponse(user);
 
@@ -115,14 +115,17 @@ public class UserController {
         int userId = userPrincipal.getId();
 
         User user = userService.findByUserId(userId);
+        log.info(profileImg.toString());
 
-        //사용자가 업로드한 파일의 확장자
-        String extension = awsService.uploadFile(profileImg, user.getLoginUserId());
+        //사진 업로드 후 유저url 반환
+        String userUrl = awsService.uploadFile(profileImg, user.getLoginUserId());
 
-        //사용자가 업로드한 파일의 프사url
-        String url = awsService.getProfileUri(user.getLoginUserId());
+        //유저url을 통해 S3에서 이미지 가져오기
+        String url = awsService.getProfileUrl(userUrl);
 
-        userService.updateUserByProfileImg(user, url+extension);
+
+        //가져온 실제 url을 db에 url 저장
+        user = userService.updateUserByProfileImg(user, url);
 
         UserInfoResponseDto userInfoResponseDto = UserInfoResponseDto.createUserInfoResponse(user);
 
