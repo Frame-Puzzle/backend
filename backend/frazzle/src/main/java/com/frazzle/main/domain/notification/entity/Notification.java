@@ -35,9 +35,9 @@ public class Notification {
     @JoinColumn(name = "directory_id")
     private Directory directory;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "board_id")
-    private Board board;
+//    @OneToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "board_id")
+//    private Board board;
 
 
     @Builder
@@ -46,16 +46,16 @@ public class Notification {
         this.type = type;
         this.createUser = createUser;
         this.directory = directory;
-        this.board = null;
+//        this.board = null;
     }
 
-    @Builder Notification(String keyword, int type, String createUser , Board board) {
-        this.keyword = keyword;
-        this.type = type;
-        this.createUser = createUser;
-        this.directory = null;
-        this.board = board;
-    }
+//    @Builder Notification(String keyword, int type, String createUser , Board board) {
+//        this.keyword = keyword;
+//        this.type = type;
+//        this.createUser = createUser;
+//        this.directory = null;
+//        this.board = board;
+//    }
 
     public static Notification createNotificationWithDirectory(String keyword, int type, String createUser, Directory directory) {
         return Notification.builder()
