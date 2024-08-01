@@ -92,10 +92,10 @@ public class Board {
         //this.isComplete = isComplete;
     }
 
-    public static Board createBoard(CreateBoardRequestDto boardDto, Directory directory){
+    public static Board createBoard(CreateBoardRequestDto boardDto){
         return Board.builder()
                 //.user(user)
-                .directory(directory)
+                //.directory(directory)
                 //TODO: 디렉토리에서 퍼즐판 수 조회하기
                 //.boardInNumber(directory.get)
                 .keyword(boardDto.getKeyword())

@@ -72,7 +72,8 @@ public class BoardService {
         }
 
         //보드 생성
-        Board board = Board.createBoard(boardDto, directory);
+        Board board = Board.createBoard(boardDto);
+        board.updateDirectory(directory);
         boardRepository.save(board);
         return board;
     }
