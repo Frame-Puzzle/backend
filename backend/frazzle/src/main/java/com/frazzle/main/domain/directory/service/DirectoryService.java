@@ -33,7 +33,7 @@ public class DirectoryService {
         //1. 유저 정보 확인
         User user = userRepository.findByUserId(userPrincipal.getId()).orElseThrow(
                 () -> new CustomException(ErrorCode.NOT_EXIST_USER)
-        );;
+        );
 
         //2. 디렉토리 생성
         Directory directory = Directory.createDirectory(requestDto);
