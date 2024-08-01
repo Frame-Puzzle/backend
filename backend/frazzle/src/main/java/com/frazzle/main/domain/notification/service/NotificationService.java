@@ -21,6 +21,7 @@ public class NotificationService {
         return notificationRepository.findByUser(user);
     }
 
+    @Transactional
     public void updateUserNotification(User user, int notificationId, AcceptNotificationRequestDto requestDto) {
         Notification notification = notificationRepository.findByNotificationId(notificationId);
 
