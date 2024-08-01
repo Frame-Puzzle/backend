@@ -76,11 +76,11 @@ public class UserService {
                 () -> new CustomException(ErrorCode.NOT_EXIST_USER)
         );
 
-        //        //사진 업로드 후 유저url 반환
-        String userUrl = awsService.uploadFile(profileImg);
+        //사진 업로드 후 고유url 반환
+        String imgUrl = awsService.uploadFile(profileImg);
 
         //유저url을 통해 S3에서 이미지 가져오기
-        String url = awsService.getProfileUrl(userUrl);
+        String url = awsService.getProfileUrl(imgUrl);
 
         user.updateUserProfileImg(url);
         return userRepository.save(user);
