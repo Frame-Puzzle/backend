@@ -13,7 +13,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -48,7 +50,9 @@ public class DirectoryController {
             @PathVariable("directoryId") int directoryId,
             @RequestParam("email") String email) {
         List<UserByEmailResponseDto> responses = directoryService.findUserByEmail(userPrincipal, email, directoryId);
-        return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "조회에 성공했습니다", responses));
+        Map<String, Object> data = new HashMap<>();
+        data.put("memberList", responses);
+        return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "조회에 성공했습니다", data));
     }
 
     @PostMapping("/{directoryId}/user")
@@ -77,6 +81,8 @@ public class DirectoryController {
             @RequestParam(value = "category", required = false) String category
      ){
         List<FindMyDirectoryResponseDto> response = directoryService.findMyDirectory(userPrincipal, category);
-        return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "조회에 성공했습니다.", response));
+        Map<String, Object> data = new HashMap<>();
+        data.put("directoryList", response);
+        return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "조회에 성공했습니다.", data));
     }
 }
