@@ -8,6 +8,7 @@ public enum ErrorCode {
     INVALID_ACCESS_TOKEN("유효하지않은 액세스 토큰입니다.", HttpStatus.UNAUTHORIZED),
     INVALID_REFRESH_TOKEN("유효하지않은 리프레시 토큰입니다.", HttpStatus.UNAUTHORIZED),
     BAD_REQUEST("잘못된 요청입니다.", HttpStatus.BAD_REQUEST),
+    DUPLICATED_NICKNAME("중복된 닉네임입니다.", HttpStatus.BAD_REQUEST),
     NOT_EXIST_USER("존재하지 않는 유저입니다.", HttpStatus.UNAUTHORIZED),
     NOT_EXIST_FIREBASE_TOKEN("파이어베이스 토큰이 존재하지 않습니다.", HttpStatus.NOT_FOUND),
     FAILED_SEND_MESSAGE("메시지를 보내는데 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
