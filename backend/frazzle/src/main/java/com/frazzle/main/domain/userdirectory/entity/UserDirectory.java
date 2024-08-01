@@ -25,7 +25,7 @@ public class UserDirectory {
     @JoinColumn(name = "directory_id")
     private Directory directory;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "user_id")
     private User user;
 
