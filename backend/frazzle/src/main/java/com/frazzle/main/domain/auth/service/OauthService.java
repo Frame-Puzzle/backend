@@ -36,7 +36,7 @@ public class OauthService {
         final String refreshToken = jwtTokenService.createRefreshToken();
 
         //사용자 리프레시 토큰 업데이트
-        User user = userService.findByUserId(id);
+        User user = userService.findUser(id);
 
         userService.updateRefreshToken(user, refreshToken);
 

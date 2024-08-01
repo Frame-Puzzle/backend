@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.net.URL;
+import java.util.UUID;
 
 import static com.frazzle.main.global.utils.FileUtil.convertMultiPartFileToFile;
 
@@ -30,18 +31,8 @@ public class AwsService {
         try {
             File fileObj = convertMultiPartFileToFile(file);
 
-            String originalFilename = file.getOriginalFilename();
-
-            //확장자 저장
-            String extension = "";
-            int dotIndex = originalFilename.lastIndexOf('.');
-
-            if (dotIndex > 0) {
-                extension = originalFilename.substring(dotIndex);
-            }
-
-            //loginUserId로 이름 설정
-            String uniqueFileName = loginUserId + extension;
+            //uuid로 랜덤
+            String uniqueFileName = UUID.randomUUID().toString();
 
             s3Client.putObject(new PutObjectRequest(name, uniqueFileName, fileObj));
             fileObj.delete();
