@@ -3,10 +3,10 @@ package com.frazzle.main.domain.board.controller;
 import com.frazzle.main.domain.board.dto.*;
 import com.frazzle.main.domain.board.entity.Board;
 import com.frazzle.main.domain.board.service.BoardService;
-import com.frazzle.main.domain.piece.dto.PieceDto;
+import com.frazzle.main.domain.piece.dto.FindPieceResponseDto;
+import com.frazzle.main.domain.piece.dto.UpdatePieceRequestDto;
 import com.frazzle.main.domain.piece.entity.Piece;
 import com.frazzle.main.domain.piece.service.PieceService;
-import com.frazzle.main.domain.user.entity.User;
 import com.frazzle.main.global.models.UserPrincipal;
 import com.frazzle.main.global.utils.ResultDto;
 import jakarta.validation.Valid;
@@ -100,9 +100,9 @@ public class BoardController {
         Board board = boardService.findBoardByBoardId(userPrincipal, boardID);
         List<Piece> pieceList = boardService.findAllPhoto(boardID);
 
-        List<PieceDto> pieceDtoList = new ArrayList<>();
+        List<FindPieceResponseDto> pieceDtoList = new ArrayList<>();
         for(Piece piece : pieceList) {
-            PieceDto pieceDto = PieceDto.createPieceDto(piece.getImageUrl(), piece.getContent());
+            FindPieceResponseDto pieceDto = FindPieceResponseDto.createPieceDto(piece.getImageUrl(), piece.getContent());
             pieceDtoList.add(pieceDto);
         }
 
@@ -120,11 +120,11 @@ public class BoardController {
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable("directoryID") int directoryID,
             @PathVariable("boardID") int boardID,
-            @RequestBody @Valid UpdateThumbnailsRequestDto requestDto
+            @RequestBody @Valid UpdateBoardThumbnailRequestDto requestDto
             ){
 
         Board board = boardService.findBoardByBoardId(userPrincipal, boardID);
-        boardService.updateThumbnailUrl(board, requestDto.getThumbnailUrl());
+        boardService.updateThumbnailUrl(board, requestDto);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ResultDto.res(HttpStatus.OK.value(),

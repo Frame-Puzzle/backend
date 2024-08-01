@@ -1,6 +1,7 @@
 package com.frazzle.main.domain.board.service;
 
 import com.frazzle.main.domain.board.dto.CreateBoardRequestDto;
+import com.frazzle.main.domain.board.dto.UpdateBoardThumbnailRequestDto;
 import com.frazzle.main.domain.board.entity.Board;
 import com.frazzle.main.domain.board.entity.BoardClearTypeFlag;
 import com.frazzle.main.domain.board.entity.GlobalBoardSize;
@@ -12,6 +13,7 @@ import com.frazzle.main.domain.piece.repository.PieceRepository;
 import com.frazzle.main.domain.user.entity.User;
 import com.frazzle.main.domain.user.repository.UserRepository;
 import com.frazzle.main.domain.userdirectory.repository.UserDirectoryRepository;
+import com.frazzle.main.global.aws.service.AwsService;
 import com.frazzle.main.global.exception.CustomException;
 import com.frazzle.main.global.exception.ErrorCode;
 import com.frazzle.main.global.models.UserPrincipal;
@@ -34,8 +36,9 @@ public class BoardService {
     private final DirectoryRepository directoryRepository;
     private final UserDirectoryRepository userDirectoryRepository;
     private final BoardRepository boardRepository;
-
     private final PieceRepository pieceRepository;
+
+    private final AwsService awsService;
 
     private User checkUser(UserPrincipal userPrincipal) {
         return userRepository.findByUserId(userPrincipal.getId())
@@ -101,12 +104,16 @@ public class BoardService {
         board.updateUser(user);
     }
 
-    //썸네일 사진 등록, 1등 유저가 등록되고, 게임 클리어 시에만 가능
+    //보드판 내의 썸네일 사진 등록, 1등 유저가 등록되고, 게임 클리어 시에만 가능
     @Transactional
-    public void updateThumbnailUrl(Board board, String thumbnailUrl) {
+    public void updateThumbnailUrl(Board board, UpdateBoardThumbnailRequestDto requestDto) {
         if((board.getClearType() == BoardClearTypeFlag.PUZZLE_GAME_CLEARED.getValue()
         && board.getUser() != null)){
-            board.changeImageUrl(thumbnailUrl);
+
+            String uuid = awsService.uploadFile(requestDto.getThumbnailUrl(), "");
+            String url = awsService.getProfileUrl(uuid);
+
+            board.changeImageUrl(url);
         }
     }
 

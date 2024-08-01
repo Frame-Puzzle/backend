@@ -1,7 +1,6 @@
 package com.frazzle.main.domain.piece.entity;
 
 import com.frazzle.main.domain.board.entity.Board;
-import com.frazzle.main.domain.piece.dto.PieceDto;
 import com.frazzle.main.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -70,10 +69,10 @@ public class Piece {
                 .build();
     }
 
-    public void updatePieceDto(PieceDto pieceDto, User user) {
+    public void updatePieceDto(String imageUrl, String content, User user) {
         //사용자 유저 정보가 없을때, 혹은 같을 때 수정 가능(서비스 쪽에서 처리)
-        this.imageUrl = pieceDto.getImgUrl();
-        this.content = pieceDto.getComment();
+        this.imageUrl = imageUrl;
+        this.content = content;
         this.user = user;
         this.modifiedAt = LocalDateTime.now();
     }

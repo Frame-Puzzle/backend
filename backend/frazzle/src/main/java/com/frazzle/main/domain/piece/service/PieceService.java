@@ -1,10 +1,11 @@
 package com.frazzle.main.domain.piece.service;
 
-import com.frazzle.main.domain.piece.dto.PieceDto;
+import com.frazzle.main.domain.piece.dto.UpdatePieceRequestDto;
 import com.frazzle.main.domain.piece.entity.Piece;
 import com.frazzle.main.domain.piece.repository.PieceRepository;
 import com.frazzle.main.domain.user.entity.User;
 import com.frazzle.main.domain.user.repository.UserRepository;
+import com.frazzle.main.global.aws.service.AwsService;
 import com.frazzle.main.global.exception.CustomException;
 import com.frazzle.main.global.exception.ErrorCode;
 import com.frazzle.main.global.models.UserPrincipal;
@@ -12,6 +13,7 @@ import com.frazzle.main.global.utils.FindPeopleCountFromImg;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -22,6 +24,7 @@ public class PieceService {
 
     private final PieceRepository pieceRepository;
     private final UserRepository userRepository;
+    private final AwsService awsService;
 
     private User checkUser(UserPrincipal userPrincipal) {
         return userRepository.findByUserId(userPrincipal.getId())
@@ -72,7 +75,7 @@ public class PieceService {
 
     //퍼즐 조각 업로드
     @Transactional
-    public void updatePiece(UserPrincipal userPrincipal, int directoryId, int pieceId, PieceDto pieceDto)
+    public void updatePiece(UserPrincipal userPrincipal, int directoryId, int pieceId, UpdatePieceRequestDto requestDto)
     {
         //1. 사용자 인증 및 인가 검증
         User user = checkUser(userPrincipal);
@@ -92,11 +95,17 @@ public class PieceService {
             throw new CustomException(ErrorCode.DENIED_UPDATE_PIECE);
         }
 
+        //3. 파일 변환
+        //TODO: multifile S3로 업로드 하고 url 받기
+        MultipartFile imgFile = requestDto.getImgFile();
+        String uuidUrl = awsService.uploadFile(imgFile, "");
+        String url = awsService.getProfileUrl(uuidUrl);
+
         //3. 퍼즐 조각 수정
-        piece.updatePieceDto(pieceDto, user);
+        piece.updatePieceDto(url, requestDto.getComment(), user);
 
         //4. Face Detection : 사람 수 파악
-        int peopleCount = FindPeopleCountFromImg.inputImgUrl(pieceDto.getImgUrl());
+        int peopleCount = FindPeopleCountFromImg.inputImgUrl(piece.getImageUrl());
 
         piece.updatePeopleCount(peopleCount);
     }
