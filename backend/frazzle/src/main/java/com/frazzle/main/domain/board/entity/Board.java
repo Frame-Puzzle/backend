@@ -96,8 +96,7 @@ public class Board {
         return Board.builder()
                 //.user(user)
                 //.directory(directory)
-                //TODO: 디렉토리에서 퍼즐판 수 조회하기
-                //.boardInNumber(directory.get)
+                .boardInNumber(0)
                 .keyword(boardDto.getKeyword())
                 .boardSize(boardDto.getBoardSize())
                 .clearType(0)
@@ -135,4 +134,5 @@ public class Board {
     public void addVoteNumber(){
         this.voteNumber++;
     }
+    public void changeBoardInNumber(int number){ this.boardInNumber = number; }
 }

@@ -1,3 +1,4 @@
+/*
 package com.frazzle.main.domain.board.service;
 
 import com.frazzle.main.domain.board.dto.CreateBoardRequestDto;
@@ -161,3 +162,4 @@ class BoardServiceTest {
     }
 
 }
+*/

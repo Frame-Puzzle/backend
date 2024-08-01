@@ -47,9 +47,7 @@ public class BoardService {
         return board;
     }
 
-    public List<Board> findBoardsByDirectoryId(UserPrincipal userPrincipal, int directoryId) {
-        checkUser(userPrincipal);
-
+    public List<Board> findBoardsByDirectoryId(int directoryId) {
         return boardRepository.findByDirectoryDirectoryId(directoryId);
     }
 
@@ -140,12 +138,20 @@ public class BoardService {
         boardRepository.delete(board);
         //return true;
     }
-
     //과반수 체크 메소드
     private boolean checkDeleteCondition(int maxPeople, int voteNum){
         if(maxPeople == 0)
             return false;
 
         return voteNum > Math.ceil(maxPeople / 2.0);
+    }
+    //넘버 수 : 해당 디렉토리 소속의 보드판이 몇 개인지 확인한다.
+    @Transactional
+    public void countingBoard(Board board)
+    {
+        int directoryId = board.getDirectory().getDirectoryId();
+        List<Board> boardList = findBoardsByDirectoryId(directoryId);
+        int result = (boardList.isEmpty() || boardList == null) ? 1 : boardList.size()+1;
+        board.changeBoardInNumber(result);
     }
 }
