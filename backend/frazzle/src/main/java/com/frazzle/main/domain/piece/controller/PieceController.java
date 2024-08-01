@@ -1,10 +1,15 @@
 package com.frazzle.main.domain.piece.controller;
 
 import com.frazzle.main.domain.piece.dto.PieceDto;
+import com.frazzle.main.domain.piece.entity.Piece;
+import com.frazzle.main.domain.piece.service.PieceService;
 import com.frazzle.main.global.models.UserPrincipal;
 import com.frazzle.main.global.utils.ResultDto;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -12,37 +17,39 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("directories/{directoryID}/boards/{boardID}/pieces/{pieceID}")
 public class PieceController {
 
+    private final PieceService pieceService;
+
     //[PUT] 퍼즐 조각의 사진, 코멘트 생성 및 수정
     @PutMapping
     public ResponseEntity<ResultDto> updatePiece(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable("directoryID") int directoryID,
+            @PathVariable("boardID") int boardID,
             @PathVariable("pieceID") int pieceID,
-            UserPrincipal userPrincipal,
-            PieceDto requestDto
+            @Valid @RequestBody PieceDto requestDto
             )
     {
+        pieceService.updatePiece(userPrincipal, directoryID, pieceID, requestDto);
 
-        //response: 수정에 성공했습니다.
-        return null;
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ResultDto.res(HttpStatus.OK.value(),
+                        "퍼즐 조각 수정 성공"));
     }
 
     //[GET] 퍼즐 조각 상세 조회
     @GetMapping
     public ResponseEntity<ResultDto> detailPiece(
-            @PathVariable("pieceID") int pieceID,
-            UserPrincipal userPrincipal
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable("directoryID") int directoryID,
+            @PathVariable("boardID") int boardID,
+            @PathVariable("pieceID") int pieceID
             )
     {
+        Piece piece = pieceService.findPieceByPieceId(userPrincipal, directoryID, pieceID);
+        PieceDto responseDto = PieceDto.createPieceDto(piece.getImageUrl(), piece.getContent());
 
-        //PieceDto 반환
-        /*
-        {
-            "status": 200,
-                "message": "조회에 성공했습니다.",
-                "data": {
-            "imgUrl":"s3 url",
-                    "comment":"코멘트"
-        }
-        */
-        return null;
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ResultDto.res(HttpStatus.OK.value(),
+                        "퍼즐 조각 조회 성공", responseDto));
     }
 }
