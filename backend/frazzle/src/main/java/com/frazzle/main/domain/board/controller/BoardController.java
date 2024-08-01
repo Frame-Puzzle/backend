@@ -1,9 +1,6 @@
 package com.frazzle.main.domain.board.controller;
 
-import com.frazzle.main.domain.board.dto.CreateBoardRequestDto;
-import com.frazzle.main.domain.board.dto.FindAllImageFromBoardResponseDto;
-import com.frazzle.main.domain.board.dto.FindBoardAndPiecesResponseDto;
-import com.frazzle.main.domain.board.dto.UpdateVoteRequestDto;
+import com.frazzle.main.domain.board.dto.*;
 import com.frazzle.main.domain.board.entity.Board;
 import com.frazzle.main.domain.board.service.BoardService;
 import com.frazzle.main.domain.piece.dto.PieceDto;
@@ -68,7 +65,7 @@ public class BoardController {
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable("directoryID") int directoryID,
             @PathVariable("boardID") int boardID,
-            UpdateVoteRequestDto requestDto
+            @RequestBody @Valid UpdateVoteRequestDto requestDto
             ) {
         Board board = boardService.findBoardByBoardId(userPrincipal, boardID);
         boardService.updateVoteCount(board, requestDto.isAccept());
@@ -119,11 +116,18 @@ public class BoardController {
 
     //썸네일 생성 및 수정
     @PutMapping("/{boardID}/thumbnails")
-    public ResponseEntity<ResultDto> updateBoardThumbnails(){
+    public ResponseEntity<ResultDto> updateBoardThumbnails(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable("directoryID") int directoryID,
+            @PathVariable("boardID") int boardID,
+            @RequestBody @Valid UpdateThumbnailsRequestDto requestDto
+            ){
 
+        Board board = boardService.findBoardByBoardId(userPrincipal, boardID);
+        boardService.updateThumbnailUrl(board, requestDto.getThumbnailUrl());
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ResultDto.res(HttpStatus.OK.value(),
-                        "퍼즐판 생성 성공"));
+                        "썸네일 수정 성공"));
     }
 }

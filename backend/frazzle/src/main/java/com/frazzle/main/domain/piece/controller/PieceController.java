@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("directories/{directoryID}/boards/{boardID}/pieces/{pieceID}")
+@CrossOrigin(origins = "*")
 public class PieceController {
 
     private final PieceService pieceService;
