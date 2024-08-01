@@ -124,8 +124,10 @@ public class BoardService {
     }
 
     @Transactional
-    public void updateVoteCount(Board board, int voteCount) {
-        board.changeVoteNumber(voteCount);
+    public void updateVoteCount(Board board, boolean isAccept) {
+        if(isAccept){
+            board.addVoteNumber();
+        }
     }
 
     @Transactional

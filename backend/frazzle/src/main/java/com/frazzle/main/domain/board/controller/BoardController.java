@@ -1,9 +1,12 @@
 package com.frazzle.main.domain.board.controller;
 
 import com.frazzle.main.domain.board.dto.CreateBoardRequestDto;
+import com.frazzle.main.domain.board.dto.FindAllImageFromBoardResponseDto;
+import com.frazzle.main.domain.board.dto.FindBoardAndPiecesResponseDto;
 import com.frazzle.main.domain.board.dto.UpdateVoteRequestDto;
 import com.frazzle.main.domain.board.entity.Board;
 import com.frazzle.main.domain.board.service.BoardService;
+import com.frazzle.main.domain.piece.dto.PieceDto;
 import com.frazzle.main.domain.piece.entity.Piece;
 import com.frazzle.main.domain.piece.service.PieceService;
 import com.frazzle.main.domain.user.entity.User;
@@ -16,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -30,13 +34,14 @@ public class BoardController {
     @PostMapping
     public ResponseEntity<ResultDto> createBoard(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
-            @Valid @RequestBody CreateBoardRequestDto requestDto,
-            @PathVariable("directoryID") int directoryID)
+            @PathVariable("directoryID") int directoryID,
+            @Valid @RequestBody CreateBoardRequestDto requestDto)
     {
 
         boardService.createBoard(userPrincipal, requestDto, directoryID);
-        return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(),
-                +directoryID+"에 퍼즐판 생성 성공"));
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ResultDto.res(HttpStatus.OK.value(),
+                "퍼즐판 생성 성공"));
     }
 
     //퍼즐판 및 퍼즐조각 전체 조회
@@ -49,30 +54,76 @@ public class BoardController {
         Board board = boardService.findBoardByBoardId(userPrincipal, boardID);
         List<Piece> pieceList = pieceService.findPiecesByBoardId(userPrincipal, directoryID, boardID);
 
-        return null;
+        //TODO: responseDto 완성하기
+        FindBoardAndPiecesResponseDto responseDto;
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ResultDto.res(HttpStatus.OK.value(),
+                        "퍼즐판 생성 성공"));
     }
 
     //투표
     @PutMapping("/{boardID}/vote")
     public ResponseEntity<ResultDto> deleteVote(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable("directoryID") int directoryID,
+            @PathVariable("boardID") int boardID,
             UpdateVoteRequestDto requestDto
             ) {
-        return null;
+        Board board = boardService.findBoardByBoardId(userPrincipal, boardID);
+        boardService.updateVoteCount(board, requestDto.isAccept());
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ResultDto.res(HttpStatus.OK.value(),
+                        "투표 성공"));
     }
 
     //TODO: 퍼즐판 삭제 요청?
+//    @DeleteMapping("/{boardID}/delete")
+//    public ResponseEntity<ResultDto> deleteBoard(
+//            @AuthenticationPrincipal UserPrincipal userPrincipal,
+//            @PathVariable("directoryID") int directoryID,
+//            @PathVariable("boardID") int boardID)
+//    {
+//
+//
+//        return ResponseEntity.status(HttpStatus.OK)
+//                .body(ResultDto.res(HttpStatus.OK.value(),
+//                        "퍼즐판 삭제 성공"));
+//    }
+
 
     //퍼즐판 내 전체 사진 조회
     @GetMapping("/{boardID}/images")
-    public ResponseEntity<ResultDto> getBoardImages(){
-        return null;
+    public ResponseEntity<ResultDto> getBoardImages(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable("directoryID") int directoryID,
+            @PathVariable("boardID") int boardID)
+    {
+        Board board = boardService.findBoardByBoardId(userPrincipal, boardID);
+        List<Piece> pieceList = boardService.findAllPhoto(boardID);
+
+        List<PieceDto> pieceDtoList = new ArrayList<>();
+        for(Piece piece : pieceList) {
+            PieceDto pieceDto = PieceDto.createPieceDto(piece.getImageUrl(), piece.getContent());
+            pieceDtoList.add(pieceDto);
+        }
+
+        FindAllImageFromBoardResponseDto responseDto = FindAllImageFromBoardResponseDto
+                .createFindAllImageFromBoardResponseDto(board.getThumbnailUrl(), pieceDtoList);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ResultDto.res(HttpStatus.OK.value(),
+                        "퍼즐판 전체 사진 조회 성공", responseDto));
     }
 
     //썸네일 생성 및 수정
     @PutMapping("/{boardID}/thumbnails")
     public ResponseEntity<ResultDto> updateBoardThumbnails(){
-        return null;
-    }
 
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ResultDto.res(HttpStatus.OK.value(),
+                        "퍼즐판 생성 성공"));
+    }
 }
