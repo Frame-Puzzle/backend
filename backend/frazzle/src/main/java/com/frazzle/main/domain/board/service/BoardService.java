@@ -17,10 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
-
 
 @Service
 @RequiredArgsConstructor
@@ -72,6 +69,19 @@ public class BoardService {
         //보드 생성
         Board board = Board.createBoard(boardDto);
         board.updateDirectory(directory);
+
+        //보드 제작 넘버 세팅
+        countingBoard(board, directoryID);
+
+        /*
+        TODO: 미션 생성
+         */
+
+        /*
+        TODO: 퍼즐 조각들 생성
+        난수로 특정 조각에 미션 집어넣기
+         */
+
         boardRepository.save(board);
         return board;
     }
@@ -147,11 +157,14 @@ public class BoardService {
     }
     //넘버 수 : 해당 디렉토리 소속의 보드판이 몇 개인지 확인한다.
     @Transactional
-    public void countingBoard(Board board)
+    public void countingBoard(Board board, int directoryId)
     {
-        int directoryId = board.getDirectory().getDirectoryId();
         List<Board> boardList = findBoardsByDirectoryId(directoryId);
         int result = (boardList.isEmpty() || boardList == null) ? 1 : boardList.size()+1;
         board.changeBoardInNumber(result);
+    }
+
+    public void findAllPhoto(){
+
     }
 }

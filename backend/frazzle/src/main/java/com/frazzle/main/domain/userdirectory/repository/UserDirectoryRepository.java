@@ -6,6 +6,8 @@ import com.frazzle.main.domain.userdirectory.entity.UserDirectory;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface UserDirectoryRepository extends JpaRepository<UserDirectory, Integer> {
 
@@ -13,4 +15,5 @@ public interface UserDirectoryRepository extends JpaRepository<UserDirectory, In
     Long deleteByUser(User user);
     boolean existsByUserAndDirectory(User user, Directory directory);
     void deleteByUserAndDirectory(User user, Directory directory);
+    List<UserDirectory> findByUser(User user);
 }

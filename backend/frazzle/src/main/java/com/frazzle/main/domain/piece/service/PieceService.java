@@ -9,15 +9,18 @@ import com.frazzle.main.domain.piece.entity.Piece;
 import com.frazzle.main.domain.piece.repository.PieceRepository;
 import com.frazzle.main.domain.user.entity.User;
 import com.frazzle.main.domain.user.repository.UserRepository;
+import com.frazzle.main.domain.userdirectory.entity.UserDirectory;
 import com.frazzle.main.domain.userdirectory.repository.UserDirectoryRepository;
 import com.frazzle.main.global.exception.CustomException;
 import com.frazzle.main.global.exception.ErrorCode;
 import com.frazzle.main.global.models.UserPrincipal;
+import com.frazzle.main.global.utils.FindPeopleCountFromImg;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -26,9 +29,6 @@ public class PieceService {
 
     private final PieceRepository pieceRepository;
     private final UserRepository userRepository;
-    private final UserDirectoryRepository userDirectoryRepository;
-    private final BoardRepository boardRepository;
-    private final DirectoryRepository directoryRepository;
 
     private User checkUser(UserPrincipal userPrincipal) {
         return userRepository.findByUserId(userPrincipal.getId())
@@ -36,50 +36,75 @@ public class PieceService {
     }
 
     //퍼즐 조각을 조회할 때 진행하는 검증
-    private void checkVerifyAccess(UserPrincipal userPrincipal, Piece piece){
+    private void checkPiece(int directorId, Piece piece){
+        if(piece.getBoard().getDirectory().getDirectoryId() != directorId){
+            throw new CustomException(ErrorCode.NOT_DIRECTORY_MEMBER);
+        }
+    }
 
-        //1. 사용자 인증
+    //퍼즐 조각 상세 조회(piece id) (API)
+    public Piece findPieceByPieceId(UserPrincipal userPrincipal, int directoryId, int pieceId){
+
+        //유저검증
         checkUser(userPrincipal);
 
-        //2. 사용자 디렉토리 목록들을 조회함
-        //userDirectoryRepository.find
+        //퍼즐 조각 탐색
+        Piece piece = pieceRepository.findPieceByPieceId(pieceId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_EXIST_PIECE));
 
-        //3. 해당 퍼즐판이 소속된 보드를 조회함
-        //4. 퍼즐 조각의 board에서 속한 디렉토리를 조회함
-        int directoryId = piece.getBoard().getDirectory().getDirectoryId();
+        //퍼즐 조각 검증
+        checkPiece(directoryId, piece);
 
-
-
-
-
-        //4. 사용자가 해당 디렉토리에 속한지 판단
-
-
-
+        return piece;
     }
 
-    public Piece findById(int pieceId){
+    //퍼즐 조각 전체 조회(directory id) (API)
+    public List<Piece> findDirectoryByBoardId(UserPrincipal userPrincipal, int directoryId, int boardId){
 
+        checkUser(userPrincipal);
 
+        List<Piece> pieceList = pieceRepository.findAllByBoardBoardId(boardId);
 
+        if(pieceList.isEmpty() || pieceList == null){
+            throw new CustomException(ErrorCode.NOT_EXIST_PIECE);
+        }
 
-        return null;
-    }
+        //조각 검증
+        for(Piece piece : pieceList){
+            checkPiece(directoryId, piece);
+        }
 
-    public List<Piece> findDirectoryByBoardId(){
-        return null;
+        return pieceList;
     }
 
     //퍼즐 조각 업로드
     @Transactional
-    public void updatePiece(PieceDto pieceDto)
+    public void updatePiece(UserPrincipal userPrincipal, int directoryId, int pieceId, PieceDto pieceDto)
     {
+        //1. 사용자 인증 및 인가 검증
+        User user = checkUser(userPrincipal);
 
+        Piece piece = pieceRepository.findPieceByPieceId(pieceId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_EXIST_PIECE));
+
+        //1-1. 퍼즐 조각 검증
+        checkPiece(directoryId, piece);
+
+
+        //1-2. 퍼즐조각이 현재 수정 가능한지 검증 -> 등록이 되있다면 처음 등록한 유저만 수정이 가능
+        User pieceUser = piece.getUser();
+
+        //Feedback : Jpa에선 user 객체간 비교 가능?
+        if(pieceUser != null && (user.getUserId() != pieceUser.getUserId())){
+            throw new CustomException(ErrorCode.DENIED_UPDATE_PIECE);
+        }
+
+        //3. 퍼즐 조각 수정
+        piece.updatePieceDto(pieceDto, user);
+
+        //4. Face Detection : 사람 수 파악
+        int peopleCount = FindPeopleCountFromImg.inputImgUrl(pieceDto.getImgUrl());
+
+        piece.updatePeopleCount(peopleCount);
     }
-
-    //퍼즐 조각 전체 조회(directory id) (API)
-
-    //퍼즐 조각 상세 조회(piece id) (API)
-
-    //퍼즐 조각 사진 사람 수 확인
 }
