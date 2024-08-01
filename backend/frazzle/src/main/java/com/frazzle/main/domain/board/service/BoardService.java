@@ -42,13 +42,15 @@ public class BoardService {
     }
 
     @Transactional
-    public void createBoard(UserPrincipal userPrincipal,
+    public Board createBoard(UserPrincipal userPrincipal,
                              CreateBoardRequestDto boardDto,
                              int directoryID)
     {
         //디렉토리 탐색
         Directory directory = directoryRepository.findByDirectoryId(directoryID)
                 .orElseThrow(()-> new CustomException(ErrorCode.NOT_EXIST_DIRECTORY));
+
+        //Optional<Directory> directory = directoryRepository.findByDirectoryId(directoryID);
 
         //유저 확인
         Optional<User> user = userRepository.findByUserId(userPrincipal.getId());
@@ -61,9 +63,10 @@ public class BoardService {
         //보드 생성
         Board board = Board.createBoard(boardDto, directory);
         boardRepository.save(board);
+        return board;
     }
 
-    //썸네일 유저 등록
+    //썸네일 유저 등록, 테스트 필요
     @Transactional
     public void updateUserFromBoard(int boardId, UserPrincipal userPrincipal)
     {
@@ -77,10 +80,12 @@ public class BoardService {
         boardRepository.save(board);
     }
 
-    //썸네일 사진 등록
+    //썸네일 사진 등록, 게임 클리어 시에만 가능
     @Transactional
     public void updateThumbnailUrl(Board board, String thumbnailUrl) {
-        board.changeImageUrl(thumbnailUrl);
+        if(board.getClearType() == BoardClearTypeFlag.PUZZLE_GAME_CLEARED.getValue()){
+            board.changeImageUrl(thumbnailUrl);
+        }
     }
 
     //클리어 타입 변경
