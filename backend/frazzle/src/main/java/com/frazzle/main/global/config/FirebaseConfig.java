@@ -18,9 +18,13 @@ import java.nio.charset.StandardCharsets;
 public class FirebaseConfig {
 
     //파이어베이스 설정 파일
+    //파이어베이스 설정 파일
     @Bean
     public FirebaseMessaging firebaseMessaging() throws IOException {
-        FileInputStream serviceAccount = new FileInputStream("src/main/resources/frazzle-firebase.json");
+        InputStream serviceAccount = getClass().getClassLoader().getResourceAsStream("frazzle-firebase.json");
+        if (serviceAccount == null) {
+            throw new IOException("Firebase service account key file not found");
+        }
 
         FirebaseOptions options = new FirebaseOptions.Builder()
                 .setCredentials(GoogleCredentials.fromStream(serviceAccount))
