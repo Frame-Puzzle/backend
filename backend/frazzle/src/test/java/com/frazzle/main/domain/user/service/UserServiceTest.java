@@ -67,11 +67,11 @@ public class UserServiceTest {
         verify(userService).save(user); // 메서드 호출 되었는지 확인
 
         // when
-        userService.deleteUser(userId);
-        verify(userService).deleteUser(userId); // 메서드 호출 되었는지 확인
+        userService.deleteUser(userPrincipal);
+        verify(userService).deleteUser(userPrincipal); // 메서드 호출 되었는지 확인
 
         // then
-        Assertions.assertNull(userService.findByUserId(userId));
+        Assertions.assertNull(userService.findByUserId(userPrincipal));
     }
 
     @Test
@@ -82,8 +82,8 @@ public class UserServiceTest {
         verify(userService).save(user);
 
         //when
-        userService.updateUserByNickname(user, nicknameRequestDto);
-        verify(userService).updateUserByNickname(user, nicknameRequestDto);
+        userService.updateUserByNickname(userPrincipal, nicknameRequestDto);
+        verify(userService).updateUserByNickname(userPrincipal, nicknameRequestDto);
 
         //then
         Assertions.assertEquals(user.getNickname(), nicknameRequestDto.getNickname());
