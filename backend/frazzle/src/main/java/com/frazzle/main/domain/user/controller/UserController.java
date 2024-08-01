@@ -29,7 +29,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class UserController {
 
     private final UserService userService;
-    private final AwsService awsService;
 
     //유저 찾기
     @Operation(summary = "유저 정보 조회", description = "로그인한 유저의 정보를 조회합니다.")
@@ -44,14 +43,7 @@ public class UserController {
     @GetMapping
     public ResponseEntity<ResultDto> userInfo(@AuthenticationPrincipal UserPrincipal userPrincipal) {
 
-        log.info("user "+String.valueOf(userPrincipal.getId()));
-
-        int userId = userPrincipal.getId();
-
-        User user = userService.findByUserId(userId);
-        if(user == null) {
-            throw new CustomException(ErrorCode.NOT_EXIST_USER);
-        }
+        User user = userService.findByUserId(userPrincipal);
 
         UserInfoResponseDto userInfoResponseDto = UserInfoResponseDto.createUserInfoResponse(user);
 
@@ -71,9 +63,7 @@ public class UserController {
     @DeleteMapping
     public ResponseEntity<ResultDto> deleteUser(@AuthenticationPrincipal UserPrincipal userPrincipal) {
 
-        int userId = userPrincipal.getId();
-
-        userService.deleteUser(userId);
+        userService.deleteUser(userPrincipal);
 
         return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "회원 탈퇴가 성공했습니다."));
     }
@@ -89,12 +79,8 @@ public class UserController {
     @PutMapping("/nickname")
     public ResponseEntity<ResultDto> updateUserNickname(@AuthenticationPrincipal UserPrincipal userPrincipal, UpdateUserNicknameRequestDto requestDto) {
 
-        int userId = userPrincipal.getId();
-
-        User user = userService.findByUserId(userId);
-
         //만약 닉네임 변경시 여기서 발생
-        user = userService.updateUserByNickname(user, requestDto);
+        User user = userService.updateUserByNickname(userPrincipal, requestDto);
 
         UserInfoResponseDto userInfoResponseDto = UserInfoResponseDto.createUserInfoResponse(user);
 
@@ -112,20 +98,7 @@ public class UserController {
     @PutMapping("/profile-img")
     public ResponseEntity<ResultDto> updateUserProfileImg(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody MultipartFile profileImg) {
 
-        int userId = userPrincipal.getId();
-
-        User user = userService.findByUserId(userId);
-        log.info(profileImg.toString());
-
-        //사진 업로드 후 유저url 반환
-        String userUrl = awsService.uploadFile(profileImg, user.getLoginUserId());
-
-        //유저url을 통해 S3에서 이미지 가져오기
-        String url = awsService.getProfileUrl(userUrl);
-
-
-        //가져온 실제 url을 db에 url 저장
-        user = userService.updateUserByProfileImg(user, url);
+        User user = userService.updateUserByProfileImg(userPrincipal, profileImg);
 
         UserInfoResponseDto userInfoResponseDto = UserInfoResponseDto.createUserInfoResponse(user);
 

@@ -7,14 +7,19 @@ import com.frazzle.main.domain.user.entity.User;
 import com.frazzle.main.domain.user.repository.UserRepository;
 import com.frazzle.main.domain.userdirectory.entity.UserDirectory;
 import com.frazzle.main.domain.userdirectory.repository.UserDirectoryRepository;
+import com.frazzle.main.global.aws.service.AwsService;
 import com.frazzle.main.global.exception.CustomException;
 import com.frazzle.main.global.exception.ErrorCode;
+import com.frazzle.main.global.models.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
+
+import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +28,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final UserDirectoryRepository userDirectoryRepository;
+    private final AwsService awsService;
 
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
@@ -33,6 +39,11 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    //유저id로 유저 찾기
+    public User findUser(int userId) {
+        return userRepository.findById(userId).orElse(null);
+    }
+
     //주어진 정보로 업데이트
     @Transactional
     public Long updateUser(User findUser, User inputUser) {
@@ -40,20 +51,37 @@ public class UserService {
     }
 
     //유저id로 유저 찾기
-    public User findByUserId(int id) {
-        return userRepository.findByUserId(id).orElseThrow(
-                ()->new CustomException(ErrorCode.NOT_EXIST_USER)
+    public User findByUserId(UserPrincipal userPrincipal) {
+        return userRepository.findByUserId(userPrincipal.getId()).orElseThrow(
+                () -> new CustomException(ErrorCode.NOT_EXIST_USER)
         );
     }
 
     @Transactional
-    public User updateUserByNickname(User user, UpdateUserNicknameRequestDto requestDto) {
+    public User updateUserByNickname(UserPrincipal userPrincipal, UpdateUserNicknameRequestDto requestDto) {
+        //1. 유저 정보 확인
+        User user = userRepository.findByUserId(userPrincipal.getId()).orElseThrow(
+                () -> new CustomException(ErrorCode.NOT_EXIST_USER)
+        );
+
+
         user.updateUserNickname(requestDto.getNickname());
         return userRepository.save(user);
     }
 
     @Transactional
-    public User updateUserByProfileImg(User user, String url) {
+    public User updateUserByProfileImg(UserPrincipal userPrincipal, MultipartFile profileImg) {
+        //1. 유저 정보 확인
+        User user = userRepository.findByUserId(userPrincipal.getId()).orElseThrow(
+                () -> new CustomException(ErrorCode.NOT_EXIST_USER)
+        );
+
+        //        //사진 업로드 후 유저url 반환
+        String userUrl = awsService.uploadFile(profileImg, user.getLoginUserId());
+
+        //유저url을 통해 S3에서 이미지 가져오기
+        String url = awsService.getProfileUrl(userUrl);
+
         user.updateUserProfileImg(url);
         return userRepository.save(user);
     }
@@ -65,13 +93,16 @@ public class UserService {
 
     //사용자 삭제
     @Transactional
-    public Long deleteUser(int userId) {
-        User user = userRepository.findByUserId(userId);
+    public Long deleteUser(UserPrincipal userPrincipal) {
+        //1. 유저 정보 확인
+        User user = userRepository.findByUserId(userPrincipal.getId()).orElseThrow(
+                () -> new CustomException(ErrorCode.NOT_EXIST_USER)
+        );
 
         //유저가 있으면
         if(user != null) {
             userDirectoryRepository.deleteByUser(user);
-            return userRepository.deleteByUserId(userId);
+            return userRepository.deleteByUserId(user.getUserId());
         }
 
         throw new CustomException(ErrorCode.NOT_EXIST_USER);

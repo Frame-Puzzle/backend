@@ -44,11 +44,8 @@ public class NotificationController {
     })
     @GetMapping
     public ResponseEntity<ResultDto> getNotifications(@AuthenticationPrincipal UserPrincipal userPrincipal) {
-        int userId = userPrincipal.getId();
 
-        User user = userService.findByUserId(userId);
-
-        List<Notification> notificationList = notificationService.findAllByUser(user);
+        List<Notification> notificationList = notificationService.findAllByUser(userPrincipal);
 
         NotificationListResponseDto responseDto = NotificationListResponseDto.createResponseDto(notificationList);
 
@@ -69,11 +66,7 @@ public class NotificationController {
             @PathVariable("notificationId") int notificationId,
             @Valid @RequestBody AcceptNotificationRequestDto requestDto) {
 
-        int userId = userPrincipal.getId();
-
-        User user = userService.findByUserId(userId);
-
-        notificationService.updateUserNotification(user, notificationId, requestDto);
+        notificationService.updateUserNotification(userPrincipal, notificationId, requestDto);
 
         return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "알림 전체 조회가 성공했습니다."));
     }
