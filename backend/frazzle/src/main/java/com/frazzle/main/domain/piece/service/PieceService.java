@@ -52,7 +52,7 @@ public class PieceService {
     }
 
     //퍼즐 조각 전체 조회(directory id) (API)
-    public List<Piece> findDirectoryByBoardId(UserPrincipal userPrincipal, int directoryId, int boardId){
+    public List<Piece> findPiecesByBoardId(UserPrincipal userPrincipal, int directoryId, int boardId){
 
         checkUser(userPrincipal);
 

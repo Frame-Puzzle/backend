@@ -1,7 +1,10 @@
 package com.frazzle.main.domain.board.controller;
 
 import com.frazzle.main.domain.board.dto.CreateBoardRequestDto;
+import com.frazzle.main.domain.board.entity.Board;
 import com.frazzle.main.domain.board.service.BoardService;
+import com.frazzle.main.domain.piece.entity.Piece;
+import com.frazzle.main.domain.piece.service.PieceService;
 import com.frazzle.main.global.models.UserPrincipal;
 import com.frazzle.main.global.utils.ResultDto;
 import jakarta.validation.Valid;
@@ -11,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
@@ -18,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 public class BoardController {
 
     private final BoardService boardService;
+    private final PieceService pieceService;
 
     @PostMapping
     public ResponseEntity<ResultDto> createBoard(
@@ -31,7 +37,18 @@ public class BoardController {
                 +directoryID+"에 퍼즐판 생성 성공"));
     }
 
-//    @PutMapping("")
+    //퍼즐판 및 퍼즐조각 전체 조회
+    @GetMapping("/boardID")
+    public ResponseEntity<ResultDto> findBoardAndPiece(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable("directoryID") int directoryID,
+            @PathVariable("boardID") int boardID)
+    {
+        Board board = boardService.findBoardByBoardId(userPrincipal, boardID);
+        List<Piece> pieceList = pieceService.findPiecesByBoardId(userPrincipal, directoryID, boardID);
+
+        return null;
+    }
 //    public ResponseEntity<ResultDto> updateBoard(){}
 //
 //    @DeleteMapping("")
