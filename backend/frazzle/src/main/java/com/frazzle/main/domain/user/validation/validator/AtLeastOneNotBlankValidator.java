@@ -15,7 +15,8 @@ public class AtLeastOneNotBlankValidator implements ConstraintValidator<AtLeastO
     @Override
     //유효성 검사로 context는 메시지나 추가 정보를 사용할 때 사용
     public boolean isValid(UpdateUserRequestDto value, ConstraintValidatorContext context) {
-        return (value.getNickname() != null && !value.getNickname().isBlank()) ||
-               (value.getProfileImg() != null && !value.getProfileImg().isBlank());
+//        return (value.getNickname() != null && !value.getNickname().isBlank()) ||
+//               (value.getProfileImg() != null && !value.getProfileImg().isEmpty());
+        return true;
     }
 }

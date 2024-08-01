@@ -1,8 +1,7 @@
 package com.frazzle.main.domain.user.controller;
 
-import com.frazzle.main.domain.user.dto.ExistNicknameResponseDto;
-import com.frazzle.main.domain.user.dto.UpdateUserRequestDto;
-import com.frazzle.main.domain.user.dto.UserInfoResponseDto;
+import com.frazzle.main.domain.user.dto.*;
+import com.frazzle.main.global.aws.service.AwsService;
 import com.frazzle.main.global.models.UserPrincipal;
 import com.frazzle.main.domain.user.entity.User;
 import com.frazzle.main.domain.user.service.UserService;
@@ -19,16 +18,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
 @Slf4j
+@CrossOrigin(origins = "*")
 public class UserController {
 
     private final UserService userService;
+    private final AwsService awsService;
 
     //유저 찾기
     @Operation(summary = "유저 정보 조회", description = "로그인한 유저의 정보를 조회합니다.")
@@ -72,43 +73,63 @@ public class UserController {
 
         int userId = userPrincipal.getId();
 
-        Long result = userService.deleteUser(userId);
+        userService.deleteUser(userId);
 
-        if(result > 0) {
-            return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "회원 탈퇴가 성공했습니다."));
-        }
-
-        throw new CustomException(ErrorCode.NOT_EXIST_USER);
+        return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "회원 탈퇴가 성공했습니다."));
     }
 
-    //유저 정보 업데이
-    @Operation(summary = "유저 정보 수정", description = "로그인한 유저의 정보를 수정합니다.")
+    //유저 정보 업데이트
+    @Operation(summary = "유저 닉네임 정보 수정", description = "로그인한 유저의 정보를 수정합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "유저 정보 수정에 성공했습니다.",
                     content = @Content(schema = @Schema(implementation = ResultDto.class))),
             @ApiResponse(responseCode = "404", description = "유저를 찾을 수 없습니다.",
                     content = @Content(schema = @Schema(implementation = ResultDto.class)))
     })
-    @PutMapping
-    public ResponseEntity<ResultDto> updateUser(@AuthenticationPrincipal UserPrincipal userPrincipal, @Validated @RequestBody UpdateUserRequestDto updateUserRequestDto) {
+    @PutMapping("/nickname")
+    public ResponseEntity<ResultDto> updateUserNickname(@AuthenticationPrincipal UserPrincipal userPrincipal, UpdateUserNicknameRequestDto requestDto) {
 
         int userId = userPrincipal.getId();
 
         User user = userService.findByUserId(userId);
 
         //만약 닉네임 변경시 여기서 발생
-        if(updateUserRequestDto.getNickname() != null && !updateUserRequestDto.getNickname().isBlank()) {
-            Long result = userService.updateUserByNickname(user, updateUserRequestDto);
-        }
-
-        //만약 프로필 사진만 변경시 여기서 발생
-        if(updateUserRequestDto.getProfileImg() != null && !updateUserRequestDto.getProfileImg().isBlank()) {
-            Long result = userService.updateUserByProfileImg(user, updateUserRequestDto);
-        }
+        user = userService.updateUserByNickname(user, requestDto);
 
         UserInfoResponseDto userInfoResponseDto = UserInfoResponseDto.createUserInfoResponse(user);
 
-        return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "유저 정보 수정에 성공했습니다.", userInfoResponseDto));
+        return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "유저 닉네임 정보 수정에 성공했습니다.", userInfoResponseDto));
+    }
+
+    //유저 정보 업데이트
+    @Operation(summary = "유저 프로필 정보 수정", description = "로그인한 유저의 프로필 정보를 수정합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "유저 정보 수정에 성공했습니다.",
+                    content = @Content(schema = @Schema(implementation = ResultDto.class))),
+            @ApiResponse(responseCode = "404", description = "유저를 찾을 수 없습니다.",
+                    content = @Content(schema = @Schema(implementation = ResultDto.class)))
+    })
+    @PutMapping("/profile-img")
+    public ResponseEntity<ResultDto> updateUserProfileImg(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody MultipartFile profileImg) {
+
+        int userId = userPrincipal.getId();
+
+        User user = userService.findByUserId(userId);
+        log.info(profileImg.toString());
+
+        //사진 업로드 후 유저url 반환
+        String userUrl = awsService.uploadFile(profileImg, user.getLoginUserId());
+
+        //유저url을 통해 S3에서 이미지 가져오기
+        String url = awsService.getProfileUrl(userUrl);
+
+
+        //가져온 실제 url을 db에 url 저장
+        user = userService.updateUserByProfileImg(user, url);
+
+        UserInfoResponseDto userInfoResponseDto = UserInfoResponseDto.createUserInfoResponse(user);
+
+        return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "유저 프로필 정보 수정에 성공했습니다.", userInfoResponseDto));
     }
 
     //닉네임 찾기

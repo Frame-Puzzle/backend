@@ -1,6 +1,8 @@
 package com.frazzle.main.domain.user.repository;
 
 import com.frazzle.main.domain.directory.entity.Directory;
+import com.frazzle.main.domain.user.dto.UpdateUserNicknameRequestDto;
+import com.frazzle.main.domain.user.dto.UpdateUserProfileRequestDto;
 import com.frazzle.main.domain.user.dto.UpdateUserRequestDto;
 import com.frazzle.main.domain.user.entity.User;
 import org.springframework.data.jpa.repository.Modifying;
@@ -17,9 +19,4 @@ public interface UserRepositoryCustom {
     Long updateUser(User findUser ,User updateUser);
 
     Long updateRefreshToken(User updateUser, String refreshToken);
-
-    Long updateNickname(User updateUser, UpdateUserRequestDto requestDto);
-
-    Long updateProfileImg(User updateUser, UpdateUserRequestDto requestDto);
-
 }

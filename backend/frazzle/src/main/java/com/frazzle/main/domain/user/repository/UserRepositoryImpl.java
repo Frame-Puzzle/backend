@@ -1,6 +1,8 @@
 package com.frazzle.main.domain.user.repository;
 
 import com.frazzle.main.domain.directory.entity.Directory;
+import com.frazzle.main.domain.user.dto.UpdateUserNicknameRequestDto;
+import com.frazzle.main.domain.user.dto.UpdateUserProfileRequestDto;
 import com.frazzle.main.domain.user.dto.UpdateUserRequestDto;
 import com.frazzle.main.domain.user.entity.QUser;
 import com.frazzle.main.domain.user.entity.User;
@@ -69,36 +71,6 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
         em.flush();
         em.clear();
 
-
-        return result;
-    }
-
-    @Override
-    //닉네임 업데이트
-    public Long updateNickname(User updateUser, UpdateUserRequestDto requestDto) {
-        Long result = queryFactory
-                .update(user)
-                .where(user.eq(updateUser))
-                .set(user.nickname, requestDto.getNickname())
-                .execute();
-
-        em.flush();
-        em.clear();
-
-        return result;
-    }
-
-    @Override
-    //프로필 업데이트
-    public Long updateProfileImg(User updateUser, UpdateUserRequestDto requestDto) {
-        Long result = queryFactory
-                .update(user)
-                .where(user.eq(updateUser))
-                .set(user.profileImg, requestDto.getProfileImg())
-                .execute();
-
-        em.flush();
-        em.clear();
 
         return result;
     }
