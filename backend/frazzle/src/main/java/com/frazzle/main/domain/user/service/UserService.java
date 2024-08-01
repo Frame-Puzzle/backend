@@ -76,6 +76,11 @@ public class UserService {
                 () -> new CustomException(ErrorCode.NOT_EXIST_USER)
         );
 
+        //이미 프로필 사진 존재하면 삭제
+        if(user.getProfileImg()!=null) {
+            awsService.deleteProfile(user.getProfileImg());
+        }
+
         //사진 업로드 후 고유url 반환
         String imgUrl = awsService.uploadFile(profileImg);
 
