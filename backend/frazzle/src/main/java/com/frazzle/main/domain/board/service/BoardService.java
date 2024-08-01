@@ -3,20 +3,25 @@ package com.frazzle.main.domain.board.service;
 import com.frazzle.main.domain.board.dto.CreateBoardRequestDto;
 import com.frazzle.main.domain.board.entity.Board;
 import com.frazzle.main.domain.board.entity.BoardClearTypeFlag;
+import com.frazzle.main.domain.board.entity.GlobalBoardSize;
 import com.frazzle.main.domain.board.repository.BoardRepository;
 import com.frazzle.main.domain.directory.entity.Directory;
 import com.frazzle.main.domain.directory.repository.DirectoryRepository;
+import com.frazzle.main.domain.piece.entity.Piece;
+import com.frazzle.main.domain.piece.repository.PieceRepository;
 import com.frazzle.main.domain.user.entity.User;
 import com.frazzle.main.domain.user.repository.UserRepository;
 import com.frazzle.main.domain.userdirectory.repository.UserDirectoryRepository;
 import com.frazzle.main.global.exception.CustomException;
 import com.frazzle.main.global.exception.ErrorCode;
 import com.frazzle.main.global.models.UserPrincipal;
+import com.frazzle.main.global.utils.GenerateRandomNickname;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -29,6 +34,8 @@ public class BoardService {
     private final DirectoryRepository directoryRepository;
     private final UserDirectoryRepository userDirectoryRepository;
     private final BoardRepository boardRepository;
+
+    private final PieceRepository pieceRepository;
 
     private User checkUser(UserPrincipal userPrincipal) {
         return userRepository.findByUserId(userPrincipal.getId())
@@ -77,10 +84,8 @@ public class BoardService {
         TODO: 미션 생성
          */
 
-        /*
-        TODO: 퍼즐 조각들 생성
-        난수로 특정 조각에 미션 집어넣기
-         */
+        //퍼즐 조각들 생성
+        List<Piece> pieceList = createPiece(board);
 
         boardRepository.save(board);
         return board;
@@ -148,13 +153,7 @@ public class BoardService {
         boardRepository.delete(board);
         //return true;
     }
-    //과반수 체크 메소드
-    private boolean checkDeleteCondition(int maxPeople, int voteNum){
-        if(maxPeople == 0)
-            return false;
 
-        return voteNum > Math.ceil(maxPeople / 2.0);
-    }
     //넘버 수 : 해당 디렉토리 소속의 보드판이 몇 개인지 확인한다.
     @Transactional
     public void countingBoard(Board board, int directoryId)
@@ -164,7 +163,89 @@ public class BoardService {
         board.changeBoardInNumber(result);
     }
 
-    public void findAllPhoto(){
+    public List<Piece> findAllPhoto(int boardId){
+        return pieceRepository.findAllByBoardBoardId(boardId);
+    }
 
+    //### 내장 함수
+
+    //과반수 체크 메소드
+    private boolean checkDeleteCondition(int maxPeople, int voteNum){
+        if(maxPeople == 0)
+            return false;
+
+        return voteNum > Math.ceil(maxPeople / 2.0);
+    }
+
+    //퍼즐 조각 생성
+    private List<Piece> createPiece(Board board){
+        int boardSize = board.getBoardSize();
+
+        int maxRow = GlobalBoardSize.minimumBoardRow;
+        int maxCol = GlobalBoardSize.maximumBoardColumn;
+
+        if(boardSize < (maxRow * maxCol)){
+            throw new CustomException(ErrorCode.NOT_EXIST_BOARD);
+        }
+
+        //BoardSize의 Row와 Col을 알아낸다.
+        int level = GlobalBoardSize.maximumLevel;
+        for(int i = 0; i< level; i++){
+            if(boardSize == maxRow * maxCol){
+                break;
+            }
+            maxRow++;
+            maxCol++;
+        }
+
+        List<Piece> pieceList = new ArrayList<>();
+        //퍼즐 조각을 생성한다. 0,0 부터 시작
+        for(int i = 0; i< maxRow; i++){
+            for(int j = 0; j< maxCol; j++){
+                pieceList.add(Piece.createPiece(board, i, j));
+            }
+        }
+
+        /*
+        TODO: 퍼즐 조각들 생성
+        난수로 특정 조각에 가이드미션 집어넣기
+         */
+        //#####TEST
+        String guideMission = "Mission ";
+        //#######
+
+        //가이드 부여
+        List<Integer> usingNumberList = getRandomNumber(boardSize, maxRow);
+
+        for(int i = 0; i< maxRow; i++){
+            pieceList.get(usingNumberList.get(i))
+                    .updateMission(guideMission + (i + 1));
+        }
+
+        for(Piece p : pieceList){
+            pieceRepository.save(p);
+        }
+
+        return pieceList;
+    }
+
+    private List<Integer> getRandomNumber(int maxNumber, int count){
+        if(maxNumber < 0) {
+            throw new IllegalArgumentException("number cannot be negative");
+        }
+        List<Integer> numberList = new ArrayList<>();
+
+        for(int i = 0; i< count; i++){
+            int result = GenerateRandomNickname.getRandom().nextInt(maxNumber);
+
+            for(int n : numberList) {
+                if(result == n) {
+                    i--;
+                    break;
+                }
+            }
+            numberList.add(result);
+        }
+        return numberList;
     }
 }

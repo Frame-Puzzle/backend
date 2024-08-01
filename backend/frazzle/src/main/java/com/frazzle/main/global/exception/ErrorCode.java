@@ -21,7 +21,8 @@ public enum ErrorCode {
     NOT_DIRECTORY_MEMBER("해당 디렉토리에 접근 권한이 없습니다.", HttpStatus.UNAUTHORIZED),
     NOT_EXIST_BOARD("보드판이 존재하지 않습니다.", HttpStatus.NOT_FOUND),
     NOT_EXIST_PIECE("존재하지 않는 퍼즐조각입니다.", HttpStatus.NOT_FOUND),
-    DENIED_UPDATE_PIECE("퍼즐을 처음 등록한 사용자만 수정할 수 있습니다.", HttpStatus.FORBIDDEN),
+    DENIED_UPDATE_PIECE("퍼즐을 처음 등록한 사용자만 수정할 수 있습니다.", HttpStatus.NOT_ACCEPTABLE),
+    FAILED_CREATE_PIECE("퍼즐 조각 생성에 실패했습니다.", HttpStatus.NOT_FOUND)
     ;
 
     private final String message;

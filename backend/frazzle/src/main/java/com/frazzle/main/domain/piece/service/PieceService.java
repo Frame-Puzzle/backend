@@ -1,16 +1,10 @@
 package com.frazzle.main.domain.piece.service;
 
-import com.frazzle.main.domain.board.entity.Board;
-import com.frazzle.main.domain.board.repository.BoardRepository;
-import com.frazzle.main.domain.directory.entity.Directory;
-import com.frazzle.main.domain.directory.repository.DirectoryRepository;
 import com.frazzle.main.domain.piece.dto.PieceDto;
 import com.frazzle.main.domain.piece.entity.Piece;
 import com.frazzle.main.domain.piece.repository.PieceRepository;
 import com.frazzle.main.domain.user.entity.User;
 import com.frazzle.main.domain.user.repository.UserRepository;
-import com.frazzle.main.domain.userdirectory.entity.UserDirectory;
-import com.frazzle.main.domain.userdirectory.repository.UserDirectoryRepository;
 import com.frazzle.main.global.exception.CustomException;
 import com.frazzle.main.global.exception.ErrorCode;
 import com.frazzle.main.global.models.UserPrincipal;
@@ -20,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
