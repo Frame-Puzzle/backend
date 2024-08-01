@@ -134,5 +134,4 @@ public class Board {
     public void addVoteNumber(){
         this.voteNumber++;
     }
->>>>>>> backend/frazzle/src/main/java/com/frazzle/main/domain/board/entity/Board.java
 }
