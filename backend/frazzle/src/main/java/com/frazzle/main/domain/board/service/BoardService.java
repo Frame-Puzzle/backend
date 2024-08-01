@@ -17,7 +17,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 
@@ -32,20 +34,30 @@ public class BoardService {
     private final UserDirectoryRepository userDirectoryRepository;
     private final BoardRepository boardRepository;
 
-    public Board findBoardByBoardId(int boardId) {
-        return boardRepository.findByBoardId(boardId)
-                .orElseThrow(() -> new CustomException(ErrorCode.NOT_EXIST_BOARD));
+    private User checkUser(UserPrincipal userPrincipal) {
+        return userRepository.findByUserId(userPrincipal.getId())
+                .orElseThrow(()-> new CustomException(ErrorCode.NOT_EXIST_USER));
     }
 
-    public List<Board> findBoardsByDirectoryId(int directoryId) {
+    public Board findBoardByBoardId(UserPrincipal userPrincipal, int boardId) {
+        checkUser(userPrincipal);
+
+        Board board = boardRepository.findByBoardId(boardId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_EXIST_BOARD));
+
+        return board;
+    }
+
+    public List<Board> findBoardsByDirectoryId(UserPrincipal userPrincipal, int directoryId) {
+        checkUser(userPrincipal);
+
         return boardRepository.findByDirectoryDirectoryId(directoryId);
     }
 
     @Transactional
     public Board createBoard(UserPrincipal userPrincipal,
                              CreateBoardRequestDto boardDto,
-                             int directoryID)
-    {
+                             int directoryID) {
         //디렉토리 탐색
         Directory directory = directoryRepository.findByDirectoryId(directoryID)
                 .orElseThrow(()-> new CustomException(ErrorCode.NOT_EXIST_DIRECTORY));
@@ -53,11 +65,11 @@ public class BoardService {
         //Optional<Directory> directory = directoryRepository.findByDirectoryId(directoryID);
 
         //유저 확인
-        Optional<User> user = userRepository.findByUserId(userPrincipal.getId());
+        User user = checkUser(userPrincipal);
 
         //디렉토리 유저 인증
-        if(!userDirectoryRepository.existsByDirectoryAndUserAndIsAccept(directory, user.get(), true)) {
-            throw new CustomException(ErrorCode.DENIED_UPDATE);
+        if(!userDirectoryRepository.existsByDirectoryAndUserAndIsAccept(directory, user, true)) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED);
         }
 
         //보드 생성
@@ -70,20 +82,17 @@ public class BoardService {
     @Transactional
     public void updateUserFromBoard(int boardId, UserPrincipal userPrincipal)
     {
-        //유저 확인
-        User user = userRepository.findByUserId(userPrincipal.getId())
-                .orElseThrow(()-> new CustomException(ErrorCode.NOT_EXIST_USER));
-
-        Board board = findBoardByBoardId(boardId);
+        User user = checkUser(userPrincipal);
+        Board board = findBoardByBoardId(userPrincipal, boardId);
 
         board.updateUser(user);
-        boardRepository.save(board);
     }
 
-    //썸네일 사진 등록, 게임 클리어 시에만 가능
+    //썸네일 사진 등록, 1등 유저가 등록되고, 게임 클리어 시에만 가능
     @Transactional
     public void updateThumbnailUrl(Board board, String thumbnailUrl) {
-        if(board.getClearType() == BoardClearTypeFlag.PUZZLE_GAME_CLEARED.getValue()){
+        if((board.getClearType() == BoardClearTypeFlag.PUZZLE_GAME_CLEARED.getValue()
+        && board.getUser() != null)){
             board.changeImageUrl(thumbnailUrl);
         }
     }
@@ -97,27 +106,23 @@ public class BoardService {
 
     //투표 여부 변경
     @Transactional
-    public void changeIsVote(Board board)
-    {
+    public void changeIsVote(Board board) {
         board.changeVote();
     }
 
     @Transactional
-    public void updateVoteCount(Board board, int voteCount)
-    {
+    public void updateVoteCount(Board board, int voteCount) {
         board.changeVoteNumber(voteCount);
     }
 
     @Transactional
-    public void updatePieceCount(Board board, int pieceCount)
-    {
+    public void updatePieceCount(Board board, int pieceCount) {
         board.changePieceCount(pieceCount);
     }
 
     @Transactional
-    public boolean deleteBoard(int boardId)
-    {
-        Board board = findBoardByBoardId(boardId);
+    public void deleteBoard(UserPrincipal userPrincipal, int boardId) {
+        Board board = findBoardByBoardId(userPrincipal, boardId);
 
         Directory directory = board.getDirectory();
 
@@ -125,15 +130,15 @@ public class BoardService {
             throw new CustomException(ErrorCode.NOT_EXIST_DIRECTORY);
 
         //디렉토리 내에 존재하는 총 인원 수 현재 와 비교한다.
-        int maxPeople = directory.getPeopleNumber();
+        //int maxPeople = directory.getPeopleNumber();
 
-        int voteNumber = board.getVoteNumber();
+        //int voteNumber = board.getVoteNumber();
 
         //과반수 체크
-        if(!checkDeleteCondition(maxPeople, voteNumber)){return false;}
+        //if(!checkDeleteCondition(maxPeople, voteNumber)){return false;}
         
         boardRepository.delete(board);
-        return true;
+        //return true;
     }
 
     //과반수 체크 메소드
