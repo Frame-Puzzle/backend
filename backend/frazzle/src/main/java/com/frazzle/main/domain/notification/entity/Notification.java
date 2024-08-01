@@ -31,11 +31,11 @@ public class Notification {
     @Column(name = "create_user", nullable = false, length = 32)
     private String createUser;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "directory_id")
     private Directory directory;
 
-//    @OneToOne(fetch = FetchType.LAZY)
+//    @ManyToOne(fetch = FetchType.LAZY)
 //    @JoinColumn(name = "board_id")
 //    private Board board;
 
