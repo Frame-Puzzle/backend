@@ -27,7 +27,7 @@ public class AwsService {
     private final AmazonS3 s3Client;
 
     // 사용자의 loginUserId를 통해 파일명을 바꾸고 S3에 업로드
-    public String uploadFile(MultipartFile file, String loginUserId) {
+    public String uploadFile(MultipartFile file) {
         try {
             File fileObj = convertMultiPartFileToFile(file);
 
