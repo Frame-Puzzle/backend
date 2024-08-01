@@ -2,9 +2,7 @@ package com.frazzle.main.domain.directory.controller;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.frazzle.main.domain.directory.dto.CreateDirectoryRequestDto;
-import com.frazzle.main.domain.directory.dto.UpdateDirectoryNameRequestDto;
-import com.frazzle.main.domain.directory.dto.UserByEmailResponseDto;
+import com.frazzle.main.domain.directory.dto.*;
 import com.frazzle.main.domain.directory.entity.Directory;
 import com.frazzle.main.domain.directory.service.DirectoryService;
 import com.frazzle.main.domain.user.entity.User;
@@ -50,18 +48,17 @@ public class DirectoryControllerTest {
     @Mock
     private UserPrincipal userPrincipal;
 
-    private User user;
-    private Directory directory;
     private CreateDirectoryRequestDto createDirectoryRequestDto;
     private UpdateDirectoryNameRequestDto updateDirectoryNameRequestDto;
     private int directoryId;
     private String email;
     private User member;
     private List<UserByEmailResponseDto> userByEmailResponseDtos;
+    private InviteOrCancelMemberRequestDto inviteOrCancelMemberRequestDto;
+    private List<FindMyDirectoryResponseDto> findMyDirectoryResponseDtos;
 
     @BeforeEach
     public void setup(){
-        user = User.createUser("1", "김싸피", "ssafy@ssafy.com", "kakao");
         member = User.createUser("2", "이싸피", "ssafy@gmail.com", "google");
         createDirectoryRequestDto = new CreateDirectoryRequestDto("친구", "B208");
         updateDirectoryNameRequestDto = new UpdateDirectoryNameRequestDto("싸피공통");
@@ -69,6 +66,10 @@ public class DirectoryControllerTest {
         email = "s";
         userByEmailResponseDtos = new ArrayList<>();
         userByEmailResponseDtos.add(UserByEmailResponseDto.createFindUserByEmailResponseDto(member));
+        inviteOrCancelMemberRequestDto = new InviteOrCancelMemberRequestDto(member.getUserId());
+        findMyDirectoryResponseDtos = new ArrayList<>();
+        findMyDirectoryResponseDtos.add(FindMyDirectoryResponseDto.createFindMyDirectoryResponseDto(
+                Directory.createDirectory(createDirectoryRequestDto)));
     }
 
     @Test
@@ -86,9 +87,7 @@ public class DirectoryControllerTest {
                 .with(SecurityMockMvcRequestPostProcessors.csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody)
-        );
-
-        result.andExpect(MockMvcResultMatchers.status().isOk());
+        ).andExpect(MockMvcResultMatchers.status().isOk());
     }
 
     @Test
@@ -106,9 +105,7 @@ public class DirectoryControllerTest {
                 .with(SecurityMockMvcRequestPostProcessors.csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody)
-        );
-
-        result.andExpect(MockMvcResultMatchers.status().isOk());
+        ).andExpect(MockMvcResultMatchers.status().isOk());
     }
 
     @Test
@@ -119,8 +116,49 @@ public class DirectoryControllerTest {
 
         ResultActions result = mockMvc.perform(MockMvcRequestBuilders.get("/directories/{directoryId}/users/find?email={email}", directoryId, email)
                 .with(SecurityMockMvcRequestPostProcessors.csrf())
-                .contentType(MediaType.APPLICATION_JSON));
+                .contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk());
+    }
 
-        result.andExpect(MockMvcResultMatchers.status().isOk());
+    @Test
+    @DisplayName("멤버 초대 성공 테스트")
+    @WithMockAuthUser(email = "ssafy@ssafy.com")
+    public void 멤버_초대_성공_테스트() throws Exception {
+        String requestBody = objectMapper.writeValueAsString(inviteOrCancelMemberRequestDto);
+
+        BDDMockito.doNothing().when(directoryService).inviteMember(userPrincipal, inviteOrCancelMemberRequestDto, directoryId);
+
+        ResultActions result = mockMvc.perform(MockMvcRequestBuilders.post("/directories/{directoryId}/user", directoryId)
+                .with(SecurityMockMvcRequestPostProcessors.csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody)
+        ).andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    @Test
+    @DisplayName("멤버 초대 취소 성공 테스트")
+    @WithMockAuthUser(email = "ssafy@ssafy.com")
+    public void 멤버_초대_취소_성공_테스트() throws Exception{
+        String requestBody = objectMapper.writeValueAsString(updateDirectoryNameRequestDto);
+
+        BDDMockito.doNothing().when(directoryService).cancelMemberInvitation(userPrincipal, inviteOrCancelMemberRequestDto, directoryId);
+
+        ResultActions result = mockMvc.perform(MockMvcRequestBuilders.delete("/directories/{directoryId}/user", directoryId)
+                .with(SecurityMockMvcRequestPostProcessors.csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody)
+        ).andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    @Test
+    @DisplayName("내 디렉토리 조회 성공 테스트")
+    @WithMockAuthUser(email = "ssafy@ssafy.com")
+    public void 내_디렉토리_조회_성공_테스트() throws Exception{
+        BDDMockito.given(directoryService.findMyDirectory(userPrincipal, null))
+                .willReturn(findMyDirectoryResponseDtos);
+
+        ResultActions result = mockMvc.perform(MockMvcRequestBuilders.get("/directories")
+                .with(SecurityMockMvcRequestPostProcessors.csrf())
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk());
     }
 }

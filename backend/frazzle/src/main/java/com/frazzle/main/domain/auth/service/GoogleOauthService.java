@@ -23,6 +23,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -124,16 +125,12 @@ public class GoogleOauthService implements SocialOauthService {
         //유저를 생성한다
         User user = User.createUser(googleInfoDto.getId(), GenerateRandomNickname.generateRandomNickname(), googleInfoDto.getEmail(), "google");
 
+        Optional<User> findUser = userService.findByEmail(user.getEmail());
+
         //db에 존재하면 업데이트 아니면 insert
-        if(userService.findByUserId(user.getUserId()) !=null) {
-
-            User findUser = userService.findByUserId(user.getUserId());
-
-            userService.updateUser(findUser, user);
-
-            return user;
+        if(findUser.isPresent()) {
+            return userService.save(findUser.get());
         }
-
         return userService.save(user);
     }
 }

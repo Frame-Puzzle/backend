@@ -6,7 +6,6 @@ import com.frazzle.main.domain.directory.entity.Directory;
 import com.frazzle.main.domain.directory.repository.DirectoryRepository;
 import com.frazzle.main.domain.user.entity.User;
 import com.frazzle.main.domain.user.repository.UserRepository;
-import com.frazzle.main.domain.userdirectory.entity.UserDirectory;
 import com.frazzle.main.domain.userdirectory.repository.UserDirectoryRepository;
 import com.frazzle.main.global.exception.CustomException;
 import com.frazzle.main.global.exception.ErrorCode;
@@ -59,7 +58,7 @@ public class UpdateDirectoryNameServiceTest {
     public void 디렉토리_이름_수정_성공_테스트(){
         //given
         BDDMockito.given(userPrincipal.getId()).willReturn(userId);
-        BDDMockito.given(userRepository.findByUserId(userId)).willReturn(user);
+        BDDMockito.given(userRepository.findByUserId(userId)).willReturn(Optional.ofNullable(user));
         BDDMockito.given(directoryRepository.findByDirectoryId(directory.getDirectoryId())).willReturn(Optional.ofNullable(directory));
         BDDMockito.given(userDirectoryRepository.existsByDirectoryAndUserAndIsAccept(directory, user, true)).willReturn(true);
 
@@ -75,7 +74,7 @@ public class UpdateDirectoryNameServiceTest {
     public void 디렉토리_이름_수정_권한_없음_실패_테스트() {
         // given
         BDDMockito.given(userPrincipal.getId()).willReturn(userId);
-        BDDMockito.given(userRepository.findByUserId(userId)).willReturn(user);
+        BDDMockito.given(userRepository.findByUserId(userId)).willReturn(Optional.ofNullable(user));
         BDDMockito.given(directoryRepository.findByDirectoryId(directory.getDirectoryId())).willReturn(Optional.ofNullable(directory));
         BDDMockito.given(userDirectoryRepository.existsByDirectoryAndUserAndIsAccept(directory, user, true)).willReturn(false);
 

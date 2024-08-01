@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -52,5 +51,9 @@ public class Directory {
 
     public void changeDirectoryName(String newDirectoryName) {
         this.directoryName = newDirectoryName;
+    }
+
+    public  void changePeopleNumber(int number) {
+        this.peopleNumber += number;
     }
 }

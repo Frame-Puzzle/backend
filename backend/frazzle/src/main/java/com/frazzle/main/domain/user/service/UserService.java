@@ -14,6 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -22,10 +24,9 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserDirectoryRepository userDirectoryRepository;
 
-    //UserId로 유저 찾기
-//    public User findByLoginUserId(String id) {
-//        return userRepository.findByLoginUserId(id);
-//    }
+    public Optional<User> findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
 
     //insert문
     public User save(User user) {
@@ -40,7 +41,9 @@ public class UserService {
 
     //유저id로 유저 찾기
     public User findByUserId(int id) {
-        return userRepository.findByUserId(id);
+        return userRepository.findByUserId(id).orElseThrow(
+                ()->new CustomException(ErrorCode.NOT_EXIST_USER)
+        );
     }
 
     @Transactional
@@ -82,7 +85,9 @@ public class UserService {
 
     //리프레시 토큰으로 사용자 찾기
     public User findByRefreshToken(String refreshToken) {
-        return userRepository.findByRefreshToken(refreshToken);
+        return userRepository.findByRefreshToken(refreshToken).orElseThrow(
+                () -> new CustomException(ErrorCode.NOT_EXIST_USER)
+        );
     }
 
 
