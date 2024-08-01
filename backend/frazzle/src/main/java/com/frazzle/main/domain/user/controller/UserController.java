@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -77,7 +78,7 @@ public class UserController {
                     content = @Content(schema = @Schema(implementation = ResultDto.class)))
     })
     @PutMapping("/nickname")
-    public ResponseEntity<ResultDto> updateUserNickname(@AuthenticationPrincipal UserPrincipal userPrincipal, UpdateUserNicknameRequestDto requestDto) {
+    public ResponseEntity<ResultDto> updateUserNickname(@AuthenticationPrincipal UserPrincipal userPrincipal, @Valid @RequestBody UpdateUserNicknameRequestDto requestDto) {
 
         //만약 닉네임 변경시 여기서 발생
         User user = userService.updateUserByNickname(userPrincipal, requestDto);
