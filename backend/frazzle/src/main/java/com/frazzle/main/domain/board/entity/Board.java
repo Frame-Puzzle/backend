@@ -108,17 +108,18 @@ public class Board {
                 .build();
     }
 
+    public void updateUser(User user){this.user = user;}
+    public void updateDirectory(Directory directory){this.directory = directory;}
+
     public void changeClearType(BoardClearTypeFlag type){
         this.clearType = type.getValue();
     }
-
     public void changeImageUrl(String imageUrl){
         this.thumbnailUrl = imageUrl;
     }
     public void addPieceCount(){
         this.pieceCount++;
     }
-
     public void changePieceCount(int number)
     {
         this.pieceCount = number;

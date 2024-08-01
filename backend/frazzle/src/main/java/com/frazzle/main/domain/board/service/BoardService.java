@@ -32,32 +32,26 @@ public class BoardService {
     private final UserDirectoryRepository userDirectoryRepository;
     private final BoardRepository boardRepository;
 
+    public Board findBoardByBoardId(int boardId) {
+        return boardRepository.findByBoardId(boardId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_EXIST_BOARD));
+    }
 
-    @Transactional
-    public List<Board> findBoardsByDirectoryId(int directoryId)
-    {
-        //response
-        return null;
+    public List<Board> findBoardsByDirectoryId(int directoryId) {
+        return boardRepository.findByDirectoryDirectoryId(directoryId);
     }
 
     @Transactional
-    public Board findBoardByBoardId(int boardId)
-    {
-        //response
-        return null;
-    }
-
-    @Transactional
-    public Board createBoard(UserPrincipal userPrincipal,
+    public void createBoard(UserPrincipal userPrincipal,
                              CreateBoardRequestDto boardDto,
                              int directoryID)
     {
-        //유저 확인
-        Optional<User> user = userRepository.findByUserId(userPrincipal.getId());
-
         //디렉토리 탐색
         Directory directory = directoryRepository.findByDirectoryId(directoryID)
                 .orElseThrow(()-> new CustomException(ErrorCode.NOT_EXIST_DIRECTORY));
+
+        //유저 확인
+        Optional<User> user = userRepository.findByUserId(userPrincipal.getId());
 
         //디렉토리 유저 인증
         if(!userDirectoryRepository.existsByDirectoryAndUserAndIsAccept(directory, user.get(), true)) {
@@ -67,21 +61,26 @@ public class BoardService {
         //보드 생성
         Board board = Board.createBoard(boardDto, directory);
         boardRepository.save(board);
-        return board;
     }
 
     //썸네일 유저 등록
     @Transactional
-    public void updateUserFromBoard(UserPrincipal userPrincipal)
+    public void updateUserFromBoard(int boardId, UserPrincipal userPrincipal)
     {
+        //유저 확인
+        User user = userRepository.findByUserId(userPrincipal.getId())
+                .orElseThrow(()-> new CustomException(ErrorCode.NOT_EXIST_USER));
 
+        Board board = findBoardByBoardId(boardId);
+
+        board.updateUser(user);
+        boardRepository.save(board);
     }
 
     //썸네일 사진 등록
     @Transactional
-    public void updateThumbnailUrl(String thumbnailUrl)
-    {
-
+    public void updateThumbnailUrl(Board board, String thumbnailUrl) {
+        board.changeImageUrl(thumbnailUrl);
     }
 
     //클리어 타입 변경
@@ -111,8 +110,32 @@ public class BoardService {
     }
 
     @Transactional
-    public void deleteBoard(int boardId)
+    public boolean deleteBoard(int boardId)
     {
-        //TODO: 투표 조건 봐야됨
+        Board board = findBoardByBoardId(boardId);
+
+        Directory directory = board.getDirectory();
+
+        if(directory == null)
+            throw new CustomException(ErrorCode.NOT_EXIST_DIRECTORY);
+
+        //디렉토리 내에 존재하는 총 인원 수 현재 와 비교한다.
+        int maxPeople = directory.getPeopleNumber();
+
+        int voteNumber = board.getVoteNumber();
+
+        //과반수 체크
+        if(!checkDeleteCondition(maxPeople, voteNumber)){return false;}
+        
+        boardRepository.delete(board);
+        return true;
+    }
+
+    //과반수 체크 메소드
+    private boolean checkDeleteCondition(int maxPeople, int voteNum){
+        if(maxPeople == 0)
+            return false;
+
+        return voteNum > Math.ceil(maxPeople / 2.0);
     }
 }
