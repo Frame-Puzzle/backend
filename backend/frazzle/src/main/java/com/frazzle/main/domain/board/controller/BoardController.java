@@ -1,10 +1,12 @@
 package com.frazzle.main.domain.board.controller;
 
 import com.frazzle.main.domain.board.dto.CreateBoardRequestDto;
+import com.frazzle.main.domain.board.dto.UpdateVoteRequestDto;
 import com.frazzle.main.domain.board.entity.Board;
 import com.frazzle.main.domain.board.service.BoardService;
 import com.frazzle.main.domain.piece.entity.Piece;
 import com.frazzle.main.domain.piece.service.PieceService;
+import com.frazzle.main.domain.user.entity.User;
 import com.frazzle.main.global.models.UserPrincipal;
 import com.frazzle.main.global.utils.ResultDto;
 import jakarta.validation.Valid;
@@ -38,7 +40,7 @@ public class BoardController {
     }
 
     //퍼즐판 및 퍼즐조각 전체 조회
-    @GetMapping("/boardID")
+    @GetMapping("/{boardID}")
     public ResponseEntity<ResultDto> findBoardAndPiece(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable("directoryID") int directoryID,
@@ -49,8 +51,28 @@ public class BoardController {
 
         return null;
     }
-//    public ResponseEntity<ResultDto> updateBoard(){}
-//
-//    @DeleteMapping("")
-//    public ResponseEntity<ResultDto> deleteBoard(){}
+
+    //투표
+    @PutMapping("/{boardID}/vote")
+    public ResponseEntity<ResultDto> deleteVote(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            UpdateVoteRequestDto requestDto
+            ) {
+        return null;
+    }
+
+    //TODO: 퍼즐판 삭제 요청?
+
+    //퍼즐판 내 전체 사진 조회
+    @GetMapping("/{boardID}/images")
+    public ResponseEntity<ResultDto> getBoardImages(){
+        return null;
+    }
+
+    //썸네일 생성 및 수정
+    @PutMapping("/{boardID}/thumbnails")
+    public ResponseEntity<ResultDto> updateBoardThumbnails(){
+        return null;
+    }
+
 }
