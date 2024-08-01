@@ -1,8 +1,7 @@
 package com.frazzle.main.domain.user.controller;
 
-import com.frazzle.main.domain.user.dto.ExistNicknameResponseDto;
-import com.frazzle.main.domain.user.dto.UpdateUserRequestDto;
-import com.frazzle.main.domain.user.dto.UserInfoResponseDto;
+import com.frazzle.main.domain.user.dto.*;
+import com.frazzle.main.global.aws.service.AwsService;
 import com.frazzle.main.global.models.UserPrincipal;
 import com.frazzle.main.domain.user.entity.User;
 import com.frazzle.main.domain.user.service.UserService;
@@ -19,13 +18,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
 @Slf4j
+@CrossOrigin(origins = "*")
 public class UserController {
 
     private final UserService userService;
@@ -43,14 +43,7 @@ public class UserController {
     @GetMapping
     public ResponseEntity<ResultDto> userInfo(@AuthenticationPrincipal UserPrincipal userPrincipal) {
 
-        log.info("user "+String.valueOf(userPrincipal.getId()));
-
-        int userId = userPrincipal.getId();
-
-        User user = userService.findByUserId(userId);
-        if(user == null) {
-            throw new CustomException(ErrorCode.NOT_EXIST_USER);
-        }
+        User user = userService.findByUserId(userPrincipal);
 
         UserInfoResponseDto userInfoResponseDto = UserInfoResponseDto.createUserInfoResponse(user);
 
@@ -70,45 +63,46 @@ public class UserController {
     @DeleteMapping
     public ResponseEntity<ResultDto> deleteUser(@AuthenticationPrincipal UserPrincipal userPrincipal) {
 
-        int userId = userPrincipal.getId();
+        userService.deleteUser(userPrincipal);
 
-        Long result = userService.deleteUser(userId);
-
-        if(result > 0) {
-            return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "회원 탈퇴가 성공했습니다."));
-        }
-
-        throw new CustomException(ErrorCode.NOT_EXIST_USER);
+        return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "회원 탈퇴가 성공했습니다."));
     }
 
-    //유저 정보 업데이
-    @Operation(summary = "유저 정보 수정", description = "로그인한 유저의 정보를 수정합니다.")
+    //유저 정보 업데이트
+    @Operation(summary = "유저 닉네임 정보 수정", description = "로그인한 유저의 정보를 수정합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "유저 정보 수정에 성공했습니다.",
                     content = @Content(schema = @Schema(implementation = ResultDto.class))),
             @ApiResponse(responseCode = "404", description = "유저를 찾을 수 없습니다.",
                     content = @Content(schema = @Schema(implementation = ResultDto.class)))
     })
-    @PutMapping
-    public ResponseEntity<ResultDto> updateUser(@AuthenticationPrincipal UserPrincipal userPrincipal, @Validated @RequestBody UpdateUserRequestDto updateUserRequestDto) {
-
-        int userId = userPrincipal.getId();
-
-        User user = userService.findByUserId(userId);
+    @PutMapping("/nickname")
+    public ResponseEntity<ResultDto> updateUserNickname(@AuthenticationPrincipal UserPrincipal userPrincipal, UpdateUserNicknameRequestDto requestDto) {
 
         //만약 닉네임 변경시 여기서 발생
-        if(updateUserRequestDto.getNickname() != null && !updateUserRequestDto.getNickname().isBlank()) {
-            Long result = userService.updateUserByNickname(user, updateUserRequestDto);
-        }
-
-        //만약 프로필 사진만 변경시 여기서 발생
-        if(updateUserRequestDto.getProfileImg() != null && !updateUserRequestDto.getProfileImg().isBlank()) {
-            Long result = userService.updateUserByProfileImg(user, updateUserRequestDto);
-        }
+        User user = userService.updateUserByNickname(userPrincipal, requestDto);
 
         UserInfoResponseDto userInfoResponseDto = UserInfoResponseDto.createUserInfoResponse(user);
 
-        return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "유저 정보 수정에 성공했습니다.", userInfoResponseDto));
+        return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "유저 닉네임 정보 수정에 성공했습니다.", userInfoResponseDto));
+    }
+
+    //유저 정보 업데이트
+    @Operation(summary = "유저 프로필 정보 수정", description = "로그인한 유저의 프로필 정보를 수정합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "유저 정보 수정에 성공했습니다.",
+                    content = @Content(schema = @Schema(implementation = ResultDto.class))),
+            @ApiResponse(responseCode = "404", description = "유저를 찾을 수 없습니다.",
+                    content = @Content(schema = @Schema(implementation = ResultDto.class)))
+    })
+    @PutMapping("/profile-img")
+    public ResponseEntity<ResultDto> updateUserProfileImg(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody MultipartFile profileImg) {
+
+        User user = userService.updateUserByProfileImg(userPrincipal, profileImg);
+
+        UserInfoResponseDto userInfoResponseDto = UserInfoResponseDto.createUserInfoResponse(user);
+
+        return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "유저 프로필 정보 수정에 성공했습니다.", userInfoResponseDto));
     }
 
     //닉네임 찾기
