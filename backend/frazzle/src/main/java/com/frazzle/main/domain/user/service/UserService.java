@@ -77,7 +77,7 @@ public class UserService {
         );
 
         //        //사진 업로드 후 유저url 반환
-        String userUrl = awsService.uploadFile(profileImg, user.getLoginUserId());
+        String userUrl = awsService.uploadFile(profileImg);
 
         //유저url을 통해 S3에서 이미지 가져오기
         String url = awsService.getProfileUrl(userUrl);
