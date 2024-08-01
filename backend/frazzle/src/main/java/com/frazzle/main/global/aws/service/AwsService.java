@@ -1,6 +1,7 @@
 package com.frazzle.main.global.aws.service;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.frazzle.main.global.exception.CustomException;
 import com.frazzle.main.global.exception.ErrorCode;
@@ -46,5 +47,12 @@ public class AwsService {
     public String getProfileUrl(String userUrl) {
         URL url = s3Client.getUrl(name, userUrl);
         return "" + url;
+    }
+
+    public void deleteProfile(String profileImgUrl) {
+        String key = profileImgUrl.substring(profileImgUrl.lastIndexOf("/") + 1);
+
+
+        s3Client.deleteObject(new DeleteObjectRequest(name, key));
     }
 }

@@ -64,6 +64,18 @@ public class UserService {
                 () -> new CustomException(ErrorCode.NOT_EXIST_USER)
         );
 
+        //null이면 에러
+        if(requestDto.getNickname()==null || requestDto.getNickname().isEmpty()) {
+            log.info("널 에러");
+            throw new CustomException(ErrorCode.BAD_REQUEST);
+        }
+
+        //
+        if(findByNickname(requestDto.getNickname())) {
+            log.info("이미 존재");
+            throw new CustomException(ErrorCode.BAD_REQUEST);
+        }
+
 
         user.updateUserNickname(requestDto.getNickname());
         return userRepository.save(user);
@@ -75,6 +87,11 @@ public class UserService {
         User user = userRepository.findByUserId(userPrincipal.getId()).orElseThrow(
                 () -> new CustomException(ErrorCode.NOT_EXIST_USER)
         );
+
+        //이미 프로필 사진 존재하면 삭제
+        if(user.getProfileImg()!=null) {
+            awsService.deleteProfile(user.getProfileImg());
+        }
 
         //사진 업로드 후 고유url 반환
         String imgUrl = awsService.uploadFile(profileImg);
