@@ -18,6 +18,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/directories")
+@CrossOrigin(origins = "*")
 @Slf4j
 public class DirectoryController {
 
