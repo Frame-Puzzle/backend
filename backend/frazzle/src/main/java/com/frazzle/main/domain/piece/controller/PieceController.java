@@ -2,7 +2,6 @@ package com.frazzle.main.domain.piece.controller;
 
 import com.frazzle.main.domain.piece.dto.FindPieceResponseDto;
 import com.frazzle.main.domain.piece.dto.UpdatePieceRequestDto;
-import com.frazzle.main.domain.piece.entity.Piece;
 import com.frazzle.main.domain.piece.service.PieceService;
 import com.frazzle.main.global.models.UserPrincipal;
 import com.frazzle.main.global.utils.ResultDto;
@@ -26,7 +25,6 @@ public class PieceController {
     public ResponseEntity<ResultDto> updatePiece(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable("directoryID") int directoryID,
-            @PathVariable("boardID") int boardID,
             @PathVariable("pieceID") int pieceID,
             @Valid @RequestBody UpdatePieceRequestDto requestDto
             )
@@ -43,12 +41,10 @@ public class PieceController {
     public ResponseEntity<ResultDto> detailPiece(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable("directoryID") int directoryID,
-            @PathVariable("boardID") int boardID,
             @PathVariable("pieceID") int pieceID
             )
     {
-        Piece piece = pieceService.findPieceByPieceId(userPrincipal, directoryID, pieceID);
-        FindPieceResponseDto responseDto = FindPieceResponseDto.createPieceDto(piece.getImageUrl(), piece.getContent());
+        FindPieceResponseDto responseDto = pieceService.findPieceByPieceId(userPrincipal, directoryID, pieceID);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ResultDto.res(HttpStatus.OK.value(),

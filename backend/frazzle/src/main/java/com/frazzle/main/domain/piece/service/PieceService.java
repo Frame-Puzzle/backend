@@ -1,5 +1,6 @@
 package com.frazzle.main.domain.piece.service;
 
+import com.frazzle.main.domain.piece.dto.FindPieceResponseDto;
 import com.frazzle.main.domain.piece.dto.UpdatePieceRequestDto;
 import com.frazzle.main.domain.piece.entity.Piece;
 import com.frazzle.main.domain.piece.repository.PieceRepository;
@@ -39,7 +40,7 @@ public class PieceService {
     }
 
     //퍼즐 조각 상세 조회(piece id) (API)
-    public Piece findPieceByPieceId(UserPrincipal userPrincipal, int directoryId, int pieceId){
+    public FindPieceResponseDto findPieceByPieceId(UserPrincipal userPrincipal, int directoryId, int pieceId){
 
         //유저검증
         checkUser(userPrincipal);
@@ -51,7 +52,7 @@ public class PieceService {
         //퍼즐 조각 검증
         checkPiece(directoryId, piece);
 
-        return piece;
+        return FindPieceResponseDto.createPieceDto(piece.getImageUrl(), piece.getContent());
     }
 
     //퍼즐 조각 전체 조회(directory id) (API)
