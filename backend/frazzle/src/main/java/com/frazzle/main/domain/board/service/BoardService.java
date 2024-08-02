@@ -109,7 +109,10 @@ public class BoardService {
 
     //보드판 내의 썸네일 사진 등록, 1등 유저가 등록되고, 게임 클리어 시에만 가능
     @Transactional
-    public void updateThumbnailUrl(Board board, UpdateBoardThumbnailRequestDto requestDto) {
+    public void updateThumbnailUrl(UserPrincipal userPrincipal, int boardID, UpdateBoardThumbnailRequestDto requestDto) {
+
+        Board board = findBoardByBoardId(userPrincipal, boardID);
+
         if((board.getClearType() == BoardClearTypeFlag.PUZZLE_GAME_CLEARED.getValue()
         && board.getUser() != null)){
 

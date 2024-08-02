@@ -63,7 +63,6 @@ public class BoardController {
     @PutMapping("/{boardID}/vote")
     public ResponseEntity<ResultDto> deleteVote(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
-            @PathVariable("directoryID") int directoryID,
             @PathVariable("boardID") int boardID,
             @RequestBody @Valid UpdateVoteRequestDto requestDto
             ) {
@@ -108,13 +107,11 @@ public class BoardController {
     @PutMapping("/{boardID}/thumbnails")
     public ResponseEntity<ResultDto> updateBoardThumbnails(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
-            @PathVariable("directoryID") int directoryID,
             @PathVariable("boardID") int boardID,
             @RequestBody @Valid UpdateBoardThumbnailRequestDto requestDto
             ){
 
-        Board board = boardService.findBoardByBoardId(userPrincipal, boardID);
-        boardService.updateThumbnailUrl(board, requestDto);
+        boardService.updateThumbnailUrl(userPrincipal, boardID, requestDto);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ResultDto.res(HttpStatus.OK.value(),
