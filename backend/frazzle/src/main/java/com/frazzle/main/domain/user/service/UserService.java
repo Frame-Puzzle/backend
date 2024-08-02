@@ -64,18 +64,9 @@ public class UserService {
                 () -> new CustomException(ErrorCode.NOT_EXIST_USER)
         );
 
-        //null이면 에러
-        if(requestDto.getNickname()==null || requestDto.getNickname().isEmpty()) {
-            log.info("널 에러");
-            throw new CustomException(ErrorCode.BAD_REQUEST);
-        }
-
-        //
         if(findByNickname(requestDto.getNickname())) {
-            log.info("이미 존재");
-            throw new CustomException(ErrorCode.BAD_REQUEST);
+            throw new CustomException(ErrorCode.DUPLICATED_NICKNAME);
         }
-
 
         user.updateUserNickname(requestDto.getNickname());
         return userRepository.save(user);
