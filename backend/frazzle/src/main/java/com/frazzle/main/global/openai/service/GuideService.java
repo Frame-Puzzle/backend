@@ -51,7 +51,7 @@ public class GuideService {
 
         String exceptMissions = String.join(", ", requestDto.getPreMissionList());
 
-        promptBuilder.append(prompt).append("\n").append(exceptMissions);
+        promptBuilder.append(prompt).append("\n").append("뒤에는 제외하고 알려줘. ").append(exceptMissions);
 
 
         Map<String, String> userMessage = new HashMap<>();
