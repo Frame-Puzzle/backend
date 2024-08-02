@@ -30,7 +30,9 @@ public class GuideController {
 
         String[] guideList = gptService.generateDescription(requestDto);
 
-        return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "", guideList));
+        GuideResponseDto responseDto = GuideResponseDto.createGuideResponseDto(guideList);
+
+        return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "미션 생성하는데 성공했습니다.", responseDto));
 
     }
 }
