@@ -18,19 +18,19 @@ public class User {
     @Column(name = "user_id")
     private int userId;
 
-    @Column(name = "login_user_id", nullable = false)
+    @Column(name = "login_user_id", nullable = false, unique = true)
     private String loginUserId;
 
-    @Column(name = "nickname", length = 32, nullable = false)
+    @Column(name = "nickname", length = 32, nullable = false, unique = true)
     private String nickname;
 
-    @Column(name = "email", length = 64, nullable = false)
+    @Column(name = "email", length = 64, nullable = false, unique = true)
     private String email;
 
     @Column(name = "social_type", length = 10, nullable = false)
     private String socialType;
 
-    @Column(name = "profile_img")
+    @Column(name = "profile_img", unique = true)
     private String profileImg;
 
     @Column(name = "refresh_token")
