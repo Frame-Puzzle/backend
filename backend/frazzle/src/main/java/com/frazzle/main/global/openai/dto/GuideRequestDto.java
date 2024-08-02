@@ -11,4 +11,5 @@ import lombok.NoArgsConstructor;
 public class GuideRequestDto {
     private String[] keywordList;
     private int num;
+    private String[] preMissionList;
 }
