@@ -19,7 +19,12 @@ public enum ErrorCode {
     DENIED_CANCEL_MEMBER("멤버 초대 취소 권한이 없습니다", HttpStatus.FORBIDDEN),
     NOT_EXIST_DIRECTORY("존재하지 않는 디렉토리입니다.", HttpStatus.NOT_FOUND),
     DUPLICATED_DIRECTORY_MEMBER("이미 초대된 회원입니다.", HttpStatus.BAD_REQUEST),
+    NOT_DIRECTORY_MEMBER("해당 디렉토리에 접근 권한이 없습니다.", HttpStatus.UNAUTHORIZED),
     NOT_EXIST_BOARD("보드판이 존재하지 않습니다.", HttpStatus.NOT_FOUND),
+    NOT_EXIST_PIECE("존재하지 않는 퍼즐조각입니다.", HttpStatus.NOT_FOUND),
+    DENIED_UPDATE_PIECE("퍼즐을 처음 등록한 사용자만 수정할 수 있습니다.", HttpStatus.NOT_ACCEPTABLE),
+    FAILED_CREATE_PIECE("퍼즐 조각 생성에 실패했습니다.", HttpStatus.NOT_FOUND),
+    CANNOT_BE_NEGATIVE("난수에 음수값은 사용할 수 없습니다. ", HttpStatus.BAD_REQUEST)
     ;
 
     private final String message;

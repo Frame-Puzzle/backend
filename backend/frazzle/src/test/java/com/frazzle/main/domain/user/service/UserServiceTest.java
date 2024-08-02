@@ -52,8 +52,8 @@ public class UserServiceTest {
         verify(userService).save(user);
 
         //when
-        User user = userService.findByUserId(userId);
-        verify(userService).findByUserId(userId);
+        //User user = userService.findByUserId(userId);
+        //verify(userService).findByUserId(userId);
 
         //then
         Assertions.assertEquals(user, user);

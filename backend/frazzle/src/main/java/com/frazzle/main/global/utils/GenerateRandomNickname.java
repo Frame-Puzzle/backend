@@ -18,4 +18,8 @@ public class GenerateRandomNickname {
         }
         return nickname.toString();
     }
+
+    public static SecureRandom getRandom(){
+        return RANDOM;
+    }
 }

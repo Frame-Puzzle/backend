@@ -92,13 +92,12 @@ public class Board {
         //this.isComplete = isComplete;
     }
 
-    public static Board createBoard(CreateBoardRequestDto boardDto, Directory directory){
+    public static Board createBoard(CreateBoardRequestDto boardDto, Directory directory, String keyword){
         return Board.builder()
                 //.user(user)
                 .directory(directory)
-                //TODO: 디렉토리에서 퍼즐판 수 조회하기
-                //.boardInNumber(directory.get)
-                .keyword(boardDto.getKeyword())
+                .boardInNumber(0)
+                .keyword(keyword)
                 .boardSize(boardDto.getBoardSize())
                 .clearType(0)
                 .pieceCount(0)
@@ -109,7 +108,7 @@ public class Board {
     }
 
     public void updateUser(User user){this.user = user;}
-    public void updateDirectory(Directory directory){this.directory = directory;}
+    //public void updateDirectory(Directory directory){this.directory = directory;}
 
     public void changeClearType(BoardClearTypeFlag type){
         this.clearType = type.getValue();
@@ -135,4 +134,5 @@ public class Board {
     public void addVoteNumber(){
         this.voteNumber++;
     }
+    public void changeBoardInNumber(int number){ this.boardInNumber = number; }
 }
