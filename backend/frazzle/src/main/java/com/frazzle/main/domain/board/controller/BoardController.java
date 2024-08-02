@@ -45,11 +45,8 @@ public class BoardController {
             @PathVariable("directoryID") int directoryID,
             @PathVariable("boardID") int boardID)
     {
-        Board board = boardService.findBoardByBoardId(userPrincipal, boardID);
-        List<Piece> pieceList = pieceService.findPiecesByBoardId(userPrincipal, directoryID, boardID);
-
         //TODO: responseDto 완성하기
-        FindBoardAndPiecesResponseDto responseDto;
+        FindBoardAndPiecesResponseDto responseDto =boardService.findImageAll(userPrincipal, directoryID, boardID);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ResultDto.res(HttpStatus.OK.value(),

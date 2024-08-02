@@ -1,8 +1,6 @@
 package com.frazzle.main.domain.board.service;
 
-import com.frazzle.main.domain.board.dto.CreateBoardRequestDto;
-import com.frazzle.main.domain.board.dto.FindAllImageFromBoardResponseDto;
-import com.frazzle.main.domain.board.dto.UpdateBoardThumbnailRequestDto;
+import com.frazzle.main.domain.board.dto.*;
 import com.frazzle.main.domain.board.entity.Board;
 import com.frazzle.main.domain.board.entity.BoardClearTypeFlag;
 import com.frazzle.main.domain.board.entity.GlobalBoardSize;
@@ -20,6 +18,7 @@ import com.frazzle.main.global.exception.CustomException;
 import com.frazzle.main.global.exception.ErrorCode;
 import com.frazzle.main.global.models.UserPrincipal;
 import com.frazzle.main.global.utils.GenerateRandomNickname;
+import com.frazzle.main.global.utils.ParseStringWord;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -59,6 +58,46 @@ public class BoardService {
 
     public List<Board> findBoardsByDirectoryId(int directoryId) {
         return boardRepository.findByDirectoryDirectoryId(directoryId);
+    }
+
+    public FindBoardAndPiecesResponseDto findImageAll(UserPrincipal userPrincipal, int directoryId, int boardId) {
+        Board board = findBoardByBoardId(userPrincipal, boardId);
+        Directory directory = directoryRepository.findByDirectoryId(directoryId).get();
+        List<Piece> pieceList = pieceRepository.findAllByBoardBoardId(boardId);
+
+        if(pieceList.isEmpty() || pieceList == null) {
+            throw new CustomException(ErrorCode.NOT_EXIST_PIECE);
+        }
+
+        PieceListResponseDto[] pieceResponseDtoList = new PieceListResponseDto[pieceList.size()];
+
+        int size = pieceList.size();
+        int userId = userPrincipal.getId();
+
+        for(int i = 0; i < size; i++){
+            Piece p = pieceList.get(i);
+
+            //해당 퍼즐 조각이 해당 사용자가 수정이 가능한지 체크한다.
+            int authorityNumber = checkAuthority(userId, p);
+
+            pieceResponseDtoList[i] = PieceListResponseDto.createPieceListResponseDto(
+                    p.getPieceId(), authorityNumber, p.getPieceRow(), p.getPieceCol()
+            );
+        }
+
+        String keywordToken[] = ParseStringWord.hashTagToStringToken(board.getKeyword());
+
+        FindBoardAndPiecesResponseDto responseDto = FindBoardAndPiecesResponseDto.createFindBoardAndPiecesResponseDto(
+                keywordToken,
+                directory.getCategory(),
+                directory.getDirectoryName(),
+                ""+board.getBoardInNumber(),
+                board.getBoardSize(),
+                board.getUser().getNickname(),
+                pieceResponseDtoList
+                );
+
+        return responseDto;
     }
 
     @Transactional
@@ -282,5 +321,29 @@ public class BoardService {
             numberList.add(result);
         }
         return numberList;
+    }
+
+    //퍼즐판 전체조회 시 퍼즐 조각이 어떤 상태인지 확인하는 메소드
+    private int checkAuthority(int userId, Piece piece){
+        int result = 0;
+
+        User pieceUser = piece.getUser();
+        String imageUrl = piece.getImageUrl();
+        String content = piece.getContent();
+
+        //1. 전부 비어있는 상태
+        if(pieceUser == null && imageUrl == null && content == null){
+            result = Authority.EMPTY.getValue();
+        } //2. 자신만 수정 가능한 상태
+        else if(pieceUser.getUserId() == userId){
+            result = Authority.UPDATE_ONLY_ME.getValue();
+        } //3. 사진을 넣었던 유저가 사라진 상태
+        else if(pieceUser == null && (imageUrl != null || content != null)){
+            result = Authority.UPDATABLE.getValue();
+        } //4. 다른 유저가 사진을 넣어서 수정할 수 없음
+        else if(userId != pieceUser.getUserId() && imageUrl != null){
+            result = Authority.CANNOT_UPDATE.getValue();
+        }
+        return result;
     }
 }

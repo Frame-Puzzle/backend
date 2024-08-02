@@ -14,8 +14,8 @@ public class WordParseTest {
 
     @Test
     void 키워드_및_미션_파싱테스트(){
-        List<String> splitMission = ParseStringWord.hashTagToStringToken(missions);
-        List<String> splitKeyword = ParseStringWord.hashTagToStringToken(keywords);
+        String[] splitMission = ParseStringWord.hashTagToStringToken(missions);
+        String[] splitKeyword = ParseStringWord.hashTagToStringToken(keywords);
 
         for (String s : splitMission)
             System.out.println(s);
