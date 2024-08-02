@@ -52,15 +52,15 @@ public class User {
             for (char c : nickname.toCharArray()) {
                 if (c >= 0xAC00 && c <= 0xD7A3) {
                     // 한글은 2 길이로 계산
-                    length += 2;
-                } else {
-                    // 그 외의 문자는 1 길이로 계산
                     length += 1;
                 }
 
-                if (length > maxLength) {
-                    throw new CustomException(ErrorCode.TOO_MAX_LENGTH_NICKNAME);
-                }
+                length += 1;
+
+            }
+
+            if (length > maxLength) {
+                throw new CustomException(ErrorCode.TOO_MAX_LENGTH_NICKNAME);
             }
         }
     }
