@@ -3,8 +3,6 @@ package com.frazzle.main.domain.board.controller;
 import com.frazzle.main.domain.board.dto.*;
 import com.frazzle.main.domain.board.entity.Board;
 import com.frazzle.main.domain.board.service.BoardService;
-import com.frazzle.main.domain.piece.dto.FindPieceResponseDto;
-import com.frazzle.main.domain.piece.dto.UpdatePieceRequestDto;
 import com.frazzle.main.domain.piece.entity.Piece;
 import com.frazzle.main.domain.piece.service.PieceService;
 import com.frazzle.main.global.models.UserPrincipal;
@@ -16,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
