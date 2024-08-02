@@ -22,6 +22,7 @@ public class SwaggerConfig {
                 .addSecurityItem(new SecurityRequirement().addList("bearer-key"))
                 .info(new Info().title("Frazzle API")
                         .description("Frazzle API 문서")
-                        .version("1.0"));
+                        .version("1.0"))
+                        .servers(List.of(new Server().url("https://i11b208.p.ssafy.io")));
     }
 }
