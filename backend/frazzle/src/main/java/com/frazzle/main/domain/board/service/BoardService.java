@@ -280,10 +280,6 @@ public class BoardService {
             }
         }
 
-        /*
-        TODO: 퍼즐 조각들 생성
-        난수로 특정 조각에 가이드미션 집어넣기
-         */
         //#####TEST
         String guideMission = "Mission ";
         //#######

@@ -96,8 +96,7 @@ public class PieceService {
             throw new CustomException(ErrorCode.DENIED_UPDATE_PIECE);
         }
 
-        //2. 파일 변환
-        //TODO: multifile S3로 업로드 하고 url 받기
+        //2. 파일 변환 multifile S3로 업로드 하고 url 받기
         MultipartFile imgFile = requestDto.getImgFile();
         String uuidUrl = awsService.uploadFile(imgFile, "");
         String url = awsService.getProfileUrl(uuidUrl);

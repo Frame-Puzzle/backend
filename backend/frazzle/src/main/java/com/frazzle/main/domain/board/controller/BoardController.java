@@ -45,12 +45,11 @@ public class BoardController {
             @PathVariable("directoryID") int directoryID,
             @PathVariable("boardID") int boardID)
     {
-        //TODO: responseDto 완성하기
         FindBoardAndPiecesResponseDto responseDto =boardService.findImageAll(userPrincipal, directoryID, boardID);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ResultDto.res(HttpStatus.OK.value(),
-                        "퍼즐판 생성 성공"));
+                        "퍼즐판 생성 성공", responseDto));
     }
 
     //투표
