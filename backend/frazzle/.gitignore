@@ -19,7 +19,7 @@ bin/
 
 ### IntelliJ IDEA ###
 .idea
-.json
+*.json
 *.iws
 *.iml
 *.ipr
