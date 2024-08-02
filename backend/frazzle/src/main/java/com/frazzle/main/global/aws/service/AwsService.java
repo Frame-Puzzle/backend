@@ -5,12 +5,14 @@ import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.frazzle.main.global.exception.CustomException;
 import com.frazzle.main.global.exception.ErrorCode;
+import com.frazzle.main.global.utils.ImageCompressor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.net.URL;
 import java.util.UUID;
@@ -30,13 +32,19 @@ public class AwsService {
     // 사용자의 loginUserId를 통해 파일명을 바꾸고 S3에 업로드
     public String uploadFile(MultipartFile file) {
         try {
-            File fileObj = convertMultiPartFileToFile(file);
+            BufferedImage image = ImageCompressor.convertMultiPartFileToBufferedImage(file);
 
-            //uuid로 랜덤
-            String uniqueFileName = UUID.randomUUID().toString();
+            // 압축 품질과 포맷 설정 (예: jpg, 품질 0.75)
+            String formatName = "jpg";
+            float quality = 0.75f;
+            String compressedFileName = System.getProperty("java.io.tmpdir") + "/" + UUID.randomUUID().toString() + "." + formatName;
+            File compressedFile = ImageCompressor.compressImage(image, formatName, quality, compressedFileName);
 
-            s3Client.putObject(new PutObjectRequest(name, uniqueFileName, fileObj));
-            fileObj.delete();
+            // UUID로 랜덤 파일명 생성
+            String uniqueFileName = UUID.randomUUID().toString() + "." + formatName;
+
+            s3Client.putObject(new PutObjectRequest(name, uniqueFileName, compressedFile));
+            compressedFile.delete();
             return uniqueFileName;
         } catch (Exception e) {
             log.error(e.getMessage());
