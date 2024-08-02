@@ -216,27 +216,27 @@ public class BoardService {
     private List<Piece> createPiece(Board board){
         int boardSize = board.getBoardSize();
 
-        int maxRow = GlobalBoardSize.minimumBoardRow;
-        int maxCol = GlobalBoardSize.maximumBoardColumn;
+        int row = GlobalBoardSize.minimumBoardRow;
+        int col = GlobalBoardSize.minimumBoardColumn;
 
-        if(boardSize < (maxRow * maxCol)){
+        if(boardSize < (row * col)){
             throw new CustomException(ErrorCode.NOT_EXIST_BOARD);
         }
 
         //BoardSize의 Row와 Col을 알아낸다.
         int level = GlobalBoardSize.maximumLevel;
         for(int i = 0; i< level; i++){
-            if(boardSize == maxRow * maxCol){
+            if(boardSize == row * col){
                 break;
             }
-            maxRow++;
-            maxCol++;
+            row++;
+            col++;
         }
 
         List<Piece> pieceList = new ArrayList<>();
         //퍼즐 조각을 생성한다. 0,0 부터 시작
-        for(int i = 0; i< maxRow; i++){
-            for(int j = 0; j< maxCol; j++){
+        for(int i = 0; i< row; i++){
+            for(int j = 0; j< col; j++){
                 pieceList.add(Piece.createPiece(board, i, j));
             }
         }
@@ -250,9 +250,9 @@ public class BoardService {
         //#######
 
         //가이드 부여
-        List<Integer> usingNumberList = getRandomNumber(boardSize, maxRow);
+        List<Integer> usingNumberList = getRandomNumber(boardSize, row);
 
-        for(int i = 0; i< maxRow; i++){
+        for(int i = 0; i< row; i++){
             pieceList.get(usingNumberList.get(i))
                     .updateMission(guideMission + (i + 1));
         }
