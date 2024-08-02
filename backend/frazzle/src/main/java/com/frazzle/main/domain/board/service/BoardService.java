@@ -162,8 +162,7 @@ public class BoardService {
         if((board.getClearType() == BoardClearTypeFlag.PUZZLE_GAME_CLEARED.getValue()
         && board.getUser() != null)){
 
-            String uuid = awsService.uploadFile(requestDto.getThumbnailUrl(), "");
-            String url = awsService.getProfileUrl(uuid);
+            String url = awsService.uploadFile(requestDto.getThumbnailUrl());
 
             board.changeImageUrl(url);
         }

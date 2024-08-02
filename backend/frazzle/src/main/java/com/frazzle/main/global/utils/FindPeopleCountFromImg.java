@@ -1,6 +1,7 @@
 package com.frazzle.main.global.utils;
 
 import com.frazzle.main.global.exception.ErrorCode;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -21,10 +22,10 @@ import java.util.Base64;
 public class FindPeopleCountFromImg {
 
     @Value("${google.vision.api}")
-    private String apiKey;
+    private static String apiKey;
 
     // MultipartFile을 입력받는 메서드
-    public int analyzeImageFile(MultipartFile image) {
+    public static int analyzeImageFile(MultipartFile image) {
         log.info("analyzeImageFile");
         // 사람 최대 인원 수
         int maxResults = 10;
@@ -41,7 +42,7 @@ public class FindPeopleCountFromImg {
     }
 
     /** 주어진 MultipartFile에서 얼굴을 감지하고 응답을 문자열로 반환합니다. */
-    private String detectFaces(MultipartFile file, int maxResults, String apiKey) throws IOException {
+    private static String detectFaces(MultipartFile file, int maxResults, String apiKey) throws IOException {
         log.info("detectFaces");
         byte[] data = file.getBytes();
         String base64Image = Base64.getEncoder().encodeToString(data);
@@ -88,7 +89,7 @@ public class FindPeopleCountFromImg {
     }
 
     /** 응답에서 감지된 얼굴 수를 계산합니다. */
-    private int countFaces(String jsonResponse) {
+    private static int countFaces(String jsonResponse) {
         log.info("countFaces");
         JSONObject responseJson = new JSONObject(jsonResponse);
         JSONArray responses = responseJson.getJSONArray("responses");
