@@ -16,6 +16,9 @@ import java.util.*;
 @Slf4j
 public class GuideService {
 
+    private static final int MAX_TOKEN = 200;
+    private static final int MAX_MISSION_NUMBER = 5;
+
     @Value("${gpt.api.key}")
     private String apiKey;
 
@@ -25,10 +28,11 @@ public class GuideService {
     @Value("${gpt.api.url}")
     private String url;
 
+
     public String[] generateDescription(GuideRequestDto requestDto) {
 
         //미션 최대 재생성 개수 5개로 제한
-        if(requestDto.getPreMissionList().length>=5) {
+        if(requestDto.getPreMissionList().length>=MAX_MISSION_NUMBER) {
             throw new CustomException(ErrorCode.MAX_GPT_REQUEST);
         }
 
@@ -59,7 +63,7 @@ public class GuideService {
         userMessage.put("content", promptBuilder.toString()); // 생성한 프롬프트 문자열 사용
 
         requestBody.put("messages", List.of(systemMessage, userMessage)); // 불변 리스트 사용
-        requestBody.put("max_tokens", 200); // 예시로 최대 토큰 수를 100으로 설정
+        requestBody.put("max_tokens", MAX_TOKEN); // 최대 토큰 수를 200으로 설정
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + apiKey);
