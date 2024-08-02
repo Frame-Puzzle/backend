@@ -266,7 +266,7 @@ public class BoardService {
 
     private List<Integer> getRandomNumber(int maxNumber, int count){
         if(maxNumber < 0) {
-            throw new IllegalArgumentException("number cannot be negative");
+            throw new CustomException(ErrorCode.CANNOT_BE_NEGATIVE);
         }
         List<Integer> numberList = new ArrayList<>();
 
