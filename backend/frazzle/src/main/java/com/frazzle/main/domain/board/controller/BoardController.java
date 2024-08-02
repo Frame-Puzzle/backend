@@ -35,7 +35,7 @@ public class BoardController {
             @Valid @RequestBody CreateBoardRequestDto requestDto)
     {
 
-        log.info("Create board request: {}", requestDto.getKeyword());
+        //log.info("Create board request: {}", requestDto.getKeyword());
 
         boardService.createBoard(userPrincipal, requestDto, directoryID);
         return ResponseEntity.status(HttpStatus.OK)

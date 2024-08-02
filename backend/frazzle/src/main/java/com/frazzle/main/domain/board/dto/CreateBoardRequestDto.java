@@ -9,9 +9,9 @@ import lombok.*;
 @AllArgsConstructor
 public class CreateBoardRequestDto {
 
-    private String guide;
+    private String[] guide;
 
-    private String keyword;
+    private String[] keyword;
 
     //review : int형은 NotBlank보다 NotNull이 더 적합
     @NotNull

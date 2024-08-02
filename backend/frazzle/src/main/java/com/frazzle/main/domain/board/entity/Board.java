@@ -92,12 +92,12 @@ public class Board {
         //this.isComplete = isComplete;
     }
 
-    public static Board createBoard(CreateBoardRequestDto boardDto, Directory directory){
+    public static Board createBoard(CreateBoardRequestDto boardDto, Directory directory, String keyword){
         return Board.builder()
                 //.user(user)
                 .directory(directory)
                 .boardInNumber(0)
-                .keyword(boardDto.getKeyword())
+                .keyword(keyword)
                 .boardSize(boardDto.getBoardSize())
                 .clearType(0)
                 .pieceCount(0)

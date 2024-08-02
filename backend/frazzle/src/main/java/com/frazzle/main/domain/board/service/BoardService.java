@@ -118,8 +118,11 @@ public class BoardService {
             throw new CustomException(ErrorCode.UNAUTHORIZED);
         }
 
+        String[] keywordToken = boardDto.getKeyword();
+        String mergedKeyword = ParseStringWord.StringToHashTag(keywordToken);
+
         //보드 생성
-        Board board = Board.createBoard(boardDto, directory);
+        Board board = Board.createBoard(boardDto, directory, mergedKeyword);
 
         //보드 제작 넘버 세팅
         countingBoard(board, directoryID);
