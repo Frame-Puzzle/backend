@@ -9,6 +9,7 @@ public enum ErrorCode {
     INVALID_REFRESH_TOKEN("유효하지않은 리프레시 토큰입니다.", HttpStatus.UNAUTHORIZED),
     BAD_REQUEST("잘못된 요청입니다.", HttpStatus.BAD_REQUEST),
     GPT_BAD_REQUEST("미션 생성에 실패했습니다", HttpStatus.BAD_REQUEST),
+    MAX_GPT_REQUEST("미션을 재생성 하는데 실패했습니다.", HttpStatus.BAD_REQUEST),
     DUPLICATED_NICKNAME("중복된 닉네임입니다.", HttpStatus.BAD_REQUEST),
     NOT_EXIST_USER("존재하지 않는 유저입니다.", HttpStatus.UNAUTHORIZED),
     NOT_EXIST_FIREBASE_TOKEN("파이어베이스 토큰이 존재하지 않습니다.", HttpStatus.NOT_FOUND),
