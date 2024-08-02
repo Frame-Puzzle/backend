@@ -1,10 +1,13 @@
 package com.frazzle.main.domain.user.entity;
 
 import com.frazzle.main.domain.userdirectory.entity.UserDirectory;
+import com.frazzle.main.global.exception.CustomException;
+import com.frazzle.main.global.exception.ErrorCode;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @Entity
@@ -21,7 +24,7 @@ public class User {
     @Column(name = "login_user_id", nullable = false, unique = true)
     private String loginUserId;
 
-    @Column(name = "nickname", length = 32, nullable = false, unique = true)
+    @Column(name = "nickname", nullable = false, unique = true)
     private String nickname;
 
     @Column(name = "email", length = 64, nullable = false, unique = true)
@@ -39,7 +42,28 @@ public class User {
     @Column(name = "device_token")
     private String deviceToken;
 
+    @PrePersist
+    @PreUpdate
+    private void validateNickname() {
+        if (nickname != null) {
+            int length = 0;
+            int maxLength = 20;
 
+            for (char c : nickname.toCharArray()) {
+                if (c >= 0xAC00 && c <= 0xD7A3) {
+                    // 한글은 2 길이로 계산
+                    length += 2;
+                } else {
+                    // 그 외의 문자는 1 길이로 계산
+                    length += 1;
+                }
+
+                if (length > maxLength) {
+                    throw new CustomException(ErrorCode.TOO_MAX_LENGTH_NICKNAME);
+                }
+            }
+        }
+    }
 
     @Builder
     private User(String loginUserId, String nickname, String email, String socialType, String profileImg, String refreshToken, String deviceToken) {
