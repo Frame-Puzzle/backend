@@ -21,34 +21,30 @@ public class OpenViduService {
     @Value("${openvidu.secret}")
     private String secret;
 
-    public String createSession() {
-
-        RestTemplate restTemplate = new RestTemplate();
-
-        String url = openviduUrl + "/api/sessions";
+    private HttpHeaders createHeaders() {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Basic " + Base64.encodeBase64String(("OPENVIDUAPP:" + secret).getBytes()));
+        return headers;
+    }
 
-        HttpEntity<Map<String, String>> request = new HttpEntity<>(new HashMap<>(), headers);
+    private String sendPostRequest(String endpoint, Map<String, String> body) {
+        RestTemplate restTemplate = new RestTemplate();
+        String url = openviduUrl + endpoint;
+        HttpEntity<Map<String, String>> request = new HttpEntity<>(body, createHeaders());
         ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, request, String.class);
-
         return response.getBody();
     }
 
+    //세션 방만들기
+    public String createSession() {
+        return sendPostRequest("/api/sessions", new HashMap<>());
+    }
+
+
+    //만든 세션방의 각 사람 마다 토큰 값 생성하기
     public String createToken(String sessionId) {
-
-        RestTemplate restTemplate = new RestTemplate();
-
-        String url = openviduUrl + "/api/tokens";
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Basic " + Base64.encodeBase64String(("OPENVIDUAPP:" + secret).getBytes()));
-
         Map<String, String> body = new HashMap<>();
         body.put("session", sessionId);
-
-        HttpEntity<Map<String, String>> request = new HttpEntity<>(body, headers);
-        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, request, String.class);
-
-        return response.getBody();
+        return sendPostRequest("/api/tokens", body);
     }
 }
