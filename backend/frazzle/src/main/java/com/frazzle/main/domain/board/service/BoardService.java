@@ -119,8 +119,7 @@ public class BoardService {
         }
 
         //보드 생성
-        Board board = Board.createBoard(boardDto);
-        board.updateDirectory(directory);
+        Board board = Board.createBoard(boardDto, directory);
 
         //보드 제작 넘버 세팅
         countingBoard(board, directoryID);
@@ -128,11 +127,16 @@ public class BoardService {
         /*
         TODO: 미션 생성
          */
+        boardRepository.save(board);
+
 
         //퍼즐 조각들 생성
         List<Piece> pieceList = createPiece(board);
 
-        boardRepository.save(board);
+        for(Piece p : pieceList){
+            pieceRepository.save(p);
+        }
+
         return board;
     }
 
@@ -290,10 +294,6 @@ public class BoardService {
         for(int i = 0; i< row; i++){
             pieceList.get(usingNumberList.get(i))
                     .updateMission(guideMission + (i + 1));
-        }
-
-        for(Piece p : pieceList){
-            pieceRepository.save(p);
         }
 
         return pieceList;

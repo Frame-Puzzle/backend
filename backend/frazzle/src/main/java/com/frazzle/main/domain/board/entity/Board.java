@@ -92,10 +92,10 @@ public class Board {
         //this.isComplete = isComplete;
     }
 
-    public static Board createBoard(CreateBoardRequestDto boardDto){
+    public static Board createBoard(CreateBoardRequestDto boardDto, Directory directory){
         return Board.builder()
                 //.user(user)
-                //.directory(directory)
+                .directory(directory)
                 .boardInNumber(0)
                 .keyword(boardDto.getKeyword())
                 .boardSize(boardDto.getBoardSize())
@@ -108,7 +108,7 @@ public class Board {
     }
 
     public void updateUser(User user){this.user = user;}
-    public void updateDirectory(Directory directory){this.directory = directory;}
+    //public void updateDirectory(Directory directory){this.directory = directory;}
 
     public void changeClearType(BoardClearTypeFlag type){
         this.clearType = type.getValue();

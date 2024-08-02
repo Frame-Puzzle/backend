@@ -9,6 +9,8 @@ import com.frazzle.main.global.models.UserPrincipal;
 import com.frazzle.main.global.utils.ResultDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -22,6 +24,7 @@ import java.util.List;
 @RequestMapping("/directories/{directoryID}/boards")
 public class BoardController {
 
+    private static final Logger log = LoggerFactory.getLogger(BoardController.class);
     private final BoardService boardService;
     private final PieceService pieceService;
 
@@ -31,6 +34,8 @@ public class BoardController {
             @PathVariable("directoryID") int directoryID,
             @Valid @RequestBody CreateBoardRequestDto requestDto)
     {
+
+        log.info("Create board request: {}", requestDto.getKeyword());
 
         boardService.createBoard(userPrincipal, requestDto, directoryID);
         return ResponseEntity.status(HttpStatus.OK)
