@@ -14,7 +14,7 @@ public class FindBoardAndPiecesResponseDto {
     private String[] keyword;
     private String category;
     private int boardSize;
-    private boolean isComplete;
+    //private boolean isComplete;
 
     private List<Piece> pieceList;
     private int pieceId;

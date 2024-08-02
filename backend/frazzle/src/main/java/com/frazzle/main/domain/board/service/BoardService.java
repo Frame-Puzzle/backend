@@ -1,6 +1,7 @@
 package com.frazzle.main.domain.board.service;
 
 import com.frazzle.main.domain.board.dto.CreateBoardRequestDto;
+import com.frazzle.main.domain.board.dto.FindAllImageFromBoardResponseDto;
 import com.frazzle.main.domain.board.dto.UpdateBoardThumbnailRequestDto;
 import com.frazzle.main.domain.board.entity.Board;
 import com.frazzle.main.domain.board.entity.BoardClearTypeFlag;
@@ -8,6 +9,7 @@ import com.frazzle.main.domain.board.entity.GlobalBoardSize;
 import com.frazzle.main.domain.board.repository.BoardRepository;
 import com.frazzle.main.domain.directory.entity.Directory;
 import com.frazzle.main.domain.directory.repository.DirectoryRepository;
+import com.frazzle.main.domain.piece.dto.FindPieceResponseDto;
 import com.frazzle.main.domain.piece.entity.Piece;
 import com.frazzle.main.domain.piece.repository.PieceRepository;
 import com.frazzle.main.domain.user.entity.User;
@@ -25,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -172,8 +175,28 @@ public class BoardService {
         board.changeBoardInNumber(result);
     }
 
-    public List<Piece> findAllPhoto(int boardId){
-        return pieceRepository.findAllByBoardBoardId(boardId);
+    public FindAllImageFromBoardResponseDto findAllPhoto(UserPrincipal userPrincipal, int boardId){
+
+        checkUser(userPrincipal);
+
+        List<Piece> pieceList = pieceRepository.findAllByBoardBoardId(boardId);
+
+        FindPieceResponseDto[] pieceDtoList = new FindPieceResponseDto[pieceList.size()];
+
+        for(int i = 0; i<pieceList.size(); i++) {
+            pieceDtoList[i] = FindPieceResponseDto
+                    .createPieceDto(
+                            pieceList.get(i).getImageUrl(),
+                            pieceList.get(i).getContent());
+        }
+
+        //보드 id를 통해 image 조회하기
+        Optional<String> imgUrl = boardRepository.findThumbnailUrlByBoardId(boardId);
+
+        FindAllImageFromBoardResponseDto responseDto = FindAllImageFromBoardResponseDto
+                .createFindAllImageFromBoardResponseDto(imgUrl.get(), pieceDtoList);
+
+        return responseDto;
     }
 
     //### 내장 함수

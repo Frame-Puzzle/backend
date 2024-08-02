@@ -14,4 +14,6 @@ public interface BoardRepository extends JpaRepository<Board, Integer> {
     Optional<Board> findByBoardId(int boardId);
 
     List<Board> findByDirectoryDirectoryId(int directoryId);
+
+    Optional<String> findThumbnailUrlByBoardId(int boardId);
 }

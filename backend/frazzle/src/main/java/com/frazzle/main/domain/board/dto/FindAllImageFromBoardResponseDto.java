@@ -11,15 +11,15 @@ public class FindAllImageFromBoardResponseDto {
 
     private String thumbnailUrl;
 
-    private List<FindPieceResponseDto> imgList;
+    private FindPieceResponseDto[] imgList;
 
     @Builder
-    private FindAllImageFromBoardResponseDto(String thumbnailUrl, List<FindPieceResponseDto> imgList) {
+    private FindAllImageFromBoardResponseDto(String thumbnailUrl, FindPieceResponseDto[] imgList) {
         this.thumbnailUrl = thumbnailUrl;
         this.imgList = imgList;
     }
 
-    public static FindAllImageFromBoardResponseDto createFindAllImageFromBoardResponseDto(String thumbnailUrl, List<FindPieceResponseDto> imgList) {
+    public static FindAllImageFromBoardResponseDto createFindAllImageFromBoardResponseDto(String thumbnailUrl, FindPieceResponseDto[] imgList) {
         return FindAllImageFromBoardResponseDto.builder()
                 .thumbnailUrl(thumbnailUrl).imgList(imgList).build();
     }

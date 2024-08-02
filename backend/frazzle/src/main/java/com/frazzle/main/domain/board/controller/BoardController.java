@@ -94,20 +94,10 @@ public class BoardController {
     @GetMapping("/{boardID}/images")
     public ResponseEntity<ResultDto> getBoardImages(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
-            @PathVariable("directoryID") int directoryID,
             @PathVariable("boardID") int boardID)
     {
-        Board board = boardService.findBoardByBoardId(userPrincipal, boardID);
-        List<Piece> pieceList = boardService.findAllPhoto(boardID);
 
-        List<FindPieceResponseDto> pieceDtoList = new ArrayList<>();
-        for(Piece piece : pieceList) {
-            FindPieceResponseDto pieceDto = FindPieceResponseDto.createPieceDto(piece.getImageUrl(), piece.getContent());
-            pieceDtoList.add(pieceDto);
-        }
-
-        FindAllImageFromBoardResponseDto responseDto = FindAllImageFromBoardResponseDto
-                .createFindAllImageFromBoardResponseDto(board.getThumbnailUrl(), pieceDtoList);
+        FindAllImageFromBoardResponseDto responseDto = boardService.findAllPhoto(userPrincipal, boardID);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ResultDto.res(HttpStatus.OK.value(),
