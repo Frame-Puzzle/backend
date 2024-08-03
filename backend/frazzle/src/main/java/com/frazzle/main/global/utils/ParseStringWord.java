@@ -25,6 +25,9 @@ public class ParseStringWord {
     public static String StringToHashTag(String[] words){
         String result = "";
 
+        if(words == null || words.length == 0)
+            return null;
+
         for(String word : words){
             result += "#"+word;
         }

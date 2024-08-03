@@ -202,6 +202,8 @@ public class BoardService {
         if(directory == null)
             throw new CustomException(ErrorCode.NOT_EXIST_DIRECTORY);
 
+        //TODO: 퍼즐 조각들 먼저 삭제
+
         //디렉토리 내에 존재하는 총 인원 수 현재 와 비교한다.
         //int maxPeople = directory.getPeopleNumber();
 
