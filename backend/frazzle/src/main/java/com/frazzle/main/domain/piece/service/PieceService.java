@@ -98,14 +98,16 @@ public class PieceService {
 
         //2. 파일 변환 multifile S3로 업로드 하고 url 받기
         MultipartFile imgFile = requestDto.getImgFile();
-        String uuidUrl = awsService.uploadFile(imgFile, "");
-        String url = awsService.getProfileUrl(uuidUrl);
 
-        //3. 퍼즐 조각 수정
+        //3. Face Detection : 사람 수 파악
+        int peopleCount = FindPeopleCountFromImg.analyzeImageFile(imgFile);
+
+        String url = awsService.uploadFile(imgFile);
+
+        //4. 퍼즐 조각 수정
         piece.updatePieceDto(url, requestDto.getComment(), user);
 
-        //4. Face Detection : 사람 수 파악
-        int peopleCount = FindPeopleCountFromImg.inputImgUrl(piece.getImageUrl());
+
 
         piece.updatePeopleCount(peopleCount);
     }
