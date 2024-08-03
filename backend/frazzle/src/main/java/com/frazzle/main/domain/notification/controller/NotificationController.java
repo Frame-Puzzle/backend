@@ -1,8 +1,10 @@
 package com.frazzle.main.domain.notification.controller;
 
 import com.frazzle.main.domain.notification.dto.AcceptNotificationRequestDto;
+import com.frazzle.main.domain.notification.dto.FcmNotificationRequestDto;
 import com.frazzle.main.domain.notification.dto.NotificationListResponseDto;
 import com.frazzle.main.domain.notification.entity.Notification;
+import com.frazzle.main.domain.notification.service.FcmNotificationService;
 import com.frazzle.main.domain.notification.service.NotificationService;
 import com.frazzle.main.domain.user.entity.User;
 import com.frazzle.main.domain.user.service.UserService;
@@ -34,6 +36,7 @@ import java.util.List;
 public class NotificationController {
     private final NotificationService notificationService;
     private final UserService userService;
+    private final FcmNotificationService fcmNotificationService;
 
     @Operation(summary = "알림 전체 조회", description = "사용자의 알림을 전체 조회 합니다.")
     @ApiResponses(value = {
@@ -46,6 +49,8 @@ public class NotificationController {
     public ResponseEntity<ResultDto> getNotifications(@AuthenticationPrincipal UserPrincipal userPrincipal) {
 
         List<Notification> notificationList = notificationService.findAllByUser(userPrincipal);
+
+        fcmNotificationService.sendNotification(FcmNotificationRequestDto.createFcmNotification(userPrincipal.getId(),"제목","바디"));
 
         NotificationListResponseDto responseDto = NotificationListResponseDto.createResponseDto(notificationList);
 

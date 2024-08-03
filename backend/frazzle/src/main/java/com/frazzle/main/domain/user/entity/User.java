@@ -60,7 +60,7 @@ public class User {
             }
 
             if (length > maxLength) {
-                throw new CustomException(ErrorCode.TOO_MAX_LENGTH_NICKNAME);
+                throw new CustomException(ErrorCode.TOO_MAX_LENGTH_INPUT);
             }
         }
     }
