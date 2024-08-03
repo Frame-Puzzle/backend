@@ -1,5 +1,7 @@
 package com.frazzle.main.domain.directory.service;
 
+import com.frazzle.main.domain.board.entity.Board;
+import com.frazzle.main.domain.board.repository.BoardRepository;
 import com.frazzle.main.domain.directory.dto.*;
 import com.frazzle.main.domain.directory.entity.Directory;
 import com.frazzle.main.domain.directory.repository.DirectoryRepository;
@@ -27,6 +29,7 @@ public class DirectoryService {
     private final DirectoryRepository directoryRepository;
     private final UserDirectoryRepository userDirectoryRepository;
     private final UserRepository userRepository;
+    private final BoardRepository boardRepository;
 
     @Transactional
     public Directory createDirectory(UserPrincipal userPrincipal, CreateDirectoryRequestDto requestDto) {
@@ -165,5 +168,39 @@ public class DirectoryService {
         }
 
         return response;
+    }
+
+    @Transactional
+    public DetailDirectoryResponsetDto findDetailDirectory(UserPrincipal userPrincipal, int directoryId) {
+        int userId = userPrincipal.getId();
+
+        if(!userDirectoryRepository.existsByUser_UserIdAndDirectory_DirectoryIdAndIsAccept(userId, directoryId, true)) {
+            throw new CustomException(ErrorCode.DENIED_DIRECTORY);
+        }
+
+        Directory directory = directoryRepository.findByDirectoryId(directoryId).orElseThrow(
+                () -> new CustomException(ErrorCode.NOT_EXIST_DIRECTORY)
+        );
+
+        List<User> members = userRepository.findDirectoryUsers(directory);
+        List<MemberListDto> memberList = new ArrayList<>();
+        for(User m : members) {
+            memberList.add(MemberListDto.createMemberList(m));
+        }
+
+        List<Board> boards = boardRepository.findBoards(directoryId);
+        List<BoardListDto> boardList = new ArrayList<>();
+        for(Board b : boards) {
+            boardList.add(BoardListDto.createBoardList(b));
+        }
+
+        boolean isCurrentBoard = boards.get(0).getClearType() == 0 ? true : false;
+
+        DetailDirectoryResponsetDto detailDirectoryResponsetDto
+                = DetailDirectoryResponsetDto.createDetailDirectoryRequestDto(
+                directory, true, memberList, boardList
+        );
+
+        return detailDirectoryResponsetDto;
     }
 }
