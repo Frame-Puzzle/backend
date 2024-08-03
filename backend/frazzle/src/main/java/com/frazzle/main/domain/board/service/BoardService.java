@@ -60,9 +60,9 @@ public class BoardService {
         return boardRepository.findByDirectoryDirectoryId(directoryId);
     }
 
-    public FindBoardAndPiecesResponseDto findImageAll(UserPrincipal userPrincipal, int directoryId, int boardId) {
+    public FindBoardAndPiecesResponseDto findImageAll(UserPrincipal userPrincipal, int boardId) {
         Board board = findBoardByBoardId(userPrincipal, boardId);
-        Directory directory = directoryRepository.findByDirectoryId(directoryId).get();
+        Directory directory = directoryRepository.findByDirectoryId(board.getDirectory().getDirectoryId()).get();
         List<Piece> pieceList = pieceRepository.findAllByBoardBoardId(boardId);
 
         if(pieceList.isEmpty() || pieceList == null) {

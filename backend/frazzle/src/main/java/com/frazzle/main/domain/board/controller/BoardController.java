@@ -3,20 +3,14 @@ package com.frazzle.main.domain.board.controller;
 import com.frazzle.main.domain.board.dto.*;
 import com.frazzle.main.domain.board.entity.Board;
 import com.frazzle.main.domain.board.service.BoardService;
-import com.frazzle.main.domain.piece.entity.Piece;
-import com.frazzle.main.domain.piece.service.PieceService;
 import com.frazzle.main.global.models.UserPrincipal;
 import com.frazzle.main.global.utils.ResultDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,7 +19,6 @@ import java.util.List;
 public class BoardController {
 
     private final BoardService boardService;
-    private final PieceService pieceService;
 
     @PostMapping
     public ResponseEntity<ResultDto> createBoard(
@@ -33,9 +26,6 @@ public class BoardController {
             @PathVariable("directoryID") int directoryID,
             @Valid @RequestBody CreateBoardRequestDto requestDto)
     {
-
-
-
         boardService.createBoard(userPrincipal, requestDto, directoryID);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ResultDto.res(HttpStatus.OK.value(),
@@ -46,10 +36,9 @@ public class BoardController {
     @GetMapping("/{boardID}")
     public ResponseEntity<ResultDto> findBoardAndPiece(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
-            @PathVariable("directoryID") int directoryID,
             @PathVariable("boardID") int boardID)
     {
-        FindBoardAndPiecesResponseDto responseDto =boardService.findImageAll(userPrincipal, directoryID, boardID);
+        FindBoardAndPiecesResponseDto responseDto =boardService.findImageAll(userPrincipal, boardID);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ResultDto.res(HttpStatus.OK.value(),
