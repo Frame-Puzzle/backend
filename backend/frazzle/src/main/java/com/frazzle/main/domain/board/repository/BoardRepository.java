@@ -9,11 +9,14 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface BoardRepository extends JpaRepository<Board, Integer> {
+public interface BoardRepository extends JpaRepository<Board, Integer>, BoardRepositoryCustom {
 
     Optional<Board> findByBoardId(int boardId);
 
     List<Board> findByDirectoryDirectoryId(int directoryId);
 
     Optional<String> findThumbnailUrlByBoardId(int boardId);
+
+    @Override
+    List<Board> findBoards(int directoryId);
 }
