@@ -15,22 +15,10 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
-@RequestMapping("/directories/{directoryID}/boards")
+@RequestMapping("/boards")
 public class BoardController {
 
     private final BoardService boardService;
-
-    @PostMapping
-    public ResponseEntity<ResultDto> createBoard(
-            @AuthenticationPrincipal UserPrincipal userPrincipal,
-            @PathVariable("directoryID") int directoryID,
-            @Valid @RequestBody CreateBoardRequestDto requestDto)
-    {
-        boardService.createBoard(userPrincipal, requestDto, directoryID);
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(ResultDto.res(HttpStatus.OK.value(),
-                "퍼즐판 생성 성공"));
-    }
 
     //퍼즐판 및 퍼즐조각 전체 조회
     @GetMapping("/{boardID}")
@@ -52,28 +40,12 @@ public class BoardController {
             @PathVariable("boardID") int boardID,
             @RequestBody @Valid UpdateVoteRequestDto requestDto
             ) {
-        Board board = boardService.findBoardByBoardId(userPrincipal, boardID);
-        boardService.updateVoteCount(board, requestDto.isAccept());
+        boolean isDeletedBoard = boardService.updateVoteCount(userPrincipal, boardID, requestDto.isAccept());
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ResultDto.res(HttpStatus.OK.value(),
-                        "투표 성공"));
+                        (isDeletedBoard ? "투표 및 삭제 성공" : "투표 성공")));
     }
-
-    //TODO: 퍼즐판 삭제 요청?
-//    @DeleteMapping("/{boardID}/delete")
-//    public ResponseEntity<ResultDto> deleteBoard(
-//            @AuthenticationPrincipal UserPrincipal userPrincipal,
-//            @PathVariable("directoryID") int directoryID,
-//            @PathVariable("boardID") int boardID)
-//    {
-//
-//
-//        return ResponseEntity.status(HttpStatus.OK)
-//                .body(ResultDto.res(HttpStatus.OK.value(),
-//                        "퍼즐판 삭제 성공"));
-//    }
-
 
     //퍼즐판 내 전체 사진 조회
     @GetMapping("/{boardID}/images")

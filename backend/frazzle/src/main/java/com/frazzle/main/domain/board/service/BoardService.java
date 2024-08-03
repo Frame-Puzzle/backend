@@ -101,7 +101,7 @@ public class BoardService {
     }
 
     @Transactional
-    public Board createBoard(UserPrincipal userPrincipal,
+    public CreateBoardResponseDto createBoard(UserPrincipal userPrincipal,
                              CreateBoardRequestDto boardDto,
                              int directoryID) {
         //디렉토리 탐색
@@ -140,7 +140,7 @@ public class BoardService {
             pieceRepository.save(p);
         }
 
-        return board;
+        return CreateBoardResponseDto.builder().boardId(board.getBoardId()).build();
     }
 
     //썸네일 유저 등록, 테스트 필요
@@ -182,38 +182,38 @@ public class BoardService {
     }
 
     @Transactional
-    public void updateVoteCount(Board board, boolean isAccept) {
+    public boolean updateVoteCount(UserPrincipal userPrincipal, int boardId, boolean isAccept) {
+        Board board = findBoardByBoardId(userPrincipal, boardId);
+        board.enableVote(true);
+
         if(isAccept){
             board.addVoteNumber();
         }
+
+        //삭제 판단
+
+        if(board.getVoteNumber() > board.getBoardInNumber()){
+            deleteBoard(boardId);
+            return true;
+        }
+
+        return false;
+    }
+
+    @Transactional
+    public void deleteBoard(int boardId){
+        List<Piece> pieceList = pieceRepository.findAllByBoardBoardId(boardId);
+
+        for(Piece p : pieceList){
+            pieceRepository.deleteById(p.getPieceId());
+        }
+
+        boardRepository.deleteById(boardId);
     }
 
     @Transactional
     public void updatePieceCount(Board board, int pieceCount) {
         board.changePieceCount(pieceCount);
-    }
-
-    @Transactional
-    public void deleteBoard(UserPrincipal userPrincipal, int boardId) {
-        Board board = findBoardByBoardId(userPrincipal, boardId);
-
-        Directory directory = board.getDirectory();
-
-        if(directory == null)
-            throw new CustomException(ErrorCode.NOT_EXIST_DIRECTORY);
-
-        //TODO: 퍼즐 조각들 먼저 삭제
-
-        //디렉토리 내에 존재하는 총 인원 수 현재 와 비교한다.
-        //int maxPeople = directory.getPeopleNumber();
-
-        //int voteNumber = board.getVoteNumber();
-
-        //과반수 체크
-        //if(!checkDeleteCondition(maxPeople, voteNumber)){return false;}
-        
-        boardRepository.delete(board);
-        //return true;
     }
 
     //넘버 수 : 해당 디렉토리 소속의 보드판이 몇 개인지 확인한다.
