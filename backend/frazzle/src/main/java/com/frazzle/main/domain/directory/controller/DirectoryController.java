@@ -89,4 +89,13 @@ public class DirectoryController {
         data.put("directoryList", response);
         return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "조회에 성공했습니다.", data));
     }
+
+    @GetMapping("{directoryId}")
+    public ResponseEntity<?> findDetailDirectory(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable("directoryId") int directoryId
+    ){
+        DetailDirectoryResponsetDto response = directoryService.findDetailDirectory(userPrincipal, directoryId);
+        return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "조회에 성공했습니다.", response));
+    }
 }
