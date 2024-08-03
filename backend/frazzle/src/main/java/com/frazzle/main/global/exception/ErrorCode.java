@@ -16,6 +16,7 @@ public enum ErrorCode {
     FAILED_SEND_MESSAGE("메시지를 보내는데 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     FAILED_CONVERT_FILE("파일을 변환하는데 실패했습니다", HttpStatus.MULTI_STATUS),
     DENIED_UPDATE("수정 권한이 없습니다.", HttpStatus.FORBIDDEN),
+    DENIED_OPENVIDU("음성 채팅 권한이 없습니다", HttpStatus.FORBIDDEN),
     DENIED_FIND_MEMBER("멤버 조회 권한이 없습니다", HttpStatus.FORBIDDEN),
     DENIED_INVITE_MEMBER("멤버 초대 권한이 없습니다", HttpStatus.FORBIDDEN),
     DENIED_CANCEL_MEMBER("멤버 초대 취소 권한이 없습니다", HttpStatus.FORBIDDEN),
