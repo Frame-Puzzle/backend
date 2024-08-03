@@ -29,7 +29,7 @@ public class DirectoryService {
     private final UserRepository userRepository;
 
     @Transactional
-    public void createDirectory(UserPrincipal userPrincipal, CreateDirectoryRequestDto requestDto) {
+    public Directory createDirectory(UserPrincipal userPrincipal, CreateDirectoryRequestDto requestDto) {
         //1. 유저 정보 확인
         User user = userRepository.findByUserId(userPrincipal.getId()).orElseThrow(
                 () -> new CustomException(ErrorCode.NOT_EXIST_USER)
@@ -42,6 +42,8 @@ public class DirectoryService {
         //3. 유저-디렉토리 정보 저장
         UserDirectory userDirectory = UserDirectory.createUserDirectory(directory, user, true);
         userDirectoryRepository.save(userDirectory);
+
+        return directory;
     }
 
     @Transactional

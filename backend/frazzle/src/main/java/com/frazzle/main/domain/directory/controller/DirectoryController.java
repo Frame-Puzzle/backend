@@ -1,6 +1,7 @@
 package com.frazzle.main.domain.directory.controller;
 
 import com.frazzle.main.domain.directory.dto.*;
+import com.frazzle.main.domain.directory.entity.Directory;
 import com.frazzle.main.domain.directory.service.DirectoryService;
 import com.frazzle.main.global.models.UserPrincipal;
 import com.frazzle.main.global.utils.ResultDto;
@@ -31,8 +32,10 @@ public class DirectoryController {
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @Valid @RequestBody CreateDirectoryRequestDto requestDto) {
 
-        directoryService.createDirectory(userPrincipal, requestDto);
-        return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "디렉토리 등록에 성공했습니다."));
+        Directory directory = directoryService.createDirectory(userPrincipal, requestDto);
+        CreateDirectoryResponseDto responseDto = CreateDirectoryResponseDto.CreateResponseDto(directory);
+
+        return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "디렉토리 등록에 성공했습니다.", responseDto));
     }
 
     @PutMapping("/{directoryId}")
