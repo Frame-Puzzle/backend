@@ -5,18 +5,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.frazzle.main.global.exception.CustomException;
 import com.frazzle.main.global.exception.ErrorCode;
 import com.frazzle.main.global.openvidu.dto.OpenviduRequestDto;
+import com.frazzle.main.global.openvidu.dto.OpenviduResponseDto;
 import com.frazzle.main.global.openvidu.entity.Openvidu;
 import com.frazzle.main.global.openvidu.repository.OpenviduRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
@@ -55,6 +54,20 @@ public class OpenViduService {
         return response.getBody();
     }
 
+    private void sendDeleteRequest(String endpoint) {
+        String url = openviduUrl + endpoint;
+        HttpEntity<Void> request = new HttpEntity<>(createHeaders());
+        try {
+            restTemplate.exchange(url, HttpMethod.DELETE, request, Void.class);
+        } catch (HttpStatusCodeException e) {
+            if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+                log.warn("Session not found: " + endpoint);
+            } else {
+                throw e;
+            }
+        }
+    }
+
     public boolean isSessionActive(String sessionId) {
         String url = openviduUrl + "/api/sessions";
 
@@ -78,6 +91,13 @@ public class OpenViduService {
         }
 
         return false;
+    }
+
+    public OpenviduResponseDto entryChat(OpenviduRequestDto requestDto) {
+        String sessionId = createSession(requestDto);
+        String tokenId = createToken(sessionId);
+
+        return OpenviduResponseDto.createOpenviduResponseDto(sessionId, tokenId);
     }
 
     //세션 방만들기
@@ -141,7 +161,6 @@ public class OpenViduService {
 
     }
 
-
     //만든 세션방의 각 사람 마다 토큰 값 생성하기
     public String createToken(String sessionId) {
         Map<String, String> body = new HashMap<>();
@@ -162,5 +181,12 @@ public class OpenViduService {
             throw new CustomException(ErrorCode.DENIED_OPENVIDU);
         }
 
+    }
+
+    // 세션 강제로 종료
+    public void deleteSession(String sessionId) {
+        String endpoint = "/api/sessions/" + sessionId;
+        sendDeleteRequest(endpoint);
+        log.info("Session deleted: " + sessionId);
     }
 }
