@@ -50,14 +50,15 @@ public class PieceService {
     }
 
     //퍼즐 조각 상세 조회(piece id) (API)
-    public FindPieceResponseDto findPieceByPieceId(UserPrincipal userPrincipal, int directoryId, int pieceId){
-
-        //유저검증
-        checkUserAndDirectory(checkUser(userPrincipal), checkDirectory(directoryId));
+    public FindPieceResponseDto findPieceByPieceId(UserPrincipal userPrincipal, int pieceId){
 
         //퍼즐 조각 탐색
         Piece piece = pieceRepository.findPieceByPieceId(pieceId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_EXIST_PIECE));
+
+        //유저검증
+        checkUserAndDirectory(checkUser(userPrincipal),
+                checkDirectory(piece.getBoard().getDirectory().getDirectoryId()));
 
         return FindPieceResponseDto.createPieceDto(piece.getImageUrl(), piece.getContent());
     }
@@ -78,15 +79,16 @@ public class PieceService {
 
     //퍼즐 조각 업로드
     @Transactional
-    public void updatePiece(UserPrincipal userPrincipal, int directoryId, int pieceId, UpdatePieceRequestDto requestDto)
+    public void updatePiece(UserPrincipal userPrincipal, int pieceId, UpdatePieceRequestDto requestDto)
     {
-        //1. 사용자 인증 및 인가 검증
-        User user = checkUser(userPrincipal);
-        checkUserAndDirectory(user, checkDirectory(directoryId));
-
-
+        //0. 퍼즐 조각 조회,
+        //Directory id를 알아내야 해서 인증 이전에 조회한다.
         Piece piece = pieceRepository.findPieceByPieceId(pieceId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_EXIST_PIECE));
+
+        //1. 사용자 인증 및 인가 검증
+        User user = checkUser(userPrincipal);
+        checkUserAndDirectory(user, checkDirectory(piece.getBoard().getDirectory().getDirectoryId()));
 
         //1-1. 퍼즐조각이 현재 수정 가능한지 검증 -> 등록이 되있다면 처음 등록한 유저만 수정이 가능
         User pieceUser = piece.getUser();
@@ -106,8 +108,6 @@ public class PieceService {
 
         //4. 퍼즐 조각 수정
         piece.updatePieceDto(url, requestDto.getComment(), user);
-
-
 
         piece.updatePeopleCount(peopleCount);
     }

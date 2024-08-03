@@ -128,6 +128,11 @@ public class Board {
     public void changeVote(){
         this.isVote = !this.isVote;
     }
+
+    public void enableVote(boolean enable){
+        this.isVote = enable;
+    }
+
     public void changeVoteNumber(int number){
         this.voteNumber = number;
     }
