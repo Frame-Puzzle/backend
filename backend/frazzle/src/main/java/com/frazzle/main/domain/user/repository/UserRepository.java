@@ -25,4 +25,7 @@ public interface UserRepository extends JpaRepository<User, Integer>, UserReposi
 
     @Override
     List<User> findUsersByEmail(String email, Directory directory);
+
+    @Override
+    List<User> findDirectoryUsers(Directory directory);
 }
