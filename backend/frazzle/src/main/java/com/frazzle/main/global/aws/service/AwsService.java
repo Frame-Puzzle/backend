@@ -32,25 +32,20 @@ public class AwsService {
     // 사용자의 loginUserId를 통해 파일명을 바꾸고 S3에 업로드
     public String uploadFile(MultipartFile file) {
         try {
-            BufferedImage image = ImageCompressor.convertMultiPartFileToBufferedImage(file);
+            File fileObj = convertMultiPartFileToFile(file);
 
-            // 압축 품질과 포맷 설정 (예: jpg, 품질 0.75)
-            String formatName = "jpg";
-            float quality = 0.75f;
-            String compressedFileName = System.getProperty("java.io.tmpdir") + "/" + UUID.randomUUID().toString() + "." + formatName;
-            File compressedFile = ImageCompressor.compressImage(image, formatName, quality, compressedFileName);
+            //uuid로 랜덤
+            String uniqueFileName = UUID.randomUUID().toString();
 
-            // UUID로 랜덤 파일명 생성
-            String uniqueFileName = UUID.randomUUID().toString() + "." + formatName;
-
-            s3Client.putObject(new PutObjectRequest(name, uniqueFileName, compressedFile));
-            compressedFile.delete();
+            s3Client.putObject(new PutObjectRequest(name, uniqueFileName, fileObj));
+            fileObj.delete();
             return uniqueFileName;
         } catch (Exception e) {
             log.error(e.getMessage());
             throw new CustomException(ErrorCode.FAILED_CONVERT_FILE);
         }
     }
+
 
     public String getProfileUrl(String userUrl) {
         URL url = s3Client.getUrl(name, userUrl);
