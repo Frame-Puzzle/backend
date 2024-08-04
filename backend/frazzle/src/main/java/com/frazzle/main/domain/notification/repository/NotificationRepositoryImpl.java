@@ -38,4 +38,11 @@ public class NotificationRepositoryImpl implements NotificationRepositoryCustom 
 
         return notifications;
     }
+
+    @Override
+    public long deleteByNotification(List<Notification> notifications) {
+        return jpaQueryFactory.delete(notification)
+                .where(notification.in(notifications))
+                .execute();
+    }
 }
