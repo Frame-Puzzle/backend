@@ -5,6 +5,11 @@ import com.frazzle.main.domain.piece.dto.UpdatePieceRequestDto;
 import com.frazzle.main.domain.piece.service.PieceService;
 import com.frazzle.main.global.models.UserPrincipal;
 import com.frazzle.main.global.utils.ResultDto;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,6 +26,13 @@ public class PieceController {
     private final PieceService pieceService;
 
     //[PUT] 퍼즐 조각의 사진, 코멘트 생성 및 수정
+    @Operation(summary = "퍼즐 조각 생성 및 수정", description = "퍼즐 조각의 사진, 코멘트 생성 및 수정하기")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "생성에 성공했습니다.",
+                    content = @Content(schema = @Schema(implementation = ResultDto.class))),
+            @ApiResponse(responseCode = "404", description = "생성에 실패했습니다.",
+                    content = @Content(schema = @Schema(implementation = ResultDto.class)))
+    })
     @PutMapping
     public ResponseEntity<ResultDto> updatePiece(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
@@ -36,6 +48,13 @@ public class PieceController {
     }
 
     //[GET] 퍼즐 조각 상세 조회
+    @Operation(summary = "퍼즐 조각 상세 조회", description = "퍼즐 조각 상세 조회하기")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "조회에 성공했습니다.",
+                    content = @Content(schema = @Schema(implementation = ResultDto.class))),
+            @ApiResponse(responseCode = "404", description = "조회에 실패했습니다.",
+                    content = @Content(schema = @Schema(implementation = ResultDto.class)))
+    })
     @GetMapping
     public ResponseEntity<ResultDto> detailPiece(
             @AuthenticationPrincipal UserPrincipal userPrincipal,

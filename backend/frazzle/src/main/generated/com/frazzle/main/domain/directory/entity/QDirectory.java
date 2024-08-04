@@ -19,6 +19,8 @@ public class QDirectory extends EntityPathBase<Directory> {
 
     public static final QDirectory directory = new QDirectory("directory");
 
+    public final NumberPath<Integer> boardNumber = createNumber("boardNumber", Integer.class);
+
     public final StringPath category = createString("category");
 
     public final NumberPath<Integer> directoryId = createNumber("directoryId", Integer.class);

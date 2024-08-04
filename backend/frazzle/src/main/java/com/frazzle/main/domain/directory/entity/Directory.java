@@ -36,6 +36,9 @@ public class Directory {
     @Column(name = "people_number", nullable = false)
     private int peopleNumber;
 
+    @Column(name = "board_number", nullable = false)
+    private int boardNumber;
+
     @PrePersist
     @PreUpdate
     private void validatedirectoryName() {
@@ -76,7 +79,9 @@ public class Directory {
         this.directoryName = newDirectoryName;
     }
 
-    public  void changePeopleNumber(int number) {
+    public void changePeopleNumber(int number) {
         this.peopleNumber += number;
     }
+
+    public void addBoardNumber() { this.boardNumber += 1; }
 }
