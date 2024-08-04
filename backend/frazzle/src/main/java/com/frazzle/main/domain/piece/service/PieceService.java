@@ -103,10 +103,16 @@ public class PieceService {
         //3. Face Detection : 사람 수 파악
         int peopleCount = FindPeopleCountFromImg.analyzeImageFile(imgFile);
 
-        String url = awsService.uploadFile(imgFile);
+        String imageUrl = piece.getImageUrl();
+
+        if(imageUrl != null) {
+            awsService.deleteImage(imageUrl);
+        }
+
+        imageUrl = awsService.uploadFile(imgFile);
 
         //4. 퍼즐 조각 수정
-        piece.updatePieceDto(url, requestDto.getComment(), user);
+        piece.updatePieceDto(imageUrl, requestDto.getComment(), user);
 
         piece.updatePeopleCount(peopleCount);
     }
