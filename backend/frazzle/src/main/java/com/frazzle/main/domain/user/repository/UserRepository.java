@@ -21,6 +21,11 @@ public interface UserRepository extends JpaRepository<User, Integer>, UserReposi
 
     Boolean existsByNickname(String nickname);
 
+    String findNicknameByUserId(int userId);
+
     @Override
     List<User> findUsersByEmail(String email, Directory directory);
+
+    @Override
+    List<User> findDirectoryUsers(Directory directory);
 }

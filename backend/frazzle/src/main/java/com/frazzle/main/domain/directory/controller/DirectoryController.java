@@ -4,6 +4,7 @@ import com.frazzle.main.domain.board.dto.CreateBoardRequestDto;
 import com.frazzle.main.domain.board.dto.CreateBoardResponseDto;
 import com.frazzle.main.domain.board.service.BoardService;
 import com.frazzle.main.domain.directory.dto.*;
+import com.frazzle.main.domain.directory.entity.Directory;
 import com.frazzle.main.domain.directory.service.DirectoryService;
 import com.frazzle.main.global.models.UserPrincipal;
 import com.frazzle.main.global.utils.ResultDto;
@@ -35,8 +36,10 @@ public class DirectoryController {
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @Valid @RequestBody CreateDirectoryRequestDto requestDto) {
 
-        directoryService.createDirectory(userPrincipal, requestDto);
-        return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "디렉토리 등록에 성공했습니다."));
+        Directory directory = directoryService.createDirectory(userPrincipal, requestDto);
+        CreateDirectoryResponseDto responseDto = CreateDirectoryResponseDto.CreateResponseDto(directory);
+
+        return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "디렉토리 등록에 성공했습니다.", responseDto));
     }
 
     @PutMapping("/{directoryId}")
@@ -91,16 +94,24 @@ public class DirectoryController {
         return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "조회에 성공했습니다.", data));
     }
 
-    @PostMapping
+    @PostMapping("/{directoryId}/boards")
     public ResponseEntity<ResultDto> createBoard(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
-            @PathVariable("directoryID") int directoryID,
+            @PathVariable("directoryId") int directoryId,
             @Valid @RequestBody CreateBoardRequestDto requestDto)
     {
-        CreateBoardResponseDto responseDto = boardService.createBoard(userPrincipal, requestDto, directoryID);
+        CreateBoardResponseDto responseDto = boardService.createBoard(userPrincipal, requestDto, directoryId);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ResultDto.res(HttpStatus.OK.value(),
                         "퍼즐판 생성 성공", responseDto));
     }
 
+    @GetMapping("{directoryId}")
+    public ResponseEntity<?> findDetailDirectory(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable("directoryId") int directoryId
+    ){
+        DetailDirectoryResponsetDto response = directoryService.findDetailDirectory(userPrincipal, directoryId);
+        return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "조회에 성공했습니다.", response));
+    }
 }

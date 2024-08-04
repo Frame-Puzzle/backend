@@ -74,4 +74,17 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
 
         return result;
     }
+
+    @Override
+    public List<User> findDirectoryUsers(Directory directory) {
+        JPQLQuery<User> subQuery = JPAExpressions
+                .select(userDirectory.user)
+                .from(userDirectory)
+                .where(userDirectory.directory.eq(directory)
+                        .and(userDirectory.isAccept.eq(true)));
+
+        return queryFactory.selectFrom(user)
+                .where(user.in(subQuery))
+                .fetch();
+    }
 }

@@ -19,4 +19,6 @@ public interface UserRepositoryCustom {
     Long updateUser(User findUser ,User updateUser);
 
     Long updateRefreshToken(User updateUser, String refreshToken);
+
+    List<User> findDirectoryUsers(Directory directory);
 }
