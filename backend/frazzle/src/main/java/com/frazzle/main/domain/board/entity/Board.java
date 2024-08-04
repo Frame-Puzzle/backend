@@ -96,7 +96,7 @@ public class Board {
         return Board.builder()
                 //.user(user)
                 .directory(directory)
-                .boardInNumber(0)
+                .boardInNumber(directory.getBoardNumber())
                 .keyword(keyword)
                 .boardSize(boardDto.getBoardSize())
                 .clearType(0)
