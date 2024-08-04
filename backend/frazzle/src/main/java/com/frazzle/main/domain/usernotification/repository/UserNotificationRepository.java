@@ -9,8 +9,10 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface UserNotificationRepository extends JpaRepository<UserNotification, Integer> {
+public interface UserNotificationRepository extends JpaRepository<UserNotification, Integer>, UserNotificationRepositoryCustom {
     List<UserNotification> findByUser(User user);
-
     UserNotification findByUserAndNotification(User user, Notification notification);
+
+    @Override
+    long deleteByNotification(List<Notification> notification);
 }

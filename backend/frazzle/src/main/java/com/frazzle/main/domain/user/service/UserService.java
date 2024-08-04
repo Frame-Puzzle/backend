@@ -81,14 +81,14 @@ public class UserService {
 
         //이미 프로필 사진 존재하면 삭제
         if(user.getProfileImg()!=null) {
-            awsService.deleteProfile(user.getProfileImg());
+            awsService.deleteImage(user.getProfileImg());
         }
 
         //사진 업로드 후 고유url 반환
         String imgUrl = awsService.uploadFile(profileImg);
 
         //유저url을 통해 S3에서 이미지 가져오기
-        String url = awsService.getProfileUrl(imgUrl);
+        String url = awsService.getImageUrl(imgUrl);
 
         user.updateUserProfileImg(url);
         return userRepository.save(user);

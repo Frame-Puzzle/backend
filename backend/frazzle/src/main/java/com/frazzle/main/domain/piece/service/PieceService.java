@@ -63,14 +63,13 @@ public class PieceService {
         return FindPieceResponseDto.createPieceDto(piece.getImageUrl(), piece.getContent());
     }
 
-    //퍼즐 조각 전체 조회(directory id) (API)
-    public List<Piece> findPiecesByBoardId(UserPrincipal userPrincipal, int directoryId, int boardId){
-
-        checkUserAndDirectory(checkUser(userPrincipal), checkDirectory(directoryId));
+    //퍼즐 조각 전체 조회
+    public List<Piece> findPiecesByBoardId(int boardId){
+        //checkUserAndDirectory(checkUser(userPrincipal), checkDirectory(boardId));
 
         List<Piece> pieceList = pieceRepository.findAllByBoardBoardId(boardId);
 
-        if(pieceList.isEmpty() || pieceList == null){
+        if(pieceList == null || pieceList.isEmpty()){
             throw new CustomException(ErrorCode.NOT_EXIST_PIECE);
         }
 
@@ -110,5 +109,15 @@ public class PieceService {
         piece.updatePieceDto(url, requestDto.getComment(), user);
 
         piece.updatePeopleCount(peopleCount);
+    }
+
+    @Transactional
+    public void savePiece(Piece piece){
+        pieceRepository.save(piece);
+    }
+
+    @Transactional
+    public void deletePiece(int pieceId){
+        pieceRepository.deleteById(pieceId);
     }
 }
