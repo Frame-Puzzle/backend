@@ -1,5 +1,6 @@
 package com.frazzle.main.domain.directory.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.frazzle.main.domain.board.entity.Board;
 import com.frazzle.main.domain.board.repository.BoardRepository;
 import com.frazzle.main.domain.directory.dto.*;
@@ -12,13 +13,16 @@ import com.frazzle.main.domain.userdirectory.repository.UserDirectoryRepository;
 import com.frazzle.main.global.exception.CustomException;
 import com.frazzle.main.global.exception.ErrorCode;
 import com.frazzle.main.global.models.UserPrincipal;
+import com.frazzle.main.global.gpt.dto.GuideRequestDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +34,18 @@ public class DirectoryService {
     private final UserDirectoryRepository userDirectoryRepository;
     private final UserRepository userRepository;
     private final BoardRepository boardRepository;
+
+    private static final int MAX_TOKEN = 500;
+    private static final int MAX_MISSION_NUMBER = 5;
+
+    @Value("${gpt.api.key}")
+    private String apiKey;
+
+    @Value("${gpt.api.model}")
+    private String gptModel;
+
+    @Value("${gpt.api.url}")
+    private String url;
 
     @Transactional
     public Directory createDirectory(UserPrincipal userPrincipal, CreateDirectoryRequestDto requestDto) {
@@ -202,5 +218,97 @@ public class DirectoryService {
         );
 
         return detailDirectoryResponsetDto;
+    }
+
+    public String[] createGuideList(int directoryId, GuideRequestDto requestDto) {
+
+        //디렉토리 존재x이면 에러 발생
+        Directory directory = directoryRepository.findByDirectoryId(directoryId).orElseThrow(
+                () -> new CustomException(ErrorCode.NOT_EXIST_DIRECTORY)
+        );
+
+        //미션 최대 재생성 개수 5개로 제한
+        if(requestDto.getPreMissionList().length>MAX_MISSION_NUMBER) {
+            throw new CustomException(ErrorCode.MAX_GPT_REQUEST);
+        }
+
+        RestTemplate restTemplate = new RestTemplate();
+
+        // 요청 본문 준비
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("model", gptModel); // 올바른 모델 이름 사용
+
+        // messages 배열 구성
+        Map<String, String> systemMessage = new HashMap<>();
+        systemMessage.put("role", "system");
+        systemMessage.put("content", "You are a helpful assistant.");
+        String jsonDescription = " ~한 찍는 사진";
+
+
+        systemMessage.put("description", jsonDescription);
+
+        // 키워드 배열을 사용하여 프롬프트 문자열 생성
+        StringBuilder promptBuilder = new StringBuilder();
+
+        //키워드 합치기
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.join(", ", requestDto.getKeywordList()));
+
+        //디렉토리의 카테고리 추가
+        sb.append(", ").append(directory.getCategory());
+        String combinedKeywords = sb.toString();
+        String prompt = String.format("'%s'가 연관되는 [장소] 또는 [상황] 추천하는 사진 찍기. %d개만 추천 해줘.", combinedKeywords, requestDto.getNum());
+
+        promptBuilder.append(prompt).append("\n");
+
+        if(requestDto.getPreMissionList().length > 0) {
+            String exceptMissions = String.join(", ", requestDto.getPreMissionList());
+            promptBuilder.append(exceptMissions).append("이 미션은 제외하고 추천해줘");
+        }
+
+
+        Map<String, String> userMessage = new HashMap<>();
+        userMessage.put("role", "user");
+        userMessage.put("content", promptBuilder.toString()); // 생성한 프롬프트 문자열 사용
+
+        requestBody.put("messages", List.of(systemMessage, userMessage)); // 불변 리스트 사용
+        requestBody.put("max_tokens", MAX_TOKEN);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + apiKey);
+        headers.set("Content-Type", "application/json");
+
+        HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
+
+        try {
+            ResponseEntity<JsonNode> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, JsonNode.class);
+            if (response.getStatusCode() == HttpStatus.OK) {
+                JsonNode responseBody = response.getBody();
+
+                log.info(Objects.requireNonNull(response.getBody()).toString());
+
+                // 응답 내용 적절히 추출
+                JsonNode messageNode = responseBody.path("choices").get(0).path("message").path("content");
+
+
+                log.info(messageNode.toString());
+                // 문자열을 줄 단위로 분리
+                List<String> lines = Arrays.asList(messageNode.asText().split("\n"));
+
+                // 결과를 저장할 리스트
+                List<String> responseGuideList = new ArrayList<>();
+
+                // 각 줄을 순회하며 문장만 추출
+                for (String line : lines) {
+                    // 각 줄이 하이픈으로 시작하는지 확인하고, 하이픈과 공백을 제거
+                    String cleanedLine = line.replaceAll("^\\d+\\.\\s*", "").trim();
+                    responseGuideList.add(cleanedLine);
+                }
+                return responseGuideList.toArray(new String[0]);
+            }
+            throw new CustomException(ErrorCode.GPT_BAD_REQUEST);
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.GPT_BAD_REQUEST);
+        }
     }
 }

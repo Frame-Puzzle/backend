@@ -1,4 +1,4 @@
-package com.frazzle.main.global.openai.dto;
+package com.frazzle.main.global.gpt.dto;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

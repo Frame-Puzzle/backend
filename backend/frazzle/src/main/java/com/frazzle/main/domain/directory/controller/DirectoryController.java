@@ -7,6 +7,8 @@ import com.frazzle.main.domain.directory.dto.*;
 import com.frazzle.main.domain.directory.entity.Directory;
 import com.frazzle.main.domain.directory.service.DirectoryService;
 import com.frazzle.main.global.models.UserPrincipal;
+import com.frazzle.main.global.gpt.dto.GuideRequestDto;
+import com.frazzle.main.global.gpt.dto.GuideResponseDto;
 import com.frazzle.main.global.utils.ResultDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -106,12 +107,25 @@ public class DirectoryController {
                         "퍼즐판 생성 성공", responseDto));
     }
 
-    @GetMapping("{directoryId}")
+    @GetMapping("/{directoryId}")
     public ResponseEntity<?> findDetailDirectory(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable("directoryId") int directoryId
     ){
         DetailDirectoryResponsetDto response = directoryService.findDetailDirectory(userPrincipal, directoryId);
         return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "조회에 성공했습니다.", response));
+    }
+
+    //미션 가이드 컨트롤러
+    @PostMapping("/{directoryId}/guides")
+    public ResponseEntity<ResultDto> describeImage(
+            @PathVariable("directoryId") int directoryId,
+            @RequestBody GuideRequestDto requestDto) {
+
+        String[] guideList = directoryService.createGuideList(directoryId, requestDto);
+
+        GuideResponseDto responseDto = GuideResponseDto.createGuideResponseDto(guideList);
+
+        return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "미션 생성하는데 성공했습니다.", responseDto));
     }
 }
