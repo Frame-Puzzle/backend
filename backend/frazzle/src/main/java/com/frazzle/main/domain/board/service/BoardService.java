@@ -127,14 +127,11 @@ public class BoardService {
         //보드 제작 넘버 세팅
         countingBoard(board, directoryID);
 
-        /*
-        TODO: 미션 생성
-         */
         boardRepository.save(board);
 
-
         //퍼즐 조각들 생성
-        List<Piece> pieceList = createPiece(board);
+        String[] guideToken = boardDto.getGuide();
+        List<Piece> pieceList = createPiece(board, guideToken);
 
         for(Piece p : pieceList){
             pieceService.savePiece(p);
@@ -265,7 +262,7 @@ public class BoardService {
     }
 
     //퍼즐 조각 생성
-    private List<Piece> createPiece(Board board){
+    private List<Piece> createPiece(Board board, String[] guides){
         int boardSize = board.getBoardSize();
 
         int row = GlobalBoardSize.minimumBoardRow;
@@ -293,30 +290,33 @@ public class BoardService {
             }
         }
 
-        //#####TEST
-        String guideMission = "Mission ";
-        //#######
+        //가이드 미션 부여
+        String[] guideMission = guides;
+        if(guideMission != null){
+            int guideCount = guideMission.length;
 
-        //가이드 부여
-        List<Integer> usingNumberList = getRandomNumber(boardSize, row);
+            List<Integer> usingNumberList = getRandomNumber(boardSize, guideCount);
 
-        for(int i = 0; i< row; i++){
-            pieceList.get(usingNumberList.get(i))
-                    .updateMission(guideMission + (i + 1));
+            for(int i = 0; i< guideCount; i++){
+                pieceList.get(usingNumberList.get(i))
+                        .updateMission(guideMission[i]);
+            }
         }
 
         return pieceList;
     }
 
-    private List<Integer> getRandomNumber(int maxNumber, int count){
-        if(maxNumber < 0) {
+    //board 넓이만큼의 수 중에서 guideCount개의 미션을 집어넣는다.
+    private List<Integer> getRandomNumber(int boardSize, int guideCount){
+        if(boardSize < 0) {
             throw new CustomException(ErrorCode.CANNOT_BE_NEGATIVE);
         }
         List<Integer> numberList = new ArrayList<>();
 
-        for(int i = 0; i< count; i++){
-            int result = GenerateRandomNickname.getRandom().nextInt(maxNumber);
+        for(int i = 0; i< guideCount; i++){
+            int result = GenerateRandomNickname.getRandom().nextInt(boardSize);
 
+            //중복되는 위치일 시 위치를 다시 부여한다.
             for(int n : numberList) {
                 if(result == n) {
                     i--;
