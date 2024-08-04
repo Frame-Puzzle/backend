@@ -63,8 +63,8 @@ public class BoardService {
 
     public FindBoardAndPiecesResponseDto findBoardAndPieces(UserPrincipal userPrincipal, int boardId) {
         Board board = findBoardByBoardId(userPrincipal, boardId);
-        Optional<Directory> directory = Optional.ofNullable(directoryRepository.findByDirectoryId(board.getDirectory().getDirectoryId())
-                .orElseThrow(() -> new CustomException(ErrorCode.NOT_EXIST_DIRECTORY)));
+        Directory directory = directoryRepository.findByDirectoryId(board.getDirectory().getDirectoryId())
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_EXIST_DIRECTORY));
 
         List<Piece> pieceList = pieceService.findPiecesByBoardId(boardId);
 
@@ -92,8 +92,8 @@ public class BoardService {
 
         FindBoardAndPiecesResponseDto responseDto = FindBoardAndPiecesResponseDto.createFindBoardAndPiecesResponseDto(
                 keywordToken,
-                directory.get().getCategory(),
-                directory.get().getDirectoryName(),
+                directory.getCategory(),
+                directory.getDirectoryName(),
                 ""+board.getBoardInNumber(),
                 board.getBoardSize(),
                 thumbnailer,
@@ -110,8 +110,6 @@ public class BoardService {
         //디렉토리 탐색
         Directory directory = directoryRepository.findByDirectoryId(directoryID)
                 .orElseThrow(()-> new CustomException(ErrorCode.NOT_EXIST_DIRECTORY));
-
-        //Optional<Directory> directory = directoryRepository.findByDirectoryId(directoryID);
 
         //유저 확인
         User user = checkUser(userPrincipal);
@@ -192,7 +190,7 @@ public class BoardService {
             board.addVoteNumber();
         }
 
-        //삭제 판단
+        //삭제 판단 TODO: 로직 개선하기
         if(board.getVoteNumber() > board.getDirectory().getPeopleNumber()){
             deleteBoard(boardId);
             return true;
@@ -240,12 +238,12 @@ public class BoardService {
                             pieceList.get(i).getImageUrl(),
                             pieceList.get(i).getContent());
         }
-
         //보드 id를 통해 image 조회하기
-        Optional<String> imgUrl = boardRepository.findThumbnailUrlByBoardId(boardId);
+        String imgUrl = boardRepository.findThumbnailUrlByBoardId(boardId)
+                .orElseThrow(()-> new CustomException(ErrorCode.IMAGE_NOT_FOUND));
 
         FindAllImageFromBoardResponseDto responseDto = FindAllImageFromBoardResponseDto
-                .createFindAllImageFromBoardResponseDto(imgUrl.get(), pieceDtoList);
+                .createFindAllImageFromBoardResponseDto(imgUrl, pieceDtoList);
 
         return responseDto;
     }
@@ -348,3 +346,4 @@ public class BoardService {
         return result;
     }
 }
+
