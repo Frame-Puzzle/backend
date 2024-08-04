@@ -9,7 +9,7 @@ import com.frazzle.main.domain.directory.entity.Directory;
 import com.frazzle.main.domain.directory.repository.DirectoryRepository;
 import com.frazzle.main.domain.piece.dto.FindPieceResponseDto;
 import com.frazzle.main.domain.piece.entity.Piece;
-import com.frazzle.main.domain.piece.repository.PieceRepository;
+import com.frazzle.main.domain.piece.service.PieceService;
 import com.frazzle.main.domain.user.entity.User;
 import com.frazzle.main.domain.user.repository.UserRepository;
 import com.frazzle.main.domain.userdirectory.repository.UserDirectoryRepository;
@@ -38,7 +38,8 @@ public class BoardService {
     private final DirectoryRepository directoryRepository;
     private final UserDirectoryRepository userDirectoryRepository;
     private final BoardRepository boardRepository;
-    private final PieceRepository pieceRepository;
+    //private final PieceRepository pieceRepository;
+    private final PieceService pieceService;
 
     private final AwsService awsService;
 
@@ -60,14 +61,12 @@ public class BoardService {
         return boardRepository.findByDirectoryDirectoryId(directoryId);
     }
 
-    public FindBoardAndPiecesResponseDto findImageAll(UserPrincipal userPrincipal, int boardId) {
+    public FindBoardAndPiecesResponseDto findBoardAndPieces(UserPrincipal userPrincipal, int boardId) {
         Board board = findBoardByBoardId(userPrincipal, boardId);
-        Directory directory = directoryRepository.findByDirectoryId(board.getDirectory().getDirectoryId()).get();
-        List<Piece> pieceList = pieceRepository.findAllByBoardBoardId(boardId);
+        Optional<Directory> directory = Optional.ofNullable(directoryRepository.findByDirectoryId(board.getDirectory().getDirectoryId())
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_EXIST_DIRECTORY)));
 
-        if(pieceList.isEmpty() || pieceList == null) {
-            throw new CustomException(ErrorCode.NOT_EXIST_PIECE);
-        }
+        List<Piece> pieceList = pieceService.findPiecesByBoardId(boardId);
 
         PieceListResponseDto[] pieceResponseDtoList = new PieceListResponseDto[pieceList.size()];
 
@@ -87,13 +86,17 @@ public class BoardService {
 
         String keywordToken[] = ParseStringWord.hashTagToStringToken(board.getKeyword());
 
+        String thumbnailer = null;
+        if(board.getUser() != null)
+            thumbnailer = board.getUser().getNickname();
+
         FindBoardAndPiecesResponseDto responseDto = FindBoardAndPiecesResponseDto.createFindBoardAndPiecesResponseDto(
                 keywordToken,
-                directory.getCategory(),
-                directory.getDirectoryName(),
+                directory.get().getCategory(),
+                directory.get().getDirectoryName(),
                 ""+board.getBoardInNumber(),
                 board.getBoardSize(),
-                board.getUser().getNickname(),
+                thumbnailer,
                 pieceResponseDtoList
                 );
 
@@ -137,7 +140,7 @@ public class BoardService {
         List<Piece> pieceList = createPiece(board);
 
         for(Piece p : pieceList){
-            pieceRepository.save(p);
+            pieceService.savePiece(p);
         }
 
         return CreateBoardResponseDto.builder().boardId(board.getBoardId()).build();
@@ -170,8 +173,7 @@ public class BoardService {
 
     //클리어 타입 변경
     @Transactional
-    public void updateClearType(Board board, BoardClearTypeFlag flag)
-    {
+    public void updateClearType(Board board, BoardClearTypeFlag flag) {
         board.changeClearType(flag);
     }
 
@@ -191,8 +193,7 @@ public class BoardService {
         }
 
         //삭제 판단
-
-        if(board.getVoteNumber() > board.getBoardInNumber()){
+        if(board.getVoteNumber() > board.getDirectory().getPeopleNumber()){
             deleteBoard(boardId);
             return true;
         }
@@ -202,10 +203,10 @@ public class BoardService {
 
     @Transactional
     public void deleteBoard(int boardId){
-        List<Piece> pieceList = pieceRepository.findAllByBoardBoardId(boardId);
+        List<Piece> pieceList = pieceService.findPiecesByBoardId(boardId);
 
         for(Piece p : pieceList){
-            pieceRepository.deleteById(p.getPieceId());
+            pieceService.deletePiece(p.getPieceId());
         }
 
         boardRepository.deleteById(boardId);
@@ -229,7 +230,7 @@ public class BoardService {
 
         checkUser(userPrincipal);
 
-        List<Piece> pieceList = pieceRepository.findAllByBoardBoardId(boardId);
+        List<Piece> pieceList = pieceService.findPiecesByBoardId(boardId);
 
         FindPieceResponseDto[] pieceDtoList = new FindPieceResponseDto[pieceList.size()];
 
