@@ -1,5 +1,8 @@
 package com.frazzle.main.domain.directory.controller;
 
+import com.frazzle.main.domain.board.dto.CreateBoardRequestDto;
+import com.frazzle.main.domain.board.dto.CreateBoardResponseDto;
+import com.frazzle.main.domain.board.service.BoardService;
 import com.frazzle.main.domain.directory.dto.*;
 import com.frazzle.main.domain.directory.entity.Directory;
 import com.frazzle.main.domain.directory.service.DirectoryService;
@@ -26,6 +29,7 @@ import java.util.Map;
 public class DirectoryController {
 
     private final DirectoryService directoryService;
+    private final BoardService boardService;
 
     @PostMapping
     public ResponseEntity<?> createDirectory(
@@ -88,6 +92,18 @@ public class DirectoryController {
         Map<String, Object> data = new HashMap<>();
         data.put("directoryList", response);
         return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "조회에 성공했습니다.", data));
+    }
+
+    @PostMapping("/{directoryId}/boards")
+    public ResponseEntity<ResultDto> createBoard(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable("directoryId") int directoryId,
+            @Valid @RequestBody CreateBoardRequestDto requestDto)
+    {
+        CreateBoardResponseDto responseDto = boardService.createBoard(userPrincipal, requestDto, directoryId);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ResultDto.res(HttpStatus.OK.value(),
+                        "퍼즐판 생성 성공", responseDto));
     }
 
     @GetMapping("{directoryId}")

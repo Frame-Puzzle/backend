@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("directories/{directoryID}/boards/{boardID}/pieces/{pieceID}")
+@RequestMapping("/pieces/{pieceID}")
 @CrossOrigin(origins = "*")
 public class PieceController {
 
@@ -24,12 +24,11 @@ public class PieceController {
     @PutMapping
     public ResponseEntity<ResultDto> updatePiece(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
-            @PathVariable("directoryID") int directoryID,
             @PathVariable("pieceID") int pieceID,
             @Valid @RequestBody UpdatePieceRequestDto requestDto
             )
     {
-        pieceService.updatePiece(userPrincipal, directoryID, pieceID, requestDto);
+        pieceService.updatePiece(userPrincipal, pieceID, requestDto);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ResultDto.res(HttpStatus.OK.value(),
@@ -40,11 +39,10 @@ public class PieceController {
     @GetMapping
     public ResponseEntity<ResultDto> detailPiece(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
-            @PathVariable("directoryID") int directoryID,
             @PathVariable("pieceID") int pieceID
             )
     {
-        FindPieceResponseDto responseDto = pieceService.findPieceByPieceId(userPrincipal, directoryID, pieceID);
+        FindPieceResponseDto responseDto = pieceService.findPieceByPieceId(userPrincipal, pieceID);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ResultDto.res(HttpStatus.OK.value(),

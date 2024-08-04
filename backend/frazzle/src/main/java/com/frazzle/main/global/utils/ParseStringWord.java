@@ -1,8 +1,6 @@
 package com.frazzle.main.global.utils;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 public class ParseStringWord {
 
@@ -24,6 +22,9 @@ public class ParseStringWord {
      */
     public static String StringToHashTag(String[] words){
         String result = "";
+
+        if(words == null || words.length == 0)
+            return null;
 
         for(String word : words){
             result += "#"+word;
