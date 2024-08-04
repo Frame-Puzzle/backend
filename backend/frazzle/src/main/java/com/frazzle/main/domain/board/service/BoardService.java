@@ -38,7 +38,6 @@ public class BoardService {
     private final DirectoryRepository directoryRepository;
     private final UserDirectoryRepository userDirectoryRepository;
     private final BoardRepository boardRepository;
-    //private final PieceRepository pieceRepository;
     private final PieceService pieceService;
 
     private final AwsService awsService;
@@ -160,12 +159,19 @@ public class BoardService {
 
         Board board = findBoardByBoardId(userPrincipal, boardID);
 
-        if((board.getClearType() == BoardClearTypeFlag.PUZZLE_GAME_CLEARED.getValue()
-        && board.getUser() != null)){
+        //게임을 클리어했는지 판단, 유저가 등록되어있는지 판단.
+        if((board.getClearType() == BoardClearTypeFlag.PUZZLE_GAME_CLEARED.getValue()) && board.getUser() != null){
 
-            String url = awsService.uploadFile(requestDto.getThumbnailUrl());
+            //기존 이미지가 존재하면 삭제한다.
+            String imageUrl = board.getThumbnailUrl();
 
-            board.changeImageUrl(url);
+            if(imageUrl != null){
+                awsService.deleteImage(imageUrl);
+            }
+
+            imageUrl = awsService.uploadFile(requestDto.getThumbnailUrl());
+
+            board.changeImageUrl(imageUrl);
         }
     }
 
