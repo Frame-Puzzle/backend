@@ -26,7 +26,7 @@ public class BoardController {
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable("boardID") int boardID)
     {
-        FindBoardAndPiecesResponseDto responseDto =boardService.findImageAll(userPrincipal, boardID);
+        FindBoardAndPiecesResponseDto responseDto =boardService.findBoardAndPieces(userPrincipal, boardID);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ResultDto.res(HttpStatus.OK.value(),
