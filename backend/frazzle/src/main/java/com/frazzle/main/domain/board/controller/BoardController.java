@@ -30,7 +30,7 @@ public class BoardController {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ResultDto.res(HttpStatus.OK.value(),
-                        "퍼즐판 생성 성공", responseDto));
+                        "퍼즐판 및 퍼즐조각들 조회 성공", responseDto));
     }
 
     //투표
