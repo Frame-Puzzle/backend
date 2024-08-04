@@ -167,6 +167,7 @@ public class DirectoryController {
             @ApiResponse(responseCode = "404", description = "조회에 실패했습니다.",
                     content = @Content(schema = @Schema(implementation = ResultDto.class)))
     })
+
     @GetMapping("{directoryId}")
     public ResponseEntity<?> findDetailDirectory(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
@@ -174,5 +175,14 @@ public class DirectoryController {
     ){
         DetailDirectoryResponsetDto response = directoryService.findDetailDirectory(userPrincipal, directoryId);
         return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "조회에 성공했습니다.", response));
+    }
+
+    @DeleteMapping("{directoryId}")
+    public ResponseEntity<?> leaveDirectory(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable("directoryId") int directoryId
+    ){
+        directoryService.leaveDirectory(userPrincipal, directoryId);
+        return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "나가기를 성공했습니다."));
     }
 }
