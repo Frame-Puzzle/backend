@@ -2,6 +2,7 @@ package com.frazzle.main.domain.notification.entity;
 
 import com.frazzle.main.domain.board.entity.Board;
 import com.frazzle.main.domain.directory.entity.Directory;
+import com.frazzle.main.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -26,52 +27,47 @@ public class Notification {
     private String keyword;
 
     @Column(name = "type", nullable = false)
-    private int type;
+    private String type;
 
-    @Column(name = "create_user", nullable = false, length = 32)
-    private String createUser;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "directory_id")
     private Directory directory;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "board_id")
-//    private Board board;
-
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "board_id")
+    private Board board;
 
     @Builder
-    public Notification(String keyword, int type, String createUser, Directory directory) {
+    private Notification(String keyword, String type, User user, Directory directory, Board board) {
         this.keyword = keyword;
         this.type = type;
-        this.createUser = createUser;
+        this.user = user;
         this.directory = directory;
-//        this.board = null;
+        this.board = board;
     }
 
-//    @Builder Notification(String keyword, int type, String createUser , Board board) {
-//        this.keyword = keyword;
-//        this.type = type;
-//        this.createUser = createUser;
-//        this.directory = null;
-//        this.board = board;
-//    }
-
-    public static Notification createNotificationWithDirectory(String keyword, int type, String createUser, Directory directory) {
+    public static Notification createNotificationWithDirectory(String keyword, String type, User user, Directory directory) {
         return Notification.builder()
                 .keyword(keyword)
                 .type(type)
-                .createUser(createUser)
+                .user(user)
                 .directory(directory)
                 .build();
     }
 
-//    public static Notification createNotificationWithBoard(String keyword, int type, String createUser, Board board) {
-//        return Notification.builder()
-//                .keyword(keyword)
-//                .type(type)
-//                .createUser(createUser)
-//                .board(board);
-//    }
+    public static Notification createNotificationWithBoard(String keyword, String type, User user, Directory directory, Board board) {
+        return Notification.builder()
+                .keyword(keyword)
+                .type(type)
+                .user(user)
+                .directory(directory)
+                .board(board)
+                .build();
+    }
 
 }

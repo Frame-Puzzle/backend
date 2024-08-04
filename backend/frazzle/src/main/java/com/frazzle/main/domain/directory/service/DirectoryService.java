@@ -5,6 +5,7 @@ import com.frazzle.main.domain.board.repository.BoardRepository;
 import com.frazzle.main.domain.directory.dto.*;
 import com.frazzle.main.domain.directory.entity.Directory;
 import com.frazzle.main.domain.directory.repository.DirectoryRepository;
+import com.frazzle.main.domain.notification.service.NotificationService;
 import com.frazzle.main.domain.user.entity.User;
 import com.frazzle.main.domain.user.repository.UserRepository;
 import com.frazzle.main.domain.userdirectory.entity.UserDirectory;
@@ -30,6 +31,7 @@ public class DirectoryService {
     private final UserDirectoryRepository userDirectoryRepository;
     private final UserRepository userRepository;
     private final BoardRepository boardRepository;
+    private final NotificationService notificationService;
 
     @Transactional
     public Directory createDirectory(UserPrincipal userPrincipal, CreateDirectoryRequestDto requestDto) {
@@ -119,6 +121,9 @@ public class DirectoryService {
         //4. 멤버 초대
         userDirectoryRepository.save(UserDirectory.createUserDirectory(directory, member, false));
         directory.changePeopleNumber(1);
+
+        //5. 알림 생성 -> 키워드 타입 임시로
+        notificationService.createNotificationWithInviteDirectory(directory.getDirectoryName(), "디렉토리 초대", user, member, directory);
         /*
         fcm 코드
          */
