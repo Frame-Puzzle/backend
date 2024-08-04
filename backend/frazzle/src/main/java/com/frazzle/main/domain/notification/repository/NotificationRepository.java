@@ -10,4 +10,8 @@ import java.util.List;
 @Repository
 public interface NotificationRepository extends JpaRepository<Notification, Integer>, NotificationRepositoryCustom {
     Notification findByNotificationId(int notificationId);
+    List<Notification> findByDirectory_DirectoryId(int directoryId);
+
+    @Override
+    long deleteByNotification(List<Notification> notifications);
 }
