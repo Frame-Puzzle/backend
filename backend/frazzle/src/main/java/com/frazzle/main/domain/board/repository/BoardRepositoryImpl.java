@@ -11,7 +11,7 @@ import java.util.List;
 public class BoardRepositoryImpl implements BoardRepositoryCustom{
 
     private final JPAQueryFactory queryFactory;
-    private final QBoard board;
+    private final QBoard board = QBoard.board;
 
     @Override
     public List<Board> findBoards(int directoryId) {
@@ -19,5 +19,12 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom{
                 .where(board.directory.directoryId.eq(directoryId))
                 .orderBy(board.boardInNumber.desc())
                 .fetch();
+    }
+
+    @Override
+    public long deleteBoardByBoards(List<Board> boards) {
+        return queryFactory.delete(board)
+                .where(board.in(boards))
+                .execute();
     }
 }
