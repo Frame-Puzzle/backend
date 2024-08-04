@@ -5,10 +5,14 @@ import com.frazzle.main.domain.board.repository.BoardRepository;
 import com.frazzle.main.domain.directory.dto.*;
 import com.frazzle.main.domain.directory.entity.Directory;
 import com.frazzle.main.domain.directory.repository.DirectoryRepository;
+import com.frazzle.main.domain.notification.entity.Notification;
+import com.frazzle.main.domain.notification.repository.NotificationRepository;
+import com.frazzle.main.domain.piece.repository.PieceRepository;
 import com.frazzle.main.domain.user.entity.User;
 import com.frazzle.main.domain.user.repository.UserRepository;
 import com.frazzle.main.domain.userdirectory.entity.UserDirectory;
 import com.frazzle.main.domain.userdirectory.repository.UserDirectoryRepository;
+import com.frazzle.main.domain.usernotification.repository.UserNotificationRepository;
 import com.frazzle.main.global.exception.CustomException;
 import com.frazzle.main.global.exception.ErrorCode;
 import com.frazzle.main.global.models.UserPrincipal;
@@ -30,6 +34,9 @@ public class DirectoryService {
     private final UserDirectoryRepository userDirectoryRepository;
     private final UserRepository userRepository;
     private final BoardRepository boardRepository;
+    private final NotificationRepository notificationRepository;
+    private final UserNotificationRepository userNotificationRepository;
+    private final PieceRepository pieceRepository;
 
     @Transactional
     public Directory createDirectory(UserPrincipal userPrincipal, CreateDirectoryRequestDto requestDto) {
@@ -202,5 +209,47 @@ public class DirectoryService {
         );
 
         return detailDirectoryResponsetDto;
+    }
+
+
+    @Transactional
+    public void leaveDirectory(UserPrincipal userPrincipal, int directoryId) {
+        //1. 유저 및 디렉토리 정보 확인
+        int userId = userPrincipal.getId();
+        Directory directory = directoryRepository.findByDirectoryId(directoryId).orElseThrow(
+                () -> new CustomException(ErrorCode.NOT_EXIST_DIRECTORY)
+        );
+
+        //2. 디렉토리 권한 확인
+        UserDirectory userDirectory = userDirectoryRepository
+                .findByUser_UserIdAndDirectory_DirectoryIdAndIsAccept(userId, directoryId,true).orElseThrow(
+                        ()->new CustomException(ErrorCode.DENIED_DIRECTORY));
+
+        //3. 디렉토리 나가기
+        pieceRepository.nullifyUserInPiecesByDirectoryAndUser(userId, directoryId);
+        userDirectoryRepository.delete(userDirectory);
+        directory.changePeopleNumber(-1);
+
+        //4. 디렉토리 삭제
+        if(!userDirectoryRepository.existsByDirectoryAndIsAccept(directory, true)
+            || directory.getPeopleNumber() == 0){
+            deleteDirectoryData(directoryId, directory);
+        }
+    }
+
+    @Transactional
+    protected void deleteDirectoryData(int directoryId, Directory directory) {
+        // 알림 삭제
+        List<Notification> notifications = notificationRepository.findByDirectory_DirectoryId(directoryId);
+        userNotificationRepository.deleteByNotification(notifications);
+        notificationRepository.deleteByNotification(notifications);
+
+        // 퍼즐판 및 퍼즐 조각 삭제
+        List<Board> boards = boardRepository.findBoards(directoryId);
+        pieceRepository.deletePieceByBoards(boards);
+        boardRepository.deleteBoardByBoards(boards);
+
+        // 디렉토리 삭제
+        directoryRepository.delete(directory);
     }
 }
