@@ -28,11 +28,16 @@ public class PieceController {
             @Valid @RequestBody UpdatePieceRequestDto requestDto
             )
     {
-        pieceService.updatePiece(userPrincipal, pieceID, requestDto);
+        boolean isCompleteBoard = pieceService.updatePiece(userPrincipal, pieceID, requestDto);
+
+        String message = "퍼즐 조각 수정 성공";
+        if(isCompleteBoard) {
+            message += " 및 퍼즐판 완성";
+        }
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ResultDto.res(HttpStatus.OK.value(),
-                        "퍼즐 조각 수정 성공"));
+                        message));
     }
 
     //[GET] 퍼즐 조각 상세 조회
