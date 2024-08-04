@@ -201,11 +201,14 @@ public class DirectoryService {
             boardList.add(BoardListDto.createBoardList(b));
         }
 
-        boolean isCurrentBoard = boards.get(0).getClearType() == 0 ? true : false;
+        boolean isCurrentBoard = false;
+        if(boards.size()>0){
+            isCurrentBoard = boards.get(0).getClearType() == 0 ? true : false;
+        }
 
         DetailDirectoryResponsetDto detailDirectoryResponsetDto
                 = DetailDirectoryResponsetDto.createDetailDirectoryRequestDto(
-                directory, true, memberList, boardList
+                directory, isCurrentBoard, memberList, boardList
         );
 
         return detailDirectoryResponsetDto;
