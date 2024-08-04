@@ -1,6 +1,7 @@
 package com.frazzle.main.domain.board;
 
 import com.frazzle.main.domain.board.dto.CreateBoardRequestDto;
+import com.frazzle.main.domain.board.dto.CreateBoardResponseDto;
 import com.frazzle.main.domain.board.entity.Board;
 import com.frazzle.main.domain.board.repository.BoardRepository;
 import com.frazzle.main.domain.board.service.BoardService;
@@ -28,7 +29,7 @@ import java.util.List;
 public class InitializeSetting {
 
     //내 계정임
-    protected final int myUserId = 47;
+    protected final int myUserId = 3;
     protected UserPrincipal myUserPrincipal;
     protected User myUser;
     @Autowired
@@ -161,12 +162,12 @@ public class InitializeSetting {
         String[] keyword6 = {""};
         CreateBoardRequestDto brd6 = new CreateBoardRequestDto(guide6, keyword6, 12);
 
-        Board board1 = boardService.createBoard(myUserPrincipal, brd1, directoryIdList.get(0));
-        Board board2 = boardService.createBoard(myUserPrincipal, brd2, directoryIdList.get(1));
-        Board board3 = boardService.createBoard(myUserPrincipal, brd3, directoryIdList.get(2));
-        Board board4 = boardService.createBoard(myUserPrincipal, brd4, directoryIdList.get(3));
-        Board board5 = boardService.createBoard(myUserPrincipal, brd5, directoryIdList.get(1));
-        Board board6 = boardService.createBoard(myUserPrincipal, brd6, directoryIdList.get(3));
+        CreateBoardResponseDto board1 = boardService.createBoard(myUserPrincipal, brd1, directoryIdList.get(0));
+        CreateBoardResponseDto board2 = boardService.createBoard(myUserPrincipal, brd2, directoryIdList.get(1));
+        CreateBoardResponseDto board3 = boardService.createBoard(myUserPrincipal, brd3, directoryIdList.get(2));
+        CreateBoardResponseDto board4 = boardService.createBoard(myUserPrincipal, brd4, directoryIdList.get(3));
+        CreateBoardResponseDto board5 = boardService.createBoard(myUserPrincipal, brd5, directoryIdList.get(1));
+        CreateBoardResponseDto board6 = boardService.createBoard(myUserPrincipal, brd6, directoryIdList.get(3));
 
         boardIdList.add(board1.getBoardId());
         boardIdList.add(board2.getBoardId());
@@ -177,39 +178,27 @@ public class InitializeSetting {
 
         List<Piece> pieceList;
 
-        pieceList = pieceService.findPiecesByBoardId(myUserPrincipal,
-                board1.getDirectory().getDirectoryId(),
-                board1.getBoardId());
+        pieceList = pieceService.findPiecesByBoardId(board1.getBoardId());
 
         addPiece(pieceList);
 
-       pieceList = pieceService.findPiecesByBoardId(myUserPrincipal,
-                board2.getDirectory().getDirectoryId(),
-                board2.getBoardId());
+       pieceList = pieceService.findPiecesByBoardId(board2.getBoardId());
 
         addPiece(pieceList);
 
-        pieceList = pieceService.findPiecesByBoardId(myUserPrincipal,
-                board3.getDirectory().getDirectoryId(),
-                board3.getBoardId());
+        pieceList = pieceService.findPiecesByBoardId(board3.getBoardId());
 
         addPiece(pieceList);
 
-        pieceList = pieceService.findPiecesByBoardId(myUserPrincipal,
-                board4.getDirectory().getDirectoryId(),
-                board4.getBoardId());
+        pieceList = pieceService.findPiecesByBoardId(board4.getBoardId());
 
         addPiece(pieceList);
 
-        pieceList = pieceService.findPiecesByBoardId(myUserPrincipal,
-                board5.getDirectory().getDirectoryId(),
-                board5.getBoardId());
+        pieceList = pieceService.findPiecesByBoardId(board5.getBoardId());
 
         addPiece(pieceList);
 
-        pieceList = pieceService.findPiecesByBoardId(myUserPrincipal,
-                board6.getDirectory().getDirectoryId(),
-                board6.getBoardId());
+        pieceList = pieceService.findPiecesByBoardId(board6.getBoardId());
 
         addPiece(pieceList);
     }
