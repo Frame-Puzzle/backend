@@ -13,9 +13,9 @@ import java.util.Optional;
 public interface UserDirectoryRepository extends JpaRepository<UserDirectory, Integer> {
 
     boolean existsByDirectoryAndUserAndIsAccept(Directory directory, User user, boolean isAccept);
-    boolean existsByUser_UserIdAndDirectory_DirectoryIdAndIsAccept(int userId, int directoryId, boolean isAccept);
     Optional<UserDirectory> findByUser_UserIdAndDirectory_DirectoryIdAndIsAccept(int userId, int directoryId, boolean isAccept);
-    Long deleteByUser(User user);
+    void deleteByUser(User user);
+    void deleteByDirectory(Directory directory);
     boolean existsByUserAndDirectory(User user, Directory directory);
     void deleteByUserAndDirectory(User user, Directory directory);
     boolean existsByDirectoryAndIsAccept(Directory directory, boolean isAccept);
