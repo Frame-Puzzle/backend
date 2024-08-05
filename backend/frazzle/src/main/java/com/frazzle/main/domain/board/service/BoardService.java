@@ -291,15 +291,14 @@ public class BoardService {
         }
 
         //가이드 미션 부여
-        String[] guideMission = guides;
-        if(guideMission != null){
-            int guideCount = guideMission.length;
+        if(guides != null){
+            int guideCount = guides.length;
 
             List<Integer> usingNumberList = getRandomNumber(boardSize, guideCount);
 
             for(int i = 0; i< guideCount; i++){
                 pieceList.get(usingNumberList.get(i))
-                        .updateMission(guideMission[i]);
+                        .updateMission(guides[i]);
             }
         }
 

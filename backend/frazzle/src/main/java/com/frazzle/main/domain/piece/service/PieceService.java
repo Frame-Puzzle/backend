@@ -104,7 +104,7 @@ public class PieceService {
         }
 
         //퍼즐조각이 등록된 적이 있었는지 여부
-        if(pieceUser != null || piece.getImageUrl() != null || piece.getContent() != null) {
+        if(piece.getImageUrl() != null) {
             isFirstUpdate = false;
         }
 
