@@ -26,7 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -42,26 +41,22 @@ public class BoardService {
 
     private final AwsService awsService;
 
-    private User checkUser(UserPrincipal userPrincipal) {
-        return userRepository.findByUserId(userPrincipal.getId())
-                .orElseThrow(()-> new CustomException(ErrorCode.NOT_EXIST_USER));
-    }
-
-    public Board findBoardByBoardId(UserPrincipal userPrincipal, int boardId) {
-        checkUser(userPrincipal);
-
+    //퍼즐판 조회
+    public Board findBoardByBoardId(int boardId) {
         Board board = boardRepository.findByBoardId(boardId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_EXIST_BOARD));
 
         return board;
     }
 
+    //퍼즐판 전체 조회
     public List<Board> findBoardsByDirectoryId(int directoryId) {
         return boardRepository.findByDirectoryDirectoryId(directoryId);
     }
 
+    //퍼즐판 상세 조회
     public FindBoardAndPiecesResponseDto findBoardAndPieces(UserPrincipal userPrincipal, int boardId) {
-        Board board = findBoardByBoardId(userPrincipal, boardId);
+        Board board = findBoardByBoardId(boardId);
         Directory directory = directoryRepository.findByDirectoryId(board.getDirectory().getDirectoryId())
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_EXIST_DIRECTORY));
 
@@ -102,6 +97,7 @@ public class BoardService {
         return responseDto;
     }
 
+    //퍼즐판 생성
     @Transactional
     public CreateBoardResponseDto createBoard(UserPrincipal userPrincipal,
                              CreateBoardRequestDto boardDto,
@@ -111,7 +107,7 @@ public class BoardService {
                 .orElseThrow(()-> new CustomException(ErrorCode.NOT_EXIST_DIRECTORY));
 
         //유저 확인
-        User user = checkUser(userPrincipal);
+        User user = userPrincipal.getUser();
 
         //디렉토리 유저 인증
         if(!userDirectoryRepository.existsByDirectoryAndUserAndIsAccept(directory, user, true)) {
@@ -145,8 +141,8 @@ public class BoardService {
     @Transactional
     public void updateUserFromBoard(int boardId, UserPrincipal userPrincipal)
     {
-        User user = checkUser(userPrincipal);
-        Board board = findBoardByBoardId(userPrincipal, boardId);
+        User user = userPrincipal.getUser();
+        Board board = findBoardByBoardId(boardId);
 
         board.updateUser(user);
     }
@@ -155,7 +151,7 @@ public class BoardService {
     @Transactional
     public void updateThumbnailUrl(UserPrincipal userPrincipal, int boardID, UpdateBoardThumbnailRequestDto requestDto) {
 
-        Board board = findBoardByBoardId(userPrincipal, boardID);
+        Board board = findBoardByBoardId(boardID);
 
         //게임을 클리어했는지 판단, 유저가 등록되어있는지 판단.
         if((board.getClearType() == BoardClearTypeFlag.PUZZLE_GAME_CLEARED.getValue()) && board.getUser() != null){
@@ -187,7 +183,7 @@ public class BoardService {
 
     @Transactional
     public boolean updateVoteCount(UserPrincipal userPrincipal, int boardId, boolean isAccept) {
-        Board board = findBoardByBoardId(userPrincipal, boardId);
+        Board board = findBoardByBoardId(boardId);
         board.enableVote(true);
 
         if(isAccept){
@@ -229,9 +225,6 @@ public class BoardService {
     }
 
     public FindAllImageFromBoardResponseDto findAllPhoto(UserPrincipal userPrincipal, int boardId){
-
-        checkUser(userPrincipal);
-
         List<Piece> pieceList = pieceService.findPiecesByBoardId(boardId);
 
         FindPieceResponseDto[] pieceDtoList = new FindPieceResponseDto[pieceList.size()];
