@@ -22,7 +22,7 @@ public class QUserNotification extends EntityPathBase<UserNotification> {
 
     public static final QUserNotification userNotification = new QUserNotification("userNotification");
 
-    public final StringPath acceptStatus = createString("acceptStatus");
+    public final NumberPath<Integer> acceptStatus = createNumber("acceptStatus", Integer.class);
 
     public final BooleanPath isRead = createBoolean("isRead");
 

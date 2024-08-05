@@ -13,5 +13,5 @@ public class AcceptNotificationRequestDto {
     @NotBlank
     private Boolean isRead;
     @NotBlank
-    private String accept;
+    private int accept;
 }

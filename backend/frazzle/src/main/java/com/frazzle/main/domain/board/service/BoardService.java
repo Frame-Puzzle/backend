@@ -7,6 +7,7 @@ import com.frazzle.main.domain.board.entity.GlobalBoardSize;
 import com.frazzle.main.domain.board.repository.BoardRepository;
 import com.frazzle.main.domain.directory.entity.Directory;
 import com.frazzle.main.domain.directory.repository.DirectoryRepository;
+import com.frazzle.main.domain.notification.service.NotificationService;
 import com.frazzle.main.domain.piece.dto.FindPieceResponseDto;
 import com.frazzle.main.domain.piece.entity.Piece;
 import com.frazzle.main.domain.piece.service.PieceService;
@@ -37,8 +38,8 @@ public class BoardService {
     private final DirectoryRepository directoryRepository;
     private final UserDirectoryRepository userDirectoryRepository;
     private final BoardRepository boardRepository;
-    private final PieceService pieceService;
-
+    private final PieceRepository pieceRepository;
+    private final NotificationService notificationService;
     private final AwsService awsService;
 
     //퍼즐판 조회
@@ -183,8 +184,17 @@ public class BoardService {
 
     @Transactional
     public boolean updateVoteCount(UserPrincipal userPrincipal, int boardId, boolean isAccept) {
-        Board board = findBoardByBoardId(boardId);
-        board.enableVote(true);
+        Board board = findBoardByBoardId(userPrincipal, boardId);
+
+        User user = checkUser(userPrincipal);
+
+        //투표가 아직 열리지 않았다면
+        if(!board.isVote()) {
+            board.enableVote(true);
+
+            //알림 전송
+            notificationService.createNotificationWithBoard("삭제 투표", "type", user, board);
+        }
 
         if(isAccept){
             board.addVoteNumber();

@@ -35,22 +35,22 @@ public class UserNotification {
     private Boolean isRead;
 
     @Column(name = "accept_status")
-    private String acceptStatus;
+    private int acceptStatus;
 
     @Builder
-    private UserNotification(User user, Notification notification, Boolean isRead, String acceptStatus) {
+    private UserNotification(User user, Notification notification, Boolean isRead, int acceptStatus) {
         this.user = user;
         this.notification = notification;
         this.isRead = isRead;
         this.acceptStatus = acceptStatus;
     }
 
-    public static UserNotification createUserNotification(User user, Notification notification, Boolean isRead, String acceptStatus) {
+    public static UserNotification createUserNotification(User user, Notification notification) {
         return UserNotification.builder()
                 .user(user)
                 .notification(notification)
-                .isRead(isRead)
-                .acceptStatus(acceptStatus)
+                .isRead(false)
+                .acceptStatus(0)
                 .build();
     }
 
@@ -58,7 +58,7 @@ public class UserNotification {
         this.isRead = true;
     }
 
-    public void updateStatus(String status) {
+    public void updateStatus(int status) {
         this.acceptStatus = status;
     }
 }

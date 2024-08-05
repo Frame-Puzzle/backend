@@ -22,9 +22,9 @@ public class QNotification extends EntityPathBase<Notification> {
 
     public static final QNotification notification = new QNotification("notification");
 
-    public final DateTimePath<java.time.LocalDateTime> createdAt = createDateTime("createdAt", java.time.LocalDateTime.class);
+    public final com.frazzle.main.domain.board.entity.QBoard board;
 
-    public final StringPath createUser = createString("createUser");
+    public final DateTimePath<java.time.LocalDateTime> createdAt = createDateTime("createdAt", java.time.LocalDateTime.class);
 
     public final com.frazzle.main.domain.directory.entity.QDirectory directory;
 
@@ -32,7 +32,9 @@ public class QNotification extends EntityPathBase<Notification> {
 
     public final NumberPath<Integer> notificationId = createNumber("notificationId", Integer.class);
 
-    public final NumberPath<Integer> type = createNumber("type", Integer.class);
+    public final StringPath type = createString("type");
+
+    public final com.frazzle.main.domain.user.entity.QUser user;
 
     public QNotification(String variable) {
         this(Notification.class, forVariable(variable), INITS);
@@ -52,7 +54,9 @@ public class QNotification extends EntityPathBase<Notification> {
 
     public QNotification(Class<? extends Notification> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
+        this.board = inits.isInitialized("board") ? new com.frazzle.main.domain.board.entity.QBoard(forProperty("board"), inits.get("board")) : null;
         this.directory = inits.isInitialized("directory") ? new com.frazzle.main.domain.directory.entity.QDirectory(forProperty("directory")) : null;
+        this.user = inits.isInitialized("user") ? new com.frazzle.main.domain.user.entity.QUser(forProperty("user")) : null;
     }
 
 }

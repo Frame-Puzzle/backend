@@ -12,11 +12,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @RestController
@@ -39,7 +41,9 @@ public class PieceController {
     public ResponseEntity<ResultDto> updatePiece(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable("pieceID") int pieceID,
-            @Valid @RequestBody UpdatePieceRequestDto requestDto
+            @RequestParam("profileImg") MultipartFile profileImg,
+//            @Valid @RequestBody UpdatePieceRequestDto requestDto
+            @Valid @RequestParam("comment") String comment
             )
     {
         boolean isCompleteBoard = pieceService.updatePiece(userPrincipal, pieceID, requestDto);
