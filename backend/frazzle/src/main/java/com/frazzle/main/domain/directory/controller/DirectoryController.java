@@ -65,7 +65,7 @@ public class DirectoryController {
     public ResponseEntity<?> updateDirectoryName(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @Valid @RequestBody UpdateDirectoryNameRequestDto requestDto,
-            @PathVariable int directoryId
+            @PathVariable("directoryId") int directoryId
     ){
         directoryService.updateDirectoryName(userPrincipal, requestDto, directoryId);
         return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "디렉토리 이름을 수정하였습니다."));
