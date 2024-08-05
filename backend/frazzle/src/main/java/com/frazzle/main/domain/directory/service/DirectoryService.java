@@ -299,13 +299,23 @@ public class DirectoryService {
                     String text =  messageNode.asText();
 
                     int periodIndex = text.indexOf('.');
-                    String result;
+                    int questionIndex = text.indexOf('?');
 
-                    // 마침표가 존재하는 경우 문자열을 자릅니다.
-                    if (periodIndex != -1) {
-                        text = messageNode.asText().substring(0, periodIndex + 1); // 마침표까지 포함하여 자릅니다.
+                    // periodIndex와 questionIndex 중 더 작은 값을 찾습니다.
+                    int minIndex = -1;
+                    if (periodIndex != -1 && questionIndex != -1) {
+                        minIndex = Math.min(periodIndex, questionIndex);
+                    } else if (periodIndex != -1) {
+                        minIndex = periodIndex;
+                    } else if (questionIndex != -1) {
+                        minIndex = questionIndex;
                     }
 
+                    // 마침표가 존재하는 경우 문자열을 자릅니다.
+                    if (minIndex != -1) {
+                        text = messageNode.asText().substring(0, minIndex + 1); // 마침표까지 포함하여 자릅니다.
+                    }
+                    text = text.replaceAll("^\\d+\\.\\s*", "").trim();
                     responseGuideList.add(text);
                     return responseGuideList.toArray(new String[0]);
                 }
