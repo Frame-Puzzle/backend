@@ -59,7 +59,7 @@ public class PieceService {
         //유저검증
         checkUserAndDirectory(user, checkDirectory(piece.getBoard().getDirectory().getDirectoryId()));
 
-        return FindPieceResponseDto.createPieceDto(piece.getImageUrl(), piece.getContent());
+        return FindPieceResponseDto.createPieceDto(piece.getMissionName(), piece.getImageUrl(), piece.getContent());
     }
 
     //퍼즐 조각 전체 조회
