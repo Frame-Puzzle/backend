@@ -5,13 +5,10 @@ import com.frazzle.main.domain.board.repository.BoardRepository;
 import com.frazzle.main.domain.directory.dto.*;
 import com.frazzle.main.domain.directory.entity.Directory;
 import com.frazzle.main.domain.directory.repository.DirectoryRepository;
-<<<<<<< backend/frazzle/src/main/java/com/frazzle/main/domain/directory/service/DirectoryService.java
 import com.frazzle.main.domain.notification.service.NotificationService;
-=======
 import com.frazzle.main.domain.notification.entity.Notification;
 import com.frazzle.main.domain.notification.repository.NotificationRepository;
 import com.frazzle.main.domain.piece.repository.PieceRepository;
->>>>>>> backend/frazzle/src/main/java/com/frazzle/main/domain/directory/service/DirectoryService.java
 import com.frazzle.main.domain.user.entity.User;
 import com.frazzle.main.domain.user.repository.UserRepository;
 import com.frazzle.main.domain.userdirectory.entity.UserDirectory;
