@@ -75,7 +75,7 @@ public class PieceService {
 
     //퍼즐 조각 업로드
     @Transactional
-    public boolean updatePiece(UserPrincipal userPrincipal, int pieceId, MultipartFile profileImg, String comment)
+    public boolean updatePiece(UserPrincipal userPrincipal, int pieceId, MultipartFile imgFile, String comment)
     {
         //퍼즐조각이 처음으로 수정되는 경우
         boolean isFirstUpdate = true;
@@ -105,24 +105,22 @@ public class PieceService {
 //        MultipartFile imgFile = requestDto.getImgFile();
 
         //3. Face Detection : 사람 수 파악
-        int peopleCount = findPeopleCountFromImg.analyzeImageFile(profileImg);
+        int peopleCount = findPeopleCountFromImg.analyzeImageFile(imgFile);
 
-        String url = awsService.uploadFile(profileImg);
-
-        //4. 퍼즐 조각 수정
-        piece.updatePieceDto(url, comment, user);
-        piece.updatePeopleCount(peopleCount);
-
-        //4. 퍼즐 조각 이미지 업로드
+        //4. 퍼즐 조각 이미지 업로드 전 삭제
         String imageUrl = piece.getImageUrl();
         if(imageUrl != null) {
             awsService.deleteImage(imageUrl);
         }
 
-        imageUrl = awsService.uploadFile(profileImg);
+        //사진 업로드 후 고유url 반환
+        imageUrl = awsService.uploadFile(imgFile);
+
+        //url을 통해 S3에서 이미지 가져오기
+        String url = awsService.getImageUrl(imageUrl);
 
         //5. 퍼즐 조각 수정
-        piece.updatePieceDto(imageUrl, comment, user);
+        piece.updatePieceDto(url, comment, user);
 
         //6. 퍼즐판 완성 체크
         Board board = piece.getBoard();
