@@ -84,4 +84,8 @@ public class Directory {
     }
 
     public void addBoardNumber() { this.boardNumber += 1; }
+
+    public void updateModifiedAt() {
+        this.modifiedAt = LocalDateTime.now();
+    }
 }
