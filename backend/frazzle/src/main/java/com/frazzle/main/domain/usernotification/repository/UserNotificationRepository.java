@@ -1,5 +1,6 @@
 package com.frazzle.main.domain.usernotification.repository;
 
+import com.frazzle.main.domain.directory.entity.Directory;
 import com.frazzle.main.domain.notification.entity.Notification;
 import com.frazzle.main.domain.user.entity.User;
 import com.frazzle.main.domain.usernotification.entity.UserNotification;
@@ -14,5 +15,5 @@ public interface UserNotificationRepository extends JpaRepository<UserNotificati
     UserNotification findByUserAndNotification(User user, Notification notification);
 
     @Override
-    long deleteByNotification(List<Notification> notification);
+    void deleteByDirectory(Directory directory);
 }
