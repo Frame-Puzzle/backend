@@ -9,5 +9,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class UpdateVoteRequestDto {
-    private boolean isAccept;
+    private boolean accept;
 }

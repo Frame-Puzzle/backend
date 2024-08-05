@@ -7,6 +7,8 @@ import com.frazzle.main.domain.board.entity.GlobalBoardSize;
 import com.frazzle.main.domain.board.repository.BoardRepository;
 import com.frazzle.main.domain.directory.entity.Directory;
 import com.frazzle.main.domain.directory.repository.DirectoryRepository;
+import com.frazzle.main.domain.notification.entity.NotificationTypeFlag;
+import com.frazzle.main.domain.notification.repository.NotificationRepository;
 import com.frazzle.main.domain.notification.service.NotificationService;
 import com.frazzle.main.domain.piece.dto.FindPieceResponseDto;
 import com.frazzle.main.domain.piece.entity.Piece;
@@ -41,6 +43,7 @@ public class BoardService {
     private final PieceService pieceService;
     private final NotificationService notificationService;
     private final AwsService awsService;
+    private final NotificationRepository notificationRepository;
 
     //퍼즐판 조회
     public Board findBoardByBoardId(int boardId) {
@@ -188,20 +191,27 @@ public class BoardService {
 
         User user = userPrincipal.getUser();
 
+
         //투표가 아직 열리지 않았다면
         if(!board.isVote()) {
             board.enableVote(true);
 
             //알림 전송
-            notificationService.createNotificationWithBoard("삭제 투표", "type", user, board);
+            notificationService.createNotificationWithBoard(board.getDirectory().getCategory(), NotificationTypeFlag.VOTE_BOARD.getValue(), user, board);
         }
 
         if(isAccept){
             board.addVoteNumber();
         }
 
+        boardRepository.save(board);
+
+        log.info(String.valueOf(isAccept));
+        log.info(String.valueOf(board.getVoteNumber()));
+        log.info(String.valueOf(board.getDirectory().getPeopleNumber()));
+
         //삭제 판단 TODO: 로직 개선하기
-        if(board.getVoteNumber() > board.getDirectory().getPeopleNumber()){
+        if(board.getVoteNumber() >= board.getDirectory().getPeopleNumber()){
             deleteBoard(boardId);
             return true;
         }
@@ -212,10 +222,14 @@ public class BoardService {
     @Transactional
     public void deleteBoard(int boardId){
         List<Piece> pieceList = pieceService.findPiecesByBoardId(boardId);
-
+        
         for(Piece p : pieceList){
             pieceService.deletePiece(p.getPieceId());
         }
+        //유저 알림 삭제 로직
+
+        //알림 삭제 로직
+//        notificationRepository.deleteByBoard(boardId);
 
         boardRepository.deleteById(boardId);
     }

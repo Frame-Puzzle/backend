@@ -12,6 +12,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -21,8 +24,8 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
 @RequestMapping("/boards")
+@Slf4j
 public class BoardController {
-
     private final BoardService boardService;
 
     //퍼즐판 및 퍼즐 조각 전체 조회
@@ -59,6 +62,9 @@ public class BoardController {
             @PathVariable("boardID") int boardID,
             @RequestBody @Valid UpdateVoteRequestDto requestDto
             ) {
+
+        log.info(String.valueOf(requestDto.isAccept()));
+
         boolean isDeletedBoard = boardService.updateVoteCount(userPrincipal, boardID, requestDto.isAccept());
 
         return ResponseEntity.status(HttpStatus.OK)

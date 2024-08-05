@@ -11,16 +11,19 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class NotificationResponseDto {
+    private int notificationId;
     private LocalDateTime createTime;
-    private String type;
+    private int type;
     private String directoryName;
     private String category;
     private String createUserName;
     private Boolean isRead;
     private int acceptStatus;
 
+
     @Builder
-    private NotificationResponseDto(LocalDateTime createTime, String type, String directoryName, String category, String createUserName, Boolean isRead, int acceptStatus) {
+    public NotificationResponseDto(int notificationId, LocalDateTime createTime, int type, String directoryName, String category, String createUserName, Boolean isRead, int acceptStatus) {
+        this.notificationId = notificationId;
         this.createTime = createTime;
         this.type = type;
         this.directoryName = directoryName;
@@ -30,11 +33,14 @@ public class NotificationResponseDto {
         this.acceptStatus = acceptStatus;
     }
 
+
+
     public static NotificationResponseDto createNotificationResponse(UserNotification userNotification) {
         Notification notification = userNotification.getNotification();
         Directory directory = notification.getDirectory();
 
         return NotificationResponseDto.builder()
+                .notificationId(notification.getNotificationId())
                 .createTime(notification.getCreatedAt())
                 .type(notification.getType())
                 .directoryName(directory.getDirectoryName())
@@ -46,16 +52,3 @@ public class NotificationResponseDto {
 
     }
 }
-
-/*
-						{
-								"createTime":"2024-07-19",
-								"type":1,
-								"directoryName": "디렉토리 명",
-								"category":"친구"
-								"createUserName": "유저명",
-								"isRead":false,
-								"acceptStatus":0
-						},
-
- */

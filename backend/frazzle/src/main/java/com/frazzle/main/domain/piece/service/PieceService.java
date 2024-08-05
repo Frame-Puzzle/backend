@@ -4,13 +4,20 @@ import com.frazzle.main.domain.board.entity.Board;
 import com.frazzle.main.domain.board.entity.BoardClearTypeFlag;
 import com.frazzle.main.domain.directory.entity.Directory;
 import com.frazzle.main.domain.directory.repository.DirectoryRepository;
+import com.frazzle.main.domain.notification.entity.Notification;
+import com.frazzle.main.domain.notification.entity.NotificationTypeFlag;
+import com.frazzle.main.domain.notification.repository.NotificationRepository;
+import com.frazzle.main.domain.notification.service.NotificationService;
 import com.frazzle.main.domain.piece.dto.FindPieceResponseDto;
 import com.frazzle.main.domain.piece.dto.UpdatePieceRequestDto;
 import com.frazzle.main.domain.piece.entity.Piece;
 import com.frazzle.main.domain.piece.repository.PieceRepository;
 import com.frazzle.main.domain.user.entity.User;
 import com.frazzle.main.domain.user.repository.UserRepository;
+import com.frazzle.main.domain.userdirectory.entity.UserDirectory;
 import com.frazzle.main.domain.userdirectory.repository.UserDirectoryRepository;
+import com.frazzle.main.domain.usernotification.entity.UserNotification;
+import com.frazzle.main.domain.usernotification.repository.UserNotificationRepository;
 import com.frazzle.main.global.aws.service.AwsService;
 import com.frazzle.main.global.exception.CustomException;
 import com.frazzle.main.global.exception.ErrorCode;
@@ -34,6 +41,7 @@ public class PieceService {
     private final UserDirectoryRepository userDirectoryRepository;
     private final AwsService awsService;
     private final FindPeopleCountFromImg findPeopleCountFromImg;
+    private final NotificationService notificationService;
 
     private Directory checkDirectory(int directoryId) {
         return directoryRepository.findByDirectoryId(directoryId)
@@ -132,6 +140,8 @@ public class PieceService {
 
         if(board.getPieceCount() == board.getBoardSize()){
             board.changeClearType(BoardClearTypeFlag.PUZZLE_CLEARED);
+            //알림 추가
+            notificationService.createNotificationWithBoard(board.getDirectory().getCategory(), NotificationTypeFlag.COMPLETE_BOARD.getValue(), user, board);
             return true;
         }
 

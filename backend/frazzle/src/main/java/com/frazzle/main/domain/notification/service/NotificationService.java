@@ -57,7 +57,7 @@ public class NotificationService {
     }
 
     @Transactional
-    public void createNotificationWithInviteDirectory(String keyword, String type, User user, User inviteMember, Directory directory) {
+    public void createNotificationWithInviteDirectory(String keyword, int type, User user, User inviteMember, Directory directory) {
         //알림 생성
         Notification requestNotification = Notification.createNotificationWithDirectory(keyword, type, user, directory);
 
@@ -72,7 +72,7 @@ public class NotificationService {
     }
 
     @Transactional
-    public void createNotificationWithBoard(String keyword, String type, User user, Board board) {
+    public void createNotificationWithBoard(String keyword, int type, User user, Board board) {
 
         Directory directory = board.getDirectory();
         //알림 생성
@@ -82,7 +82,7 @@ public class NotificationService {
         Notification notification =  notificationRepository.save(requestNotification);
 
         //디렉토리의 참여한 유저들 찾기
-        List<UserDirectory> userDirectoryList = userDirectoryRepository.findByDirectory(directory);
+        List<UserDirectory> userDirectoryList = userDirectoryRepository.findByDirectoryAndIsAccept(directory, true);
 
         List<UserNotification> userNotificationList = new ArrayList<>();
 
