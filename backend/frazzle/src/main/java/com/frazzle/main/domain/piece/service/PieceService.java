@@ -34,11 +34,6 @@ public class PieceService {
     private final UserDirectoryRepository userDirectoryRepository;
     private final AwsService awsService;
 
-    private User checkUser(UserPrincipal userPrincipal) {
-        return userRepository.findByUserId(userPrincipal.getId())
-                .orElseThrow(()-> new CustomException(ErrorCode.NOT_EXIST_USER));
-    }
-
     private Directory checkDirectory(int directoryId) {
         return directoryRepository.findByDirectoryId(directoryId)
                 .orElseThrow(()-> new CustomException(ErrorCode.NOT_EXIST_DIRECTORY));
@@ -53,22 +48,21 @@ public class PieceService {
 
     //퍼즐 조각 상세 조회(piece id) (API)
     public FindPieceResponseDto findPieceByPieceId(UserPrincipal userPrincipal, int pieceId){
+        //유저 조회
+        User user = userPrincipal.getUser();
 
         //퍼즐 조각 탐색
         Piece piece = pieceRepository.findPieceByPieceId(pieceId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_EXIST_PIECE));
 
         //유저검증
-        checkUserAndDirectory(checkUser(userPrincipal),
-                checkDirectory(piece.getBoard().getDirectory().getDirectoryId()));
+        checkUserAndDirectory(user, checkDirectory(piece.getBoard().getDirectory().getDirectoryId()));
 
         return FindPieceResponseDto.createPieceDto(piece.getImageUrl(), piece.getContent());
     }
 
     //퍼즐 조각 전체 조회
     public List<Piece> findPiecesByBoardId(int boardId){
-        //checkUserAndDirectory(checkUser(userPrincipal), checkDirectory(boardId));
-
         List<Piece> pieceList = pieceRepository.findAllByBoardBoardId(boardId);
 
         if(pieceList == null || pieceList.isEmpty()){
@@ -91,7 +85,7 @@ public class PieceService {
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_EXIST_PIECE));
 
         //1. 사용자 인증 및 인가 검증
-        User user = checkUser(userPrincipal);
+        User user = userPrincipal.getUser();
         checkUserAndDirectory(user, checkDirectory(piece.getBoard().getDirectory().getDirectoryId()));
 
         //1-1. 퍼즐조각이 현재 수정 가능한지 검증 -> 등록이 되있다면 처음 등록한 유저만 수정이 가능
