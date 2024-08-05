@@ -46,14 +46,13 @@ public class PieceController {
             @Valid @RequestParam("comment") String comment
             )
     {
-        boolean isCompleteBoard = pieceService.updatePiece(userPrincipal, pieceID, requestDto);
+        boolean isCompleteBoard = pieceService.updatePiece(userPrincipal, pieceID, profileImg, comment);
 
         String message = "퍼즐 조각 수정 성공";
         if(isCompleteBoard) {
             message += " 및 퍼즐판 완성";
         }
 
-        log.info(requestDto.getComment());
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ResultDto.res(HttpStatus.OK.value(),

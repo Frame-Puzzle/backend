@@ -75,7 +75,7 @@ public class PieceService {
 
     //퍼즐 조각 업로드
     @Transactional
-    public boolean updatePiece(UserPrincipal userPrincipal, int pieceId, UpdatePieceRequestDto requestDto)
+    public boolean updatePiece(UserPrincipal userPrincipal, int pieceId, MultipartFile profileImg, String comment)
     {
         //퍼즐조각이 처음으로 수정되는 경우
         boolean isFirstUpdate = true;
@@ -119,10 +119,10 @@ public class PieceService {
             awsService.deleteImage(imageUrl);
         }
 
-        imageUrl = awsService.uploadFile(imgFile);
+        imageUrl = awsService.uploadFile(profileImg);
 
         //5. 퍼즐 조각 수정
-        piece.updatePieceDto(imageUrl, requestDto.getComment(), user);
+        piece.updatePieceDto(imageUrl, comment, user);
 
         //6. 퍼즐판 완성 체크
         Board board = piece.getBoard();

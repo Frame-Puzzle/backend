@@ -38,7 +38,7 @@ public class BoardService {
     private final DirectoryRepository directoryRepository;
     private final UserDirectoryRepository userDirectoryRepository;
     private final BoardRepository boardRepository;
-    private final PieceRepository pieceRepository;
+    private final PieceService pieceService;
     private final NotificationService notificationService;
     private final AwsService awsService;
 
@@ -184,9 +184,9 @@ public class BoardService {
 
     @Transactional
     public boolean updateVoteCount(UserPrincipal userPrincipal, int boardId, boolean isAccept) {
-        Board board = findBoardByBoardId(userPrincipal, boardId);
+        Board board = findBoardByBoardId(boardId);
 
-        User user = checkUser(userPrincipal);
+        User user = userPrincipal.getUser();
 
         //투표가 아직 열리지 않았다면
         if(!board.isVote()) {
