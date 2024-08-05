@@ -52,17 +52,13 @@ public class UserService {
 
     //유저id로 유저 찾기
     public User findByUserId(UserPrincipal userPrincipal) {
-        return userRepository.findByUserId(userPrincipal.getId()).orElseThrow(
-                () -> new CustomException(ErrorCode.NOT_EXIST_USER)
-        );
+        return userPrincipal.getUser();
     }
 
     @Transactional
     public User updateUserByNickname(UserPrincipal userPrincipal, UpdateUserNicknameRequestDto requestDto) {
         //1. 유저 정보 확인
-        User user = userRepository.findByUserId(userPrincipal.getId()).orElseThrow(
-                () -> new CustomException(ErrorCode.NOT_EXIST_USER)
-        );
+        User user = userPrincipal.getUser();
 
         if(findByNickname(requestDto.getNickname())) {
             throw new CustomException(ErrorCode.DUPLICATED_NICKNAME);
@@ -75,20 +71,18 @@ public class UserService {
     @Transactional
     public User updateUserByProfileImg(UserPrincipal userPrincipal, MultipartFile profileImg) {
         //1. 유저 정보 확인
-        User user = userRepository.findByUserId(userPrincipal.getId()).orElseThrow(
-                () -> new CustomException(ErrorCode.NOT_EXIST_USER)
-        );
+        User user = userPrincipal.getUser();
 
         //이미 프로필 사진 존재하면 삭제
         if(user.getProfileImg()!=null) {
-            awsService.deleteProfile(user.getProfileImg());
+            awsService.deleteImage(user.getProfileImg());
         }
 
         //사진 업로드 후 고유url 반환
         String imgUrl = awsService.uploadFile(profileImg);
 
         //유저url을 통해 S3에서 이미지 가져오기
-        String url = awsService.getProfileUrl(imgUrl);
+        String url = awsService.getImageUrl(imgUrl);
 
         user.updateUserProfileImg(url);
         return userRepository.save(user);
@@ -103,9 +97,7 @@ public class UserService {
     @Transactional
     public Long deleteUser(UserPrincipal userPrincipal) {
         //1. 유저 정보 확인
-        User user = userRepository.findByUserId(userPrincipal.getId()).orElseThrow(
-                () -> new CustomException(ErrorCode.NOT_EXIST_USER)
-        );
+        User user = userPrincipal.getUser();
 
         //유저가 있으면
         if(user != null) {

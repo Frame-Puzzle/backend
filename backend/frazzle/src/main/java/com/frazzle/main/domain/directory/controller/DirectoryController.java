@@ -66,7 +66,7 @@ public class DirectoryController {
     public ResponseEntity<?> updateDirectoryName(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @Valid @RequestBody UpdateDirectoryNameRequestDto requestDto,
-            @PathVariable int directoryId
+            @PathVariable("directoryId") int directoryId
     ){
         directoryService.updateDirectoryName(userPrincipal, requestDto, directoryId);
         return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "디렉토리 이름을 수정하였습니다."));
@@ -168,7 +168,7 @@ public class DirectoryController {
             @ApiResponse(responseCode = "404", description = "조회에 실패했습니다.",
                     content = @Content(schema = @Schema(implementation = ResultDto.class)))
     })
-    @GetMapping("{directoryId}")
+    @GetMapping("/{directoryId}")
     public ResponseEntity<?> findDetailDirectory(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable("directoryId") int directoryId
@@ -176,7 +176,6 @@ public class DirectoryController {
         DetailDirectoryResponsetDto response = directoryService.findDetailDirectory(userPrincipal, directoryId);
         return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "조회에 성공했습니다.", response));
     }
-
 
     //미션 가이드 컨트롤러
     @Operation(summary = "미선 생성", description = "미선 생성하기")
@@ -196,5 +195,21 @@ public class DirectoryController {
         GuideResponseDto responseDto = GuideResponseDto.createGuideResponseDto(guideList);
 
         return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "미션 생성하는데 성공했습니다.", responseDto));
+
+
+    @Operation(summary = "디렉토리 탈퇴 및 삭제", description = "디렉토리 탈퇴 및 삭제")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "나가기를 성공했습니다.",
+                    content = @Content(schema = @Schema(implementation = ResultDto.class))),
+            @ApiResponse(responseCode = "404", description = "나가기를 실패했습니다.",
+                    content = @Content(schema = @Schema(implementation = ResultDto.class)))
+    })
+    @DeleteMapping("/{directoryId}")
+    public ResponseEntity<?> leaveDirectory(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable("directoryId") int directoryId
+    ){
+        directoryService.leaveDirectory(userPrincipal, directoryId);
+        return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "나가기를 성공했습니다."));
     }
 }

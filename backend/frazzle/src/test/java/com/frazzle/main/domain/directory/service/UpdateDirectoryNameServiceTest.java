@@ -57,24 +57,19 @@ public class UpdateDirectoryNameServiceTest {
     @DisplayName("디렉토리 이름 수정 성공 테스트")
     public void 디렉토리_이름_수정_성공_테스트(){
         //given
-        BDDMockito.given(userPrincipal.getId()).willReturn(userId);
-        BDDMockito.given(userRepository.findByUserId(userId)).willReturn(Optional.ofNullable(user));
+        BDDMockito.given(userPrincipal.getUser()).willReturn(user);
         BDDMockito.given(directoryRepository.findByDirectoryId(directory.getDirectoryId())).willReturn(Optional.ofNullable(directory));
         BDDMockito.given(userDirectoryRepository.existsByDirectoryAndUserAndIsAccept(directory, user, true)).willReturn(true);
 
         //when
         Assertions.assertThatNoException().isThrownBy(()->directoryService.updateDirectoryName(userPrincipal, requestDto, directory.getDirectoryId()));
-
-        //then
-//        BDDMockito.verify(directoryRepository, BDDMockito.times(1)).updateNameByDirectoryId(directory.getDirectoryId(), requestDto.getDirectoryName());
     }
 
     @Test
     @DisplayName("디렉토리 이름 수정 권한 없음 실패 테스트")
     public void 디렉토리_이름_수정_권한_없음_실패_테스트() {
         // given
-        BDDMockito.given(userPrincipal.getId()).willReturn(userId);
-        BDDMockito.given(userRepository.findByUserId(userId)).willReturn(Optional.ofNullable(user));
+        BDDMockito.given(userPrincipal.getUser()).willReturn(user);
         BDDMockito.given(directoryRepository.findByDirectoryId(directory.getDirectoryId())).willReturn(Optional.ofNullable(directory));
         BDDMockito.given(userDirectoryRepository.existsByDirectoryAndUserAndIsAccept(directory, user, true)).willReturn(false);
 

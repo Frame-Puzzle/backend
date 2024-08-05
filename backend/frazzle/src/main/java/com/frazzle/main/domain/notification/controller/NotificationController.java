@@ -2,7 +2,8 @@ package com.frazzle.main.domain.notification.controller;
 
 import com.frazzle.main.domain.notification.dto.AcceptNotificationRequestDto;
 import com.frazzle.main.domain.notification.dto.FcmNotificationRequestDto;
-import com.frazzle.main.domain.notification.dto.NotificationListResponseDto;
+import com.frazzle.main.domain.notification.dto.NotificationArrayResponseDto;
+import com.frazzle.main.domain.notification.dto.NotificationResponseDto;
 import com.frazzle.main.domain.notification.entity.Notification;
 import com.frazzle.main.domain.notification.service.FcmNotificationService;
 import com.frazzle.main.domain.notification.service.NotificationService;
@@ -26,7 +27,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -48,11 +52,25 @@ public class NotificationController {
     @GetMapping
     public ResponseEntity<ResultDto> getNotifications(@AuthenticationPrincipal UserPrincipal userPrincipal) {
 
-        List<Notification> notificationList = notificationService.findAllByUser(userPrincipal);
+        //유저의 알림 모두 가져오기
+        List<UserNotification> userNotificationList = notificationService.findAllByUser(userPrincipal);
 
-        fcmNotificationService.sendNotification(FcmNotificationRequestDto.createFcmNotification(userPrincipal.getId(),"제목","바디"));
+//        fcmNotificationService.sendNotification(FcmNotificationRequestDto.createFcmNotification(userPrincipal.getId(),"제목","바디"));
 
-        NotificationListResponseDto responseDto = NotificationListResponseDto.createResponseDto(notificationList);
+        List<NotificationResponseDto> notificationList = new ArrayList<>();
+
+        //가져온 유저의 알림에서 필요한 것들을 저장
+        for(UserNotification userNotification : userNotificationList) {
+            NotificationResponseDto responseDto = NotificationResponseDto.createNotificationResponse(userNotification);
+            notificationList.add(responseDto);
+        }
+
+        //최신 순으로 정렬
+        NotificationArrayResponseDto responseDto = NotificationArrayResponseDto.createArrayDto(
+                notificationList.stream()
+                        .sorted((o1, o2) -> o2.getCreateTime().compareTo(o1.getCreateTime()))
+                        .toArray(NotificationResponseDto[]::new)
+        );
 
         return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "알림 전체 조회가 성공했습니다.", responseDto));
     }
