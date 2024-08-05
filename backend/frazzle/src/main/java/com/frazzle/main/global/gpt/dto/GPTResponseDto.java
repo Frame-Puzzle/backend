@@ -1,7 +1,6 @@
-package com.frazzle.main.global.openai.dto;
+package com.frazzle.main.global.gpt.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -10,7 +9,7 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class OpenAiResponseDto {
+public class GPTResponseDto {
     private List<Choice> choices;
 
 

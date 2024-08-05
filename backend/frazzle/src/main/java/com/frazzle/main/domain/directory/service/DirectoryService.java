@@ -1,5 +1,6 @@
 package com.frazzle.main.domain.directory.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.frazzle.main.domain.board.entity.Board;
 import com.frazzle.main.domain.board.repository.BoardRepository;
 import com.frazzle.main.domain.board.service.BoardService;
@@ -18,13 +19,16 @@ import com.frazzle.main.domain.usernotification.repository.UserNotificationRepos
 import com.frazzle.main.global.exception.CustomException;
 import com.frazzle.main.global.exception.ErrorCode;
 import com.frazzle.main.global.models.UserPrincipal;
+import com.frazzle.main.global.gpt.dto.GuideRequestDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -36,6 +40,22 @@ public class DirectoryService {
     private final UserDirectoryRepository userDirectoryRepository;
     private final UserRepository userRepository;
     private final BoardRepository boardRepository;
+
+    private static final int MAX_TOKEN = 500;
+    private static final int MAX_MISSION_NUMBER = 5;
+
+    private static final String RESPONSE = "지금 들어온 답변을 할 때 글씨를 전부 붙여서 답변해줘 이를 테면 ~한 사진찍기, ~한 사진찍기 이런 것처럼 절대 출력해서 다시 보낼때 띄어쓰기 하지마 만약 출력되는 게 4개라면 1.~한 사진찍기 2.~한 사진찍기 3.~한 사진찍기 4.~한 사진찍기 이렇게 반드시 답변해줘" +
+                "출력되는게 1개면 한문장만 필요해";
+
+    @Value("${gpt.api.key}")
+    private String apiKey;
+
+    @Value("${gpt.api.model}")
+    private String gptModel;
+
+    @Value("${gpt.api.url}")
+    private String url;
+
     private final NotificationRepository notificationRepository;
     private final UserNotificationRepository userNotificationRepository;
     private final PieceRepository pieceRepository;
@@ -219,6 +239,128 @@ public class DirectoryService {
         return detailDirectoryResponsetDto;
     }
 
+    public String[] createGuideList(int directoryId, GuideRequestDto requestDto) {
+
+        //디렉토리 존재x이면 에러 발생
+        Directory directory = directoryRepository.findByDirectoryId(directoryId).orElseThrow(
+                () -> new CustomException(ErrorCode.NOT_EXIST_DIRECTORY)
+        );
+
+        //미션 최대 재생성 개수 5개로 제한
+        if(requestDto.getPreMissionList().length>MAX_MISSION_NUMBER) {
+            throw new CustomException(ErrorCode.MAX_GPT_REQUEST);
+        }
+
+        RestTemplate restTemplate = new RestTemplate();
+
+        // 요청 본문 준비
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("model", gptModel); // 올바른 모델 이름 사용
+
+        // messages 배열 구성
+        Map<String, String> systemMessage = new HashMap<>();
+        systemMessage.put("role", "system");
+        systemMessage.put("content", "You are a helpful assistant.");
+
+
+        systemMessage.put("description", RESPONSE);
+
+        // 키워드 배열을 사용하여 프롬프트 문자열 생성
+        StringBuilder promptBuilder = new StringBuilder();
+
+        //키워드 합치기
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.join(", ", requestDto.getKeywordList()));
+
+        //디렉토리의 카테고리 추가
+        sb.append(", ").append(directory.getCategory());
+        String combinedKeywords = sb.toString();
+        String prompt = String.format("'%s'가 연관되는 [장소] 또는 [상황] 추천하는 사진 찍기. %d개만 추천 해줘.", combinedKeywords, requestDto.getNum());
+
+        promptBuilder.append(prompt).append("\n");
+
+        if(requestDto.getPreMissionList().length > 0) {
+            String exceptMissions = String.join(", ", requestDto.getPreMissionList());
+            promptBuilder.append(exceptMissions).append("이 미션은 제외하고 추천해줘");
+        }
+
+
+        Map<String, String> userMessage = new HashMap<>();
+        userMessage.put("role", "user");
+        userMessage.put("content", promptBuilder.toString()); // 생성한 프롬프트 문자열 사용
+
+        requestBody.put("messages", List.of(systemMessage, userMessage)); // 불변 리스트 사용
+        requestBody.put("max_tokens", MAX_TOKEN);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + apiKey);
+        headers.set("Content-Type", "application/json");
+
+        HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
+
+        try {
+            ResponseEntity<JsonNode> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, JsonNode.class);
+            if (response.getStatusCode() == HttpStatus.OK) {
+                JsonNode responseBody = response.getBody();
+
+                log.info(Objects.requireNonNull(response.getBody()).toString());
+
+                // 결과를 저장할 리스트
+                List<String> responseGuideList = new ArrayList<>();
+
+                // 응답 내용 적절히 추출
+                JsonNode messageNode = responseBody.path("choices").get(0).path("message").path("content");
+
+                //1개만 재생성할 경우
+                if(requestDto.getNum()==1) {
+                    String text =  messageNode.asText();
+
+                    int periodIndex = text.indexOf('.');
+                    int questionIndex = text.indexOf('?');
+
+                    // periodIndex와 questionIndex 중 더 작은 값을 찾습니다.
+                    int minIndex = -1;
+                    if (periodIndex != -1 && questionIndex != -1) {
+                        minIndex = Math.min(periodIndex, questionIndex);
+                    } else if (periodIndex != -1) {
+                        minIndex = periodIndex;
+                    } else if (questionIndex != -1) {
+                        minIndex = questionIndex;
+                    }
+
+                    // 마침표가 존재하는 경우 문자열을 자릅니다.
+                    if (minIndex != -1) {
+                        text = messageNode.asText().substring(0, minIndex + 1); // 마침표까지 포함하여 자릅니다.
+                    }
+                    text = text.replaceAll("^\\d+\\.\\s*", "").trim();
+                    text = text.replaceAll("\\\"", "").trim();
+                    responseGuideList.add(text);
+                    return responseGuideList.toArray(new String[0]);
+                }
+
+                log.info(messageNode.toString());
+                // 문자열을 줄 단위로 분리
+                List<String> lines = Arrays.asList(messageNode.asText().split("\n"));
+
+
+
+                // 각 줄을 순회하며 문장만 추출
+                for (String line : lines) {
+                    // 각 줄이 하이픈으로 시작하는지 확인하고, 하이픈과 공백을 제거
+                    String cleanedLine = line.replaceAll("^\\d+\\.\\s*", "").trim();
+                    if(cleanedLine.length()<1) {
+                        continue;
+                    }
+                    responseGuideList.add(cleanedLine);
+                }
+                return responseGuideList.toArray(new String[0]);
+            }
+            throw new CustomException(ErrorCode.GPT_BAD_REQUEST);
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.GPT_BAD_REQUEST);
+        }
+    }
+
     //디렉토리 탈퇴
     @Transactional
     public void leaveDirectory(UserPrincipal userPrincipal, int directoryId) {
@@ -264,4 +406,5 @@ public class DirectoryService {
         // 디렉토리 삭제
         directoryRepository.delete(directory);
     }
+
 }

@@ -1,7 +1,5 @@
-package com.frazzle.main.global.openai.dto;
+package com.frazzle.main.global.gpt.dto;
 
-import com.frazzle.main.domain.user.dto.UserInfoResponseDto;
-import com.frazzle.main.domain.user.entity.User;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
