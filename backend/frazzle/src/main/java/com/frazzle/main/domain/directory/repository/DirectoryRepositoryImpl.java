@@ -26,7 +26,7 @@ public class DirectoryRepositoryImpl implements DirectoryRepositoryCustom{
         JPQLQuery<Directory> subquery = JPAExpressions
                 .select(userDirectory.directory)
                 .from(userDirectory)
-                .where(userDirectory.user.eq(user));
+                .where(userDirectory.user.eq(user).and(userDirectory.isAccept.eq(true)));
 
         BooleanBuilder builder = new BooleanBuilder();
         builder.and(directory.in(subquery));
