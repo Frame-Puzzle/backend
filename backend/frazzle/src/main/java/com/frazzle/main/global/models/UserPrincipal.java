@@ -23,6 +23,7 @@ public class UserPrincipal implements UserDetails {
     private int id;
     private String email;
     private String password;
+    private User user;
     private Collection<? extends GrantedAuthority> authorities;
     @Setter
     private Map<String, Object> attributes;
@@ -35,6 +36,7 @@ public class UserPrincipal implements UserDetails {
                 user.getUserId(),
                 user.getEmail(),
                 "",
+                user,
                 authorities,
                 null
         );
