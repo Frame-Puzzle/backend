@@ -12,10 +12,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -37,10 +39,12 @@ public class PieceController {
     public ResponseEntity<ResultDto> updatePiece(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable("pieceID") int pieceID,
-            @Valid @RequestBody UpdatePieceRequestDto requestDto
+            @RequestParam("profileImg") MultipartFile profileImg,
+//            @Valid @RequestBody UpdatePieceRequestDto requestDto
+            @Valid @RequestParam("comment") String comment
             )
     {
-        pieceService.updatePiece(userPrincipal, pieceID, requestDto);
+        pieceService.updatePiece(userPrincipal, pieceID, comment, profileImg);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ResultDto.res(HttpStatus.OK.value(),

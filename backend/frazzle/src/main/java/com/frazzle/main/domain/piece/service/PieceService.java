@@ -31,6 +31,7 @@ public class PieceService {
     private final DirectoryRepository directoryRepository;
     private final UserDirectoryRepository userDirectoryRepository;
     private final AwsService awsService;
+    private final FindPeopleCountFromImg findPeopleCountFromImg;
 
     private User checkUser(UserPrincipal userPrincipal) {
         return userRepository.findByUserId(userPrincipal.getId())
@@ -79,7 +80,7 @@ public class PieceService {
 
     //퍼즐 조각 업로드
     @Transactional
-    public void updatePiece(UserPrincipal userPrincipal, int pieceId, UpdatePieceRequestDto requestDto)
+    public void updatePiece(UserPrincipal userPrincipal, int pieceId, String comment, MultipartFile profileImg)
     {
         //0. 퍼즐 조각 조회,
         //Directory id를 알아내야 해서 인증 이전에 조회한다.
@@ -99,15 +100,15 @@ public class PieceService {
         }
 
         //2. 파일 변환 multifile S3로 업로드 하고 url 받기
-        MultipartFile imgFile = requestDto.getImgFile();
+//        MultipartFile imgFile = requestDto.getImgFile();
 
         //3. Face Detection : 사람 수 파악
-        int peopleCount = FindPeopleCountFromImg.analyzeImageFile(imgFile);
+        int peopleCount = findPeopleCountFromImg.analyzeImageFile(profileImg);
 
-        String url = awsService.uploadFile(imgFile);
+        String url = awsService.uploadFile(profileImg);
 
         //4. 퍼즐 조각 수정
-        piece.updatePieceDto(url, requestDto.getComment(), user);
+        piece.updatePieceDto(url, comment, user);
 
         piece.updatePeopleCount(peopleCount);
     }
