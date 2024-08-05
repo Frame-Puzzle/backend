@@ -74,8 +74,8 @@ public class DetailDirectoryServiceTest {
     @DisplayName("디렉토리 상세 조회 성공 테스트")
     public void 디렉토리_상세_조회_성공_테스트(){
         //given
-        BDDMockito.given(userDirectoryRepository.existsByUser_UserIdAndDirectory_DirectoryIdAndIsAccept(
-                userPrincipal.getId(), directory.getDirectoryId(), true
+        BDDMockito.given(userDirectoryRepository.existsByDirectoryAndUserAndIsAccept(
+                directory, userPrincipal.getUser(), true
         )).willReturn(true);
         BDDMockito.given(directoryRepository.findByDirectoryId(directory.getDirectoryId())).willReturn(Optional.ofNullable(directory));
         BDDMockito.given(userRepository.findDirectoryUsers(directory)).willReturn(memberList);

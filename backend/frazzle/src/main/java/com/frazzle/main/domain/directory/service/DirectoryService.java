@@ -38,12 +38,11 @@ public class DirectoryService {
     private final UserNotificationRepository userNotificationRepository;
     private final PieceRepository pieceRepository;
 
+    //디렉토리 생성
     @Transactional
     public Directory createDirectory(UserPrincipal userPrincipal, CreateDirectoryRequestDto requestDto) {
         //1. 유저 정보 확인
-        User user = userRepository.findByUserId(userPrincipal.getId()).orElseThrow(
-                () -> new CustomException(ErrorCode.NOT_EXIST_USER)
-        );
+        User user = userPrincipal.getUser();
 
         //2. 디렉토리 생성
         Directory directory = Directory.createDirectory(requestDto);
@@ -56,12 +55,11 @@ public class DirectoryService {
         return directory;
     }
 
+    //디렉토리 이름 수정
     @Transactional
     public void updateDirectoryName(UserPrincipal userPrincipal, UpdateDirectoryNameRequestDto requestDto, int directoryId){
         //1. 유저 정보 및 디렉토리 정보 확인
-        User user = userRepository.findByUserId(userPrincipal.getId()).orElseThrow(
-                () -> new CustomException(ErrorCode.NOT_EXIST_USER)
-        );;
+        User user = userPrincipal.getUser();
         Directory directory = directoryRepository.findByDirectoryId(directoryId).orElseThrow(
                 () -> new CustomException(ErrorCode.NOT_EXIST_DIRECTORY));
 
@@ -74,12 +72,11 @@ public class DirectoryService {
         directory.changeDirectoryName(requestDto.getDirectoryName());
     }
 
+    //디렉토리에 가입하지 않은 유저 이메일로 찾기
     @Transactional
     public List<UserByEmailResponseDto> findUserByEmail(UserPrincipal userPrincipal, String email, int directoryId) {
         //1. 유저 정보 및 디렉토리 정보 확인
-        User user = userRepository.findByUserId(userPrincipal.getId()).orElseThrow(
-                () -> new CustomException(ErrorCode.NOT_EXIST_USER)
-        );;
+        User user = userPrincipal.getUser();
         Directory directory = directoryRepository.findByDirectoryId(directoryId).orElseThrow(
                 () -> new CustomException(ErrorCode.NOT_EXIST_DIRECTORY));
 
@@ -100,12 +97,11 @@ public class DirectoryService {
         return response;
     }
 
+    //디렉토리 멤버 초대
     @Transactional
     public void inviteMember(UserPrincipal userPrincipal, InviteOrCancelMemberRequestDto requestDto, int directoryId) {
         //1. 유저 정보 및 디렉토리 정보 확인
-        User user = userRepository.findByUserId(userPrincipal.getId()).orElseThrow(
-                () -> new CustomException(ErrorCode.NOT_EXIST_USER)
-        );
+        User user = userPrincipal.getUser();
         Directory directory = directoryRepository.findByDirectoryId(directoryId).orElseThrow(
                 () -> new CustomException(ErrorCode.NOT_EXIST_DIRECTORY)
         );
@@ -131,12 +127,11 @@ public class DirectoryService {
          */
     }
 
+    //디렉토리 멤버 초대 취소
     @Transactional
     public void cancelMemberInvitation(UserPrincipal userPrincipal, InviteOrCancelMemberRequestDto requestDto, int directoryId) {
         //1. 유저 및 디렉토리 확인
-        User user = userRepository.findByUserId(userPrincipal.getId()).orElseThrow(
-                () -> new CustomException(ErrorCode.NOT_EXIST_USER)
-        );
+        User user = userPrincipal.getUser();
         Directory directory = directoryRepository.findByDirectoryId(directoryId).orElseThrow(
                 () -> new CustomException(ErrorCode.NOT_EXIST_DIRECTORY)
         );
@@ -159,12 +154,11 @@ public class DirectoryService {
         directory.changePeopleNumber(-1);
     }
 
+    //내 디렉토리 카테고리별 찾기
     @Transactional
     public List<FindMyDirectoryResponseDto> findMyDirectory(UserPrincipal userPrincipal, String category){
         //1. 유저 인증
-        User user = userRepository.findByUserId(userPrincipal.getId()).orElseThrow(
-                () -> new CustomException(ErrorCode.NOT_EXIST_USER)
-        );
+        User user = userPrincipal.getUser();
 
         //2. 유저 디렉토리 조회
         List<Directory> directories = directoryRepository.findMyDirectory(user, category);
@@ -177,35 +171,41 @@ public class DirectoryService {
         return response;
     }
 
+    //디렉토리 상세 조회
     @Transactional
     public DetailDirectoryResponsetDto findDetailDirectory(UserPrincipal userPrincipal, int directoryId) {
-        int userId = userPrincipal.getId();
-
-        if(!userDirectoryRepository.existsByUser_UserIdAndDirectory_DirectoryIdAndIsAccept(userId, directoryId, true)) {
-            throw new CustomException(ErrorCode.DENIED_DIRECTORY);
-        }
-
+        //1. 유저 및 디렉토리 조회
+        User user = userPrincipal.getUser();
         Directory directory = directoryRepository.findByDirectoryId(directoryId).orElseThrow(
                 () -> new CustomException(ErrorCode.NOT_EXIST_DIRECTORY)
         );
 
+        //2. 디렉토리에 가입된 유저인지 확인
+        if(!userDirectoryRepository.existsByDirectoryAndUserAndIsAccept(directory, user, true)) {
+            throw new CustomException(ErrorCode.DENIED_DIRECTORY);
+        }
+
+        //3. 디렉토리 유저 리스트 조회
         List<User> members = userRepository.findDirectoryUsers(directory);
         List<MemberListDto> memberList = new ArrayList<>();
         for(User m : members) {
             memberList.add(MemberListDto.createMemberList(m));
         }
 
+        //4. 디렉토리 퍼즐판 리스트 조회
         List<Board> boards = boardRepository.findBoards(directoryId);
         List<BoardListDto> boardList = new ArrayList<>();
         for(Board b : boards) {
             boardList.add(BoardListDto.createBoardList(b));
         }
 
+        //5. 현재 진행 중인 퍼즐판 여부
         boolean isCurrentBoard = false;
         if(boards.size()>0){
             isCurrentBoard = boards.get(0).getClearType() == 0 ? true : false;
         }
 
+        //6. responseDto로 가공
         DetailDirectoryResponsetDto detailDirectoryResponsetDto
                 = DetailDirectoryResponsetDto.createDetailDirectoryRequestDto(
                 directory, isCurrentBoard, memberList, boardList
@@ -214,7 +214,7 @@ public class DirectoryService {
         return detailDirectoryResponsetDto;
     }
 
-
+    //디렉토리 탈퇴
     @Transactional
     public void leaveDirectory(UserPrincipal userPrincipal, int directoryId) {
         //1. 유저 및 디렉토리 정보 확인
@@ -240,6 +240,7 @@ public class DirectoryService {
         }
     }
 
+    //디렉토리 삭제
     @Transactional
     protected void deleteDirectoryData(int directoryId, Directory directory) {
         // 알림 삭제
@@ -251,6 +252,9 @@ public class DirectoryService {
         List<Board> boards = boardRepository.findBoards(directoryId);
         pieceRepository.deletePieceByBoards(boards);
         boardRepository.deleteBoardByBoards(boards);
+
+        //유저디렉토리 삭제
+        userDirectoryRepository.deleteByDirectory(directory);
 
         // 디렉토리 삭제
         directoryRepository.delete(directory);
