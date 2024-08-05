@@ -237,17 +237,18 @@ public class BoardService {
     public FindAllImageFromBoardResponseDto findAllPhoto(UserPrincipal userPrincipal, int boardId){
         List<Piece> pieceList = pieceService.findPiecesByBoardId(boardId);
 
-        FindPieceResponseDto[] pieceDtoList = new FindPieceResponseDto[pieceList.size()];
+        FindPieceDto[] pieceDtoList = new FindPieceDto[pieceList.size()];
 
         for(int i = 0; i<pieceList.size(); i++) {
-            pieceDtoList[i] = FindPieceResponseDto
+            pieceDtoList[i] = FindPieceDto
                     .createPieceDto(
                             pieceList.get(i).getImageUrl(),
                             pieceList.get(i).getContent());
         }
+
         //보드 id를 통해 image 조회하기
         String imgUrl = boardRepository.findThumbnailUrlByBoardId(boardId)
-                .orElseThrow(()-> new CustomException(ErrorCode.IMAGE_NOT_FOUND));
+                .orElse(null);
 
         FindAllImageFromBoardResponseDto responseDto = FindAllImageFromBoardResponseDto
                 .createFindAllImageFromBoardResponseDto(imgUrl, pieceDtoList);

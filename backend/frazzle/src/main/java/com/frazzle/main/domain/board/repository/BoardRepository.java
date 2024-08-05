@@ -15,11 +15,12 @@ public interface BoardRepository extends JpaRepository<Board, Integer>, BoardRep
 
     List<Board> findByDirectoryDirectoryId(int directoryId);
 
-    Optional<String> findThumbnailUrlByBoardId(int boardId);
-
     @Override
     List<Board> findBoards(int directoryId);
 
     @Override
     long deleteBoardByBoards(List<Board> boards);
+
+    @Override
+    Optional<String> findThumbnailUrlByBoardId(int boardId);
 }

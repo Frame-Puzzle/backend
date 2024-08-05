@@ -79,7 +79,6 @@ public class BoardController {
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable("boardID") int boardID)
     {
-
         FindAllImageFromBoardResponseDto responseDto = boardService.findAllPhoto(userPrincipal, boardID);
 
         return ResponseEntity.status(HttpStatus.OK)
