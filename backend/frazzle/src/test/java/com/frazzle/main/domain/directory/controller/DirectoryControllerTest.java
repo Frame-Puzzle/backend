@@ -104,24 +104,24 @@ public class DirectoryControllerTest {
                 .content(requestBody)
         ).andExpect(MockMvcResultMatchers.status().isOk());
     }
-//
-//    @Test
-//    @DisplayName("디렉토리 수정 성공 테스트")
-//    @WithMockAuthUser(email = "ssafy@ssafy.com")
-//    public void 디렉토리_수정_성공_테스트() throws Exception{
-//        //given
-//        String requestBody = objectMapper.writeValueAsString(updateDirectoryNameRequestDto);
-//
-//        //when
-//        BDDMockito.doNothing().when(directoryService).updateDirectoryName(userPrincipal, updateDirectoryNameRequestDto, directoryId);
-//
-//        //then
-//        ResultActions result = mockMvc.perform(MockMvcRequestBuilders.put("/directories/{directoryId}", directoryId)
-//                .with(SecurityMockMvcRequestPostProcessors.csrf())
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .content(requestBody)
-//        ).andExpect(MockMvcResultMatchers.status().isOk());
-//    }
+
+    @Test
+    @DisplayName("디렉토리 수정 성공 테스트")
+    @WithMockAuthUser(email = "ssafy@ssafy.com")
+    public void 디렉토리_수정_성공_테스트() throws Exception{
+        //given
+        String requestBody = objectMapper.writeValueAsString(updateDirectoryNameRequestDto);
+
+        //when
+        BDDMockito.doNothing().when(directoryService).updateDirectoryName(userPrincipal, updateDirectoryNameRequestDto, directoryId);
+
+        //then
+        ResultActions result = mockMvc.perform(MockMvcRequestBuilders.put("/directories/{directoryId}", directoryId)
+                .with(SecurityMockMvcRequestPostProcessors.csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody)
+        ).andExpect(MockMvcResultMatchers.status().isOk());
+    }
 
     @Test
     @DisplayName("이메일로 유저 조회 성공 테스트")

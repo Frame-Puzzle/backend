@@ -20,6 +20,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
+import static org.mockito.Mockito.times;
+
 @ExtendWith(MockitoExtension.class)
 public class CreateDirectoryServiceTest {
 
@@ -40,13 +42,11 @@ public class CreateDirectoryServiceTest {
 
     private CreateDirectoryRequestDto requestDto;
     private User user;
-    private int userId;
     private Directory directory;
     private UserDirectory userDirectory;
 
     @BeforeEach
     public void setUp() {
-        userId = 1;
         user = User.createUser("1","김싸피", "ssafy@ssafy.com", "kakao");
         requestDto = new CreateDirectoryRequestDto(
                 "친구", "B208"
@@ -59,8 +59,7 @@ public class CreateDirectoryServiceTest {
     @DisplayName("디렉토리 생성 성공 테스트")
     public void 디렉토리_생성_성공_테스트(){
         //given
-        BDDMockito.given(userPrincipal.getId()).willReturn(userId);
-        BDDMockito.given(userRepository.findByUserId(userId)).willReturn(Optional.ofNullable(user));
+        BDDMockito.given(userPrincipal.getUser()).willReturn(user);
         BDDMockito.given(directoryRepository.save(BDDMockito.any(Directory.class))).willReturn(directory);
         BDDMockito.given(userDirectoryRepository.save(BDDMockito.any(UserDirectory.class))).willReturn(userDirectory);
 
@@ -68,7 +67,9 @@ public class CreateDirectoryServiceTest {
         Assertions.assertThatNoException().isThrownBy(() -> directoryService.createDirectory(userPrincipal, requestDto));
 
         //then
-        BDDMockito.verify(directoryRepository, BDDMockito.times(1)).save(BDDMockito.any(Directory.class));
-        BDDMockito.verify(userDirectoryRepository, BDDMockito.times(1)).save(BDDMockito.any(UserDirectory.class));
+        BDDMockito.then(directoryRepository)
+                .should(times(1)).save(BDDMockito.any(Directory.class));
+        BDDMockito.then(userDirectoryRepository)
+                .should(times(1)).save(BDDMockito.any(UserDirectory.class));
     }
 }

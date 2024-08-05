@@ -19,19 +19,20 @@ import java.util.Base64;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class FindPeopleCountFromImg {
 
     @Value("${google.vision.api}")
-    private static String apiKey;
+    private String apiKey;
 
     // MultipartFile을 입력받는 메서드
-    public static int analyzeImageFile(MultipartFile image) {
+    public int analyzeImageFile(MultipartFile image) {
         log.info("analyzeImageFile");
         // 사람 최대 인원 수
         int maxResults = 10;
 
         try {
-            String response = detectFaces(image, maxResults, apiKey);
+            String response = detectFaces(image, maxResults);
             int faceCount = countFaces(response);
 
             log.info("Face count: " + faceCount);
@@ -42,7 +43,7 @@ public class FindPeopleCountFromImg {
     }
 
     /** 주어진 MultipartFile에서 얼굴을 감지하고 응답을 문자열로 반환합니다. */
-    private static String detectFaces(MultipartFile file, int maxResults, String apiKey) throws IOException {
+    private String detectFaces(MultipartFile file, int maxResults) throws IOException {
         log.info("detectFaces");
         byte[] data = file.getBytes();
         String base64Image = Base64.getEncoder().encodeToString(data);
@@ -74,6 +75,9 @@ public class FindPeopleCountFromImg {
             byte[] input = requestBody.toString().getBytes("utf-8");
             os.write(input, 0, input.length);
         }
+
+        int responseCode = connection.getResponseCode();
+        log.info("Response Code: " + responseCode);
 
         // 응답 읽기
         StringBuilder response = new StringBuilder();

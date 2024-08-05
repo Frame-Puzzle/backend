@@ -9,17 +9,22 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class FindPieceResponseDto {
 
+    private String missionName;
     private String imgUrl;
-
     private String comment;
 
     @Builder
-    public FindPieceResponseDto(String imgUrl, String comment) {
+    public FindPieceResponseDto(String missionName, String imgUrl, String comment) {
+        this.missionName = missionName;
         this.imgUrl = imgUrl;
         this.comment = comment;
     }
 
-    public static FindPieceResponseDto createPieceDto(String imgUrl, String comment) {
-        return FindPieceResponseDto.builder().imgUrl(imgUrl).comment(comment).build();
+    public static FindPieceResponseDto createPieceDto(String missionName, String imgUrl, String comment) {
+        return FindPieceResponseDto.builder()
+                .missionName(missionName)
+                .imgUrl(imgUrl)
+                .comment(comment)
+                .build();
     }
 }

@@ -25,8 +25,8 @@ public class BoardController {
 
     private final BoardService boardService;
 
-    //퍼즐판 및 퍼즐조각 전체 조회
-    @Operation(summary = "퍼즐판전체 조회", description = "퍼즐판과 퍼즐판 내의 퍼즐조각의 관한 정보 전체 조회")
+    //퍼즐판 및 퍼즐 조각 전체 조회
+    @Operation(summary = "퍼즐판 상세 조회", description = "퍼즐판과 퍼즐판 내의 퍼즐조각의 관한 정보 전체 조회")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "조회에 성공했습니다.",
                     content = @Content(schema = @Schema(implementation = ResultDto.class))),
@@ -38,7 +38,7 @@ public class BoardController {
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable("boardID") int boardID)
     {
-        FindBoardAndPiecesResponseDto responseDto =boardService.findBoardAndPieces(userPrincipal, boardID);
+        FindBoardAndPiecesResponseDto responseDto = boardService.findBoardAndPieces(userPrincipal, boardID);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ResultDto.res(HttpStatus.OK.value(),
@@ -79,7 +79,6 @@ public class BoardController {
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable("boardID") int boardID)
     {
-
         FindAllImageFromBoardResponseDto responseDto = boardService.findAllPhoto(userPrincipal, boardID);
 
         return ResponseEntity.status(HttpStatus.OK)
