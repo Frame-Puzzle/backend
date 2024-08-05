@@ -55,6 +55,7 @@ public class DirectoryService {
         return directory;
     }
 
+    //디렉토리 이름 수정
     @Transactional
     public void updateDirectoryName(UserPrincipal userPrincipal, UpdateDirectoryNameRequestDto requestDto, int directoryId){
         //1. 유저 정보 및 디렉토리 정보 확인
@@ -71,6 +72,7 @@ public class DirectoryService {
         directory.changeDirectoryName(requestDto.getDirectoryName());
     }
 
+    //디렉토리에 가입하지 않은 유저 이메일로 찾기
     @Transactional
     public List<UserByEmailResponseDto> findUserByEmail(UserPrincipal userPrincipal, String email, int directoryId) {
         //1. 유저 정보 및 디렉토리 정보 확인
@@ -95,6 +97,7 @@ public class DirectoryService {
         return response;
     }
 
+    //디렉토리 멤버 초대
     @Transactional
     public void inviteMember(UserPrincipal userPrincipal, InviteOrCancelMemberRequestDto requestDto, int directoryId) {
         //1. 유저 정보 및 디렉토리 정보 확인
@@ -124,6 +127,7 @@ public class DirectoryService {
          */
     }
 
+    //디렉토리 멤버 초대 취소
     @Transactional
     public void cancelMemberInvitation(UserPrincipal userPrincipal, InviteOrCancelMemberRequestDto requestDto, int directoryId) {
         //1. 유저 및 디렉토리 확인
@@ -150,6 +154,7 @@ public class DirectoryService {
         directory.changePeopleNumber(-1);
     }
 
+    //내 디렉토리 카테고리별 찾기
     @Transactional
     public List<FindMyDirectoryResponseDto> findMyDirectory(UserPrincipal userPrincipal, String category){
         //1. 유저 인증
@@ -166,6 +171,7 @@ public class DirectoryService {
         return response;
     }
 
+    //디렉토리 상세 조회
     @Transactional
     public DetailDirectoryResponsetDto findDetailDirectory(UserPrincipal userPrincipal, int directoryId) {
         //1. 유저 및 디렉토리 조회
@@ -208,7 +214,7 @@ public class DirectoryService {
         return detailDirectoryResponsetDto;
     }
 
-
+    //디렉토리 탈퇴
     @Transactional
     public void leaveDirectory(UserPrincipal userPrincipal, int directoryId) {
         //1. 유저 및 디렉토리 정보 확인
@@ -234,6 +240,7 @@ public class DirectoryService {
         }
     }
 
+    //디렉토리 삭제
     @Transactional
     protected void deleteDirectoryData(int directoryId, Directory directory) {
         // 알림 삭제
