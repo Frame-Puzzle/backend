@@ -30,7 +30,8 @@ public enum ErrorCode {
     NOT_EXIST_PIECE("존재하지 않는 퍼즐조각입니다.", HttpStatus.NOT_FOUND),
     DENIED_UPDATE_PIECE("퍼즐을 처음 등록한 사용자만 수정할 수 있습니다.", HttpStatus.NOT_ACCEPTABLE),
     FAILED_CREATE_PIECE("퍼즐 조각 생성에 실패했습니다.", HttpStatus.NOT_FOUND),
-    CANNOT_BE_NEGATIVE("난수에 음수값은 사용할 수 없습니다. ", HttpStatus.BAD_REQUEST)
+    CANNOT_BE_NEGATIVE("난수에 음수값은 사용할 수 없습니다. ", HttpStatus.BAD_REQUEST),
+    IMAGE_NOT_FOUND("이미지가 존재하지 않습니다.", HttpStatus.NOT_FOUND)
     ;
 
     private final String message;

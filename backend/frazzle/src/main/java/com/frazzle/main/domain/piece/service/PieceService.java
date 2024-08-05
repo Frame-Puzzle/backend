@@ -1,5 +1,7 @@
 package com.frazzle.main.domain.piece.service;
 
+import com.frazzle.main.domain.board.entity.Board;
+import com.frazzle.main.domain.board.entity.BoardClearTypeFlag;
 import com.frazzle.main.domain.directory.entity.Directory;
 import com.frazzle.main.domain.directory.repository.DirectoryRepository;
 import com.frazzle.main.domain.piece.dto.FindPieceResponseDto;
@@ -31,11 +33,7 @@ public class PieceService {
     private final DirectoryRepository directoryRepository;
     private final UserDirectoryRepository userDirectoryRepository;
     private final AwsService awsService;
-
-    private User checkUser(UserPrincipal userPrincipal) {
-        return userRepository.findByUserId(userPrincipal.getId())
-                .orElseThrow(()-> new CustomException(ErrorCode.NOT_EXIST_USER));
-    }
+    private final FindPeopleCountFromImg findPeopleCountFromImg;
 
     private Directory checkDirectory(int directoryId) {
         return directoryRepository.findByDirectoryId(directoryId)
@@ -51,26 +49,24 @@ public class PieceService {
 
     //퍼즐 조각 상세 조회(piece id) (API)
     public FindPieceResponseDto findPieceByPieceId(UserPrincipal userPrincipal, int pieceId){
+        //유저 조회
+        User user = userPrincipal.getUser();
 
         //퍼즐 조각 탐색
         Piece piece = pieceRepository.findPieceByPieceId(pieceId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_EXIST_PIECE));
 
         //유저검증
-        checkUserAndDirectory(checkUser(userPrincipal),
-                checkDirectory(piece.getBoard().getDirectory().getDirectoryId()));
+        checkUserAndDirectory(user, checkDirectory(piece.getBoard().getDirectory().getDirectoryId()));
 
         return FindPieceResponseDto.createPieceDto(piece.getImageUrl(), piece.getContent());
     }
 
-    //퍼즐 조각 전체 조회(directory id) (API)
-    public List<Piece> findPiecesByBoardId(UserPrincipal userPrincipal, int directoryId, int boardId){
-
-        checkUserAndDirectory(checkUser(userPrincipal), checkDirectory(directoryId));
-
+    //퍼즐 조각 전체 조회
+    public List<Piece> findPiecesByBoardId(int boardId){
         List<Piece> pieceList = pieceRepository.findAllByBoardBoardId(boardId);
 
-        if(pieceList.isEmpty() || pieceList == null){
+        if(pieceList == null || pieceList.isEmpty()){
             throw new CustomException(ErrorCode.NOT_EXIST_PIECE);
         }
 
@@ -79,36 +75,76 @@ public class PieceService {
 
     //퍼즐 조각 업로드
     @Transactional
-    public void updatePiece(UserPrincipal userPrincipal, int pieceId, UpdatePieceRequestDto requestDto)
+    public boolean updatePiece(UserPrincipal userPrincipal, int pieceId, MultipartFile imgFile, String comment)
     {
+        //퍼즐조각이 처음으로 수정되는 경우
+        boolean isFirstUpdate = true;
+
         //0. 퍼즐 조각 조회,
         //Directory id를 알아내야 해서 인증 이전에 조회한다.
         Piece piece = pieceRepository.findPieceByPieceId(pieceId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_EXIST_PIECE));
 
         //1. 사용자 인증 및 인가 검증
-        User user = checkUser(userPrincipal);
+        User user = userPrincipal.getUser();
         checkUserAndDirectory(user, checkDirectory(piece.getBoard().getDirectory().getDirectoryId()));
 
         //1-1. 퍼즐조각이 현재 수정 가능한지 검증 -> 등록이 되있다면 처음 등록한 유저만 수정이 가능
         User pieceUser = piece.getUser();
-
-        //Feedback : Jpa에선 user 객체간 비교 가능?
+        
         if(pieceUser != null && (user.getUserId() != pieceUser.getUserId())){
             throw new CustomException(ErrorCode.DENIED_UPDATE_PIECE);
         }
 
+        //퍼즐조각이 등록된 적이 있었는지 여부
+        if(piece.getImageUrl() != null) {
+            isFirstUpdate = false;
+        }
+
         //2. 파일 변환 multifile S3로 업로드 하고 url 받기
-        MultipartFile imgFile = requestDto.getImgFile();
+//        MultipartFile imgFile = requestDto.getImgFile();
 
         //3. Face Detection : 사람 수 파악
-        int peopleCount = FindPeopleCountFromImg.analyzeImageFile(imgFile);
+        int peopleCount = findPeopleCountFromImg.analyzeImageFile(imgFile);
 
-        String url = awsService.uploadFile(imgFile);
+        //4. 퍼즐 조각 이미지 업로드 전 삭제
+        String imageUrl = piece.getImageUrl();
+        if(imageUrl != null) {
+            awsService.deleteImage(imageUrl);
+        }
 
-        //4. 퍼즐 조각 수정
-        piece.updatePieceDto(url, requestDto.getComment(), user);
+        //사진 업로드 후 고유url 반환
+        imageUrl = awsService.uploadFile(imgFile);
 
-        piece.updatePeopleCount(peopleCount);
+        //url을 통해 S3에서 이미지 가져오기
+        String url = awsService.getImageUrl(imageUrl);
+
+        //5. 퍼즐 조각 수정
+        piece.updatePieceDto(url, comment, user);
+
+        //6. 퍼즐판 완성 체크
+        Board board = piece.getBoard();
+
+        //첫 등록 시 pieceCount를 올려준다.
+        if(isFirstUpdate) {
+            board.addPieceCount();
+        }
+
+        if(board.getPieceCount() == board.getBoardSize()){
+            board.changeClearType(BoardClearTypeFlag.PUZZLE_CLEARED);
+            return true;
+        }
+
+        return false;
+    }
+
+    @Transactional
+    public void savePiece(Piece piece){
+        pieceRepository.save(piece);
+    }
+
+    @Transactional
+    public void deletePiece(int pieceId){
+        pieceRepository.deleteById(pieceId);
     }
 }

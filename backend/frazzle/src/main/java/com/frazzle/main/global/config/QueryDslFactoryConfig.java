@@ -14,9 +14,4 @@ public class QueryDslFactoryConfig {
 
         return new JPAQueryFactory(em);
     }
-
-    @Bean
-    public QBoard qBoard() {
-        return new QBoard("board");
-    }
 }

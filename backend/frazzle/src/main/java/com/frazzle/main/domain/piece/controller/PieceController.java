@@ -12,11 +12,15 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/pieces/{pieceID}")
@@ -37,14 +41,21 @@ public class PieceController {
     public ResponseEntity<ResultDto> updatePiece(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable("pieceID") int pieceID,
-            @Valid @RequestBody UpdatePieceRequestDto requestDto
+            @RequestParam("imgFile") MultipartFile imgFile,
+            @Valid @RequestParam("comment") String comment
             )
     {
-        pieceService.updatePiece(userPrincipal, pieceID, requestDto);
+        boolean isCompleteBoard = pieceService.updatePiece(userPrincipal, pieceID, imgFile, comment);
+
+        String message = "퍼즐 조각 수정 성공";
+        if(isCompleteBoard) {
+            message += " 및 퍼즐판 완성";
+        }
+
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ResultDto.res(HttpStatus.OK.value(),
-                        "퍼즐 조각 수정 성공"));
+                        message));
     }
 
     //[GET] 퍼즐 조각 상세 조회

@@ -7,9 +7,10 @@ import com.frazzle.main.domain.board.entity.GlobalBoardSize;
 import com.frazzle.main.domain.board.repository.BoardRepository;
 import com.frazzle.main.domain.directory.entity.Directory;
 import com.frazzle.main.domain.directory.repository.DirectoryRepository;
+import com.frazzle.main.domain.notification.service.NotificationService;
 import com.frazzle.main.domain.piece.dto.FindPieceResponseDto;
 import com.frazzle.main.domain.piece.entity.Piece;
-import com.frazzle.main.domain.piece.repository.PieceRepository;
+import com.frazzle.main.domain.piece.service.PieceService;
 import com.frazzle.main.domain.user.entity.User;
 import com.frazzle.main.domain.user.repository.UserRepository;
 import com.frazzle.main.domain.userdirectory.repository.UserDirectoryRepository;
@@ -26,7 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -38,36 +38,30 @@ public class BoardService {
     private final DirectoryRepository directoryRepository;
     private final UserDirectoryRepository userDirectoryRepository;
     private final BoardRepository boardRepository;
-    private final PieceRepository pieceRepository;
-
+    private final PieceService pieceService;
+    private final NotificationService notificationService;
     private final AwsService awsService;
 
-    private User checkUser(UserPrincipal userPrincipal) {
-        return userRepository.findByUserId(userPrincipal.getId())
-                .orElseThrow(()-> new CustomException(ErrorCode.NOT_EXIST_USER));
-    }
-
-    public Board findBoardByBoardId(UserPrincipal userPrincipal, int boardId) {
-        checkUser(userPrincipal);
-
+    //퍼즐판 조회
+    public Board findBoardByBoardId(int boardId) {
         Board board = boardRepository.findByBoardId(boardId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_EXIST_BOARD));
 
         return board;
     }
 
+    //퍼즐판 전체 조회
     public List<Board> findBoardsByDirectoryId(int directoryId) {
         return boardRepository.findByDirectoryDirectoryId(directoryId);
     }
 
-    public FindBoardAndPiecesResponseDto findImageAll(UserPrincipal userPrincipal, int boardId) {
-        Board board = findBoardByBoardId(userPrincipal, boardId);
-        Directory directory = directoryRepository.findByDirectoryId(board.getDirectory().getDirectoryId()).get();
-        List<Piece> pieceList = pieceRepository.findAllByBoardBoardId(boardId);
+    //퍼즐판 상세 조회
+    public FindBoardAndPiecesResponseDto findBoardAndPieces(UserPrincipal userPrincipal, int boardId) {
+        Board board = findBoardByBoardId(boardId);
+        Directory directory = directoryRepository.findByDirectoryId(board.getDirectory().getDirectoryId())
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_EXIST_DIRECTORY));
 
-        if(pieceList.isEmpty() || pieceList == null) {
-            throw new CustomException(ErrorCode.NOT_EXIST_PIECE);
-        }
+        List<Piece> pieceList = pieceService.findPiecesByBoardId(boardId);
 
         PieceListResponseDto[] pieceResponseDtoList = new PieceListResponseDto[pieceList.size()];
 
@@ -87,19 +81,24 @@ public class BoardService {
 
         String keywordToken[] = ParseStringWord.hashTagToStringToken(board.getKeyword());
 
+        String thumbnailer = null;
+        if(board.getUser() != null)
+            thumbnailer = board.getUser().getNickname();
+
         FindBoardAndPiecesResponseDto responseDto = FindBoardAndPiecesResponseDto.createFindBoardAndPiecesResponseDto(
                 keywordToken,
                 directory.getCategory(),
                 directory.getDirectoryName(),
                 ""+board.getBoardInNumber(),
                 board.getBoardSize(),
-                board.getUser().getNickname(),
+                thumbnailer,
                 pieceResponseDtoList
                 );
 
         return responseDto;
     }
 
+    //퍼즐판 생성
     @Transactional
     public CreateBoardResponseDto createBoard(UserPrincipal userPrincipal,
                              CreateBoardRequestDto boardDto,
@@ -108,10 +107,8 @@ public class BoardService {
         Directory directory = directoryRepository.findByDirectoryId(directoryID)
                 .orElseThrow(()-> new CustomException(ErrorCode.NOT_EXIST_DIRECTORY));
 
-        //Optional<Directory> directory = directoryRepository.findByDirectoryId(directoryID);
-
         //유저 확인
-        User user = checkUser(userPrincipal);
+        User user = userPrincipal.getUser();
 
         //디렉토리 유저 인증
         if(!userDirectoryRepository.existsByDirectoryAndUserAndIsAccept(directory, user, true)) {
@@ -128,17 +125,14 @@ public class BoardService {
         //보드 제작 넘버 세팅
         countingBoard(board, directoryID);
 
-        /*
-        TODO: 미션 생성
-         */
         boardRepository.save(board);
 
-
         //퍼즐 조각들 생성
-        List<Piece> pieceList = createPiece(board);
+        String[] guideToken = boardDto.getGuide();
+        List<Piece> pieceList = createPiece(board, guideToken);
 
         for(Piece p : pieceList){
-            pieceRepository.save(p);
+            pieceService.savePiece(p);
         }
 
         return CreateBoardResponseDto.builder().boardId(board.getBoardId()).build();
@@ -148,8 +142,8 @@ public class BoardService {
     @Transactional
     public void updateUserFromBoard(int boardId, UserPrincipal userPrincipal)
     {
-        User user = checkUser(userPrincipal);
-        Board board = findBoardByBoardId(userPrincipal, boardId);
+        User user = userPrincipal.getUser();
+        Board board = findBoardByBoardId(boardId);
 
         board.updateUser(user);
     }
@@ -158,21 +152,27 @@ public class BoardService {
     @Transactional
     public void updateThumbnailUrl(UserPrincipal userPrincipal, int boardID, UpdateBoardThumbnailRequestDto requestDto) {
 
-        Board board = findBoardByBoardId(userPrincipal, boardID);
+        Board board = findBoardByBoardId(boardID);
 
-        if((board.getClearType() == BoardClearTypeFlag.PUZZLE_GAME_CLEARED.getValue()
-        && board.getUser() != null)){
+        //게임을 클리어했는지 판단, 유저가 등록되어있는지 판단.
+        if((board.getClearType() == BoardClearTypeFlag.PUZZLE_GAME_CLEARED.getValue()) && board.getUser() != null){
 
-            String url = awsService.uploadFile(requestDto.getThumbnailUrl());
+            //기존 이미지가 존재하면 삭제한다.
+            String imageUrl = board.getThumbnailUrl();
 
-            board.changeImageUrl(url);
+            if(imageUrl != null){
+                awsService.deleteImage(imageUrl);
+            }
+
+            imageUrl = awsService.uploadFile(requestDto.getThumbnailUrl());
+
+            board.changeImageUrl(imageUrl);
         }
     }
 
     //클리어 타입 변경
     @Transactional
-    public void updateClearType(Board board, BoardClearTypeFlag flag)
-    {
+    public void updateClearType(Board board, BoardClearTypeFlag flag) {
         board.changeClearType(flag);
     }
 
@@ -184,16 +184,24 @@ public class BoardService {
 
     @Transactional
     public boolean updateVoteCount(UserPrincipal userPrincipal, int boardId, boolean isAccept) {
-        Board board = findBoardByBoardId(userPrincipal, boardId);
-        board.enableVote(true);
+        Board board = findBoardByBoardId(boardId);
+
+        User user = userPrincipal.getUser();
+
+        //투표가 아직 열리지 않았다면
+        if(!board.isVote()) {
+            board.enableVote(true);
+
+            //알림 전송
+            notificationService.createNotificationWithBoard("삭제 투표", "type", user, board);
+        }
 
         if(isAccept){
             board.addVoteNumber();
         }
 
-        //삭제 판단
-
-        if(board.getVoteNumber() > board.getBoardInNumber()){
+        //삭제 판단 TODO: 로직 개선하기
+        if(board.getVoteNumber() > board.getDirectory().getPeopleNumber()){
             deleteBoard(boardId);
             return true;
         }
@@ -203,10 +211,10 @@ public class BoardService {
 
     @Transactional
     public void deleteBoard(int boardId){
-        List<Piece> pieceList = pieceRepository.findAllByBoardBoardId(boardId);
+        List<Piece> pieceList = pieceService.findPiecesByBoardId(boardId);
 
         for(Piece p : pieceList){
-            pieceRepository.deleteById(p.getPieceId());
+            pieceService.deletePiece(p.getPieceId());
         }
 
         boardRepository.deleteById(boardId);
@@ -227,10 +235,7 @@ public class BoardService {
     }
 
     public FindAllImageFromBoardResponseDto findAllPhoto(UserPrincipal userPrincipal, int boardId){
-
-        checkUser(userPrincipal);
-
-        List<Piece> pieceList = pieceRepository.findAllByBoardBoardId(boardId);
+        List<Piece> pieceList = pieceService.findPiecesByBoardId(boardId);
 
         FindPieceResponseDto[] pieceDtoList = new FindPieceResponseDto[pieceList.size()];
 
@@ -240,12 +245,12 @@ public class BoardService {
                             pieceList.get(i).getImageUrl(),
                             pieceList.get(i).getContent());
         }
-
         //보드 id를 통해 image 조회하기
-        Optional<String> imgUrl = boardRepository.findThumbnailUrlByBoardId(boardId);
+        String imgUrl = boardRepository.findThumbnailUrlByBoardId(boardId)
+                .orElseThrow(()-> new CustomException(ErrorCode.IMAGE_NOT_FOUND));
 
         FindAllImageFromBoardResponseDto responseDto = FindAllImageFromBoardResponseDto
-                .createFindAllImageFromBoardResponseDto(imgUrl.get(), pieceDtoList);
+                .createFindAllImageFromBoardResponseDto(imgUrl, pieceDtoList);
 
         return responseDto;
     }
@@ -261,7 +266,7 @@ public class BoardService {
     }
 
     //퍼즐 조각 생성
-    private List<Piece> createPiece(Board board){
+    private List<Piece> createPiece(Board board, String[] guides){
         int boardSize = board.getBoardSize();
 
         int row = GlobalBoardSize.minimumBoardRow;
@@ -289,30 +294,32 @@ public class BoardService {
             }
         }
 
-        //#####TEST
-        String guideMission = "Mission ";
-        //#######
+        //가이드 미션 부여
+        if(guides != null){
+            int guideCount = guides.length;
 
-        //가이드 부여
-        List<Integer> usingNumberList = getRandomNumber(boardSize, row);
+            List<Integer> usingNumberList = getRandomNumber(boardSize, guideCount);
 
-        for(int i = 0; i< row; i++){
-            pieceList.get(usingNumberList.get(i))
-                    .updateMission(guideMission + (i + 1));
+            for(int i = 0; i< guideCount; i++){
+                pieceList.get(usingNumberList.get(i))
+                        .updateMission(guides[i]);
+            }
         }
 
         return pieceList;
     }
 
-    private List<Integer> getRandomNumber(int maxNumber, int count){
-        if(maxNumber < 0) {
+    //board 넓이만큼의 수 중에서 guideCount개의 미션을 집어넣는다.
+    private List<Integer> getRandomNumber(int boardSize, int guideCount){
+        if(boardSize < 0) {
             throw new CustomException(ErrorCode.CANNOT_BE_NEGATIVE);
         }
         List<Integer> numberList = new ArrayList<>();
 
-        for(int i = 0; i< count; i++){
-            int result = GenerateRandomNickname.getRandom().nextInt(maxNumber);
+        for(int i = 0; i< guideCount; i++){
+            int result = GenerateRandomNickname.getRandom().nextInt(boardSize);
 
+            //중복되는 위치일 시 위치를 다시 부여한다.
             for(int n : numberList) {
                 if(result == n) {
                     i--;
@@ -348,3 +355,4 @@ public class BoardService {
         return result;
     }
 }
+
