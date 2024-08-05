@@ -7,15 +7,18 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface UserDirectoryRepository extends JpaRepository<UserDirectory, Integer> {
 
     boolean existsByDirectoryAndUserAndIsAccept(Directory directory, User user, boolean isAccept);
-    boolean existsByUser_UserIdAndDirectory_DirectoryIdAndIsAccept(int userId, int directoryId, boolean isAccept);
-    Long deleteByUser(User user);
+    Optional<UserDirectory> findByUser_UserIdAndDirectory_DirectoryIdAndIsAccept(int userId, int directoryId, boolean isAccept);
+    void deleteByUser(User user);
+    void deleteByDirectory(Directory directory);
     boolean existsByUserAndDirectory(User user, Directory directory);
     void deleteByUserAndDirectory(User user, Directory directory);
+    boolean existsByDirectoryAndIsAccept(Directory directory, boolean isAccept);
     List<UserDirectory> findByUser(User user);
     List<UserDirectory> findByDirectory(Directory directory);
 }

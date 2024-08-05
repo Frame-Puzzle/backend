@@ -58,7 +58,7 @@ public class FindMyDirectoryServiceTest {
     @DisplayName("내 전체 디렉토리 조회 성공 테스트")
     public void 내_전체_디렉토리_조회_성공_테스트(){
         //given
-        BDDMockito.given(userRepository.findByUserId(userPrincipal.getId())).willReturn(Optional.ofNullable(user));
+        BDDMockito.given(userPrincipal.getUser()).willReturn(user);
         BDDMockito.given(directoryRepository.findMyDirectory(user, null)).willReturn(responseAll);
 
         //when
@@ -72,7 +72,7 @@ public class FindMyDirectoryServiceTest {
     @DisplayName("내 카테고리 디렉토리 조회 성공 테스트")
     public void 내_카테고리_디렉토리_조회_성공_테스트(){
         //given
-        BDDMockito.given(userRepository.findByUserId(userPrincipal.getId())).willReturn(Optional.ofNullable(user));
+        BDDMockito.given(userPrincipal.getUser()).willReturn(user);
         BDDMockito.given(directoryRepository.findMyDirectory(user, category)).willReturn(responseCategory);
 
         //when

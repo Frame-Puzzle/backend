@@ -59,8 +59,7 @@ public class CancelMemberInvitationServiceTest {
     @DisplayName("멤버 초대 취소 성공 테스트")
     public void 멤버_초대_취소_성공_테스트(){
         //given
-        BDDMockito.given(userRepository.findByUserId(userPrincipal.getId())).willReturn(
-                Optional.ofNullable(user));
+        BDDMockito.given(userPrincipal.getUser()).willReturn(user);
         BDDMockito.given(directoryRepository.findByDirectoryId(directory.getDirectoryId())).willReturn(
                 Optional.ofNullable(directory));
         BDDMockito.given(userRepository.findByUserId(member.getUserId())).willReturn(
@@ -83,12 +82,10 @@ public class CancelMemberInvitationServiceTest {
         );
 
         //then
-        BDDMockito.then(userRepository)
-                .should(times(2)).findByUserId(userPrincipal.getId());
         BDDMockito.then(directoryRepository)
                 .should(times(1)).findByDirectoryId(directory.getDirectoryId());
         BDDMockito.then(userRepository)
-                .should(times(2)).findByUserId(member.getUserId());
+                .should(times(1)).findByUserId(member.getUserId());
         BDDMockito.then(userDirectoryRepository).should(times(1)).existsByDirectoryAndUserAndIsAccept(
                 BDDMockito.any(Directory.class),
                 BDDMockito.any(User.class),
@@ -107,7 +104,7 @@ public class CancelMemberInvitationServiceTest {
     @Test
     @DisplayName("멤버 초대 취소 권한 없음 실패 테스트")
     public void 멤버_초대_취소_권한_없음_실패_테스트(){
-        BDDMockito.given(userRepository.findByUserId(userPrincipal.getId())).willReturn(Optional.ofNullable(user));
+        BDDMockito.given(userPrincipal.getUser()).willReturn(user);
         BDDMockito.given(directoryRepository.findByDirectoryId(directory.getDirectoryId())).willReturn(Optional.of(directory));
         BDDMockito.given(userRepository.findByUserId(member.getUserId())).willReturn(Optional.ofNullable(member));
         BDDMockito.given(userDirectoryRepository.existsByDirectoryAndUserAndIsAccept(
@@ -124,8 +121,7 @@ public class CancelMemberInvitationServiceTest {
     @Test
     @DisplayName("멤버 초대 취소 실패 테스트")
     public void 멤버_초대_취소_실패_테스트() {
-        BDDMockito.given(userRepository.findByUserId(userPrincipal.getId())).willReturn(
-                Optional.ofNullable(user));
+        BDDMockito.given(userPrincipal.getUser()).willReturn(user);
         BDDMockito.given(directoryRepository.findByDirectoryId(directory.getDirectoryId())).willReturn(
                 Optional.ofNullable(directory));
         BDDMockito.given(userRepository.findByUserId(member.getUserId())).willReturn(

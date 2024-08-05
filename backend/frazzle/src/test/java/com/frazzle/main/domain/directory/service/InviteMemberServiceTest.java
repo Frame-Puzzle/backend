@@ -60,8 +60,7 @@ public class InviteMemberServiceTest {
     @DisplayName("멤버 초대 성공 테스트")
     public void 멤버_초대_성공_테스트() {
         // given
-        BDDMockito.given(userRepository.findByUserId(userPrincipal.getId()))
-                .willReturn(Optional.of(user));
+        BDDMockito.given(userPrincipal.getUser()).willReturn(user);
         BDDMockito.given(directoryRepository.findByDirectoryId(directory.getDirectoryId()))
                 .willReturn(Optional.of(directory));
         BDDMockito.given(userDirectoryRepository.existsByDirectoryAndUserAndIsAccept(
@@ -81,8 +80,6 @@ public class InviteMemberServiceTest {
                 .isThrownBy(() -> directoryService.inviteMember(userPrincipal, requestDto, directory.getDirectoryId()));
 
         // then
-        BDDMockito.then(userRepository)
-                .should(times(2)).findByUserId(userPrincipal.getId());
         BDDMockito.then(directoryRepository)
                 .should(times(1)).findByDirectoryId(directory.getDirectoryId());
         BDDMockito.then(userDirectoryRepository)
@@ -91,7 +88,7 @@ public class InviteMemberServiceTest {
                         BDDMockito.any(User.class),
                         BDDMockito.eq(true));
         BDDMockito.then(userRepository)
-                .should(times(2)).findByUserId(requestDto.getUserId());
+                .should(times(1)).findByUserId(requestDto.getUserId());
         BDDMockito.then(userDirectoryRepository)
                 .should(times(1)).existsByUserAndDirectory(
                         BDDMockito.any(User.class),
@@ -106,8 +103,7 @@ public class InviteMemberServiceTest {
     @DisplayName("멤버 초대 권한 없음 실패 테스트")
     public void 멤버_초대_권한_없음_실패_테스트() {
         // given
-        BDDMockito.given(userRepository.findByUserId(userPrincipal.getId()))
-                .willReturn(Optional.of(user));
+        BDDMockito.given(userPrincipal.getUser()).willReturn(user);
         BDDMockito.given(directoryRepository.findByDirectoryId(directory.getDirectoryId()))
                 .willReturn(Optional.of(directory));
         BDDMockito.given(userDirectoryRepository.existsByDirectoryAndUserAndIsAccept(
@@ -126,6 +122,14 @@ public class InviteMemberServiceTest {
     @DisplayName("멤버 초대 멤버 없음 실패 테스트")
     public void 멤버_초대_멤버_없음_실패_테스트() {
         // given
+        BDDMockito.given(userPrincipal.getUser()).willReturn(user);
+        BDDMockito.given(directoryRepository.findByDirectoryId(directory.getDirectoryId()))
+                .willReturn(Optional.of(directory));
+        BDDMockito.given(userDirectoryRepository.existsByDirectoryAndUserAndIsAccept(
+                        BDDMockito.any(Directory.class),
+                        BDDMockito.any(User.class),
+                        BDDMockito.eq(true)))
+                .willReturn(true);
         BDDMockito.given(userRepository.findByUserId(requestDto.getUserId()))
                 .willReturn(Optional.empty());
 
@@ -139,8 +143,7 @@ public class InviteMemberServiceTest {
     @DisplayName("멤버 초대 중복 실패 테스트")
     public void 멤버_초대_중복_실패_테스트() {
         // given
-        BDDMockito.given(userRepository.findByUserId(userPrincipal.getId()))
-                .willReturn(Optional.of(user));
+        BDDMockito.given(userPrincipal.getUser()).willReturn(user);
         BDDMockito.given(directoryRepository.findByDirectoryId(directory.getDirectoryId()))
                 .willReturn(Optional.of(directory));
         BDDMockito.given(userDirectoryRepository.existsByDirectoryAndUserAndIsAccept(
