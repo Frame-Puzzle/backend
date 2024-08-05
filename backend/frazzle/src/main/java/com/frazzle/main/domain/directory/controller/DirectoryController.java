@@ -195,7 +195,7 @@ public class DirectoryController {
         GuideResponseDto responseDto = GuideResponseDto.createGuideResponseDto(guideList);
 
         return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "미션 생성하는데 성공했습니다.", responseDto));
-
+    }
 
     @Operation(summary = "디렉토리 탈퇴 및 삭제", description = "디렉토리 탈퇴 및 삭제")
     @ApiResponses(value = {
