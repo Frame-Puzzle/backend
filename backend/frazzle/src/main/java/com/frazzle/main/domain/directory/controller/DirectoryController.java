@@ -179,6 +179,13 @@ public class DirectoryController {
 
 
     //미션 가이드 컨트롤러
+    @Operation(summary = "미선 생성", description = "미선 생성하기")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "생성에 성공했습니다.",
+                    content = @Content(schema = @Schema(implementation = ResultDto.class))),
+            @ApiResponse(responseCode = "404", description = "생성에 실패했습니다.",
+                    content = @Content(schema = @Schema(implementation = ResultDto.class)))
+    })
     @PostMapping("/{directoryId}/guides")
     public ResponseEntity<ResultDto> describeImage(
             @PathVariable("directoryId") int directoryId,
