@@ -6,6 +6,8 @@ package com.frazzle.main.domain.notification.entity;
 //1은 퍼즐판 삭제 투표
 //2는 퍼즐판 완성
 //3은 게임방 생성
+//2, 3은 boardId 추가로 이동 가능
+//0, 1은 boardId 0으로
 public enum NotificationTypeFlag {
     INVITE_PEOPLE(0),
     VOTE_BOARD(1),

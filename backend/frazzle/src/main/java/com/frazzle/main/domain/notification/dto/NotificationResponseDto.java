@@ -19,10 +19,10 @@ public class NotificationResponseDto {
     private String createUserName;
     private Boolean isRead;
     private int acceptStatus;
-
+    private int boardId;
 
     @Builder
-    public NotificationResponseDto(int notificationId, LocalDateTime createTime, int type, String directoryName, String category, String createUserName, Boolean isRead, int acceptStatus) {
+    public NotificationResponseDto(int notificationId, LocalDateTime createTime, int type, String directoryName, String category, String createUserName, Boolean isRead, int acceptStatus, int boardId) {
         this.notificationId = notificationId;
         this.createTime = createTime;
         this.type = type;
@@ -31,13 +31,26 @@ public class NotificationResponseDto {
         this.createUserName = createUserName;
         this.isRead = isRead;
         this.acceptStatus = acceptStatus;
+        this.boardId = boardId;
     }
-
 
 
     public static NotificationResponseDto createNotificationResponse(UserNotification userNotification) {
         Notification notification = userNotification.getNotification();
         Directory directory = notification.getDirectory();
+        if(notification.getBoard() != null) {
+            return NotificationResponseDto.builder()
+                    .notificationId(notification.getNotificationId())
+                    .createTime(notification.getCreatedAt())
+                    .type(notification.getType())
+                    .directoryName(directory.getDirectoryName())
+                    .category(directory.getCategory())
+                    .createUserName(userNotification.getUser().getNickname())
+                    .isRead(userNotification.getIsRead())
+                    .acceptStatus(userNotification.getAcceptStatus())
+                    .boardId(notification.getBoard().getBoardId())
+                    .build();
+        }
 
         return NotificationResponseDto.builder()
                 .notificationId(notification.getNotificationId())
@@ -48,6 +61,7 @@ public class NotificationResponseDto {
                 .createUserName(userNotification.getUser().getNickname())
                 .isRead(userNotification.getIsRead())
                 .acceptStatus(userNotification.getAcceptStatus())
+                .boardId(0)
                 .build();
 
     }

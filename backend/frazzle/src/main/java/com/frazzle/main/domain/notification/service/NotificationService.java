@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -32,9 +33,7 @@ public class NotificationService {
     @Transactional
     public List<UserNotification> findAllByUser(UserPrincipal userPrincipal) {
         //1. 유저 정보 확인
-        User user = userRepository.findByUserId(userPrincipal.getId()).orElseThrow(
-                () -> new CustomException(ErrorCode.NOT_EXIST_USER)
-        );
+        User user = userPrincipal.getUser();
 
         return userNotificationRepository.findByUser(user);
     }
@@ -42,13 +41,13 @@ public class NotificationService {
     @Transactional
     public void updateUserNotification(UserPrincipal userPrincipal, int notificationId, AcceptNotificationRequestDto requestDto) {
         //1. 유저 정보 확인
-        User user = userRepository.findByUserId(userPrincipal.getId()).orElseThrow(
-                () -> new CustomException(ErrorCode.NOT_EXIST_USER)
-        );
+        User user = userPrincipal.getUser();
 
         Notification notification = notificationRepository.findByNotificationId(notificationId);
 
-        UserNotification userNotification = userNotificationRepository.findByUserAndNotification(user, notification);
+        UserNotification userNotification = userNotificationRepository.findByUserAndNotification(user, notification).orElseThrow(
+                () -> new CustomException(ErrorCode.UNAUTHORIZED)
+        );
 
         userNotification.updateRead();
 

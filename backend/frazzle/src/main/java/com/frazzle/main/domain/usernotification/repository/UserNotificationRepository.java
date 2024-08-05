@@ -7,11 +7,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface UserNotificationRepository extends JpaRepository<UserNotification, Integer>, UserNotificationRepositoryCustom {
     List<UserNotification> findByUser(User user);
-    UserNotification findByUserAndNotification(User user, Notification notification);
+    Optional<UserNotification> findByUserAndNotification(User user, Notification notification);
 
     @Override
     long deleteByNotification(List<Notification> notification);
