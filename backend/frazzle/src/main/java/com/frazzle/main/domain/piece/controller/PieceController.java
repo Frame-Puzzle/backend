@@ -41,12 +41,11 @@ public class PieceController {
     public ResponseEntity<ResultDto> updatePiece(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable("pieceID") int pieceID,
-            @RequestParam("profileImg") MultipartFile profileImg,
-//            @Valid @RequestBody UpdatePieceRequestDto requestDto
+            @RequestParam("imgFile") MultipartFile imgFile,
             @Valid @RequestParam("comment") String comment
             )
     {
-        boolean isCompleteBoard = pieceService.updatePiece(userPrincipal, pieceID, profileImg, comment);
+        boolean isCompleteBoard = pieceService.updatePiece(userPrincipal, pieceID, imgFile, comment);
 
         String message = "퍼즐 조각 수정 성공";
         if(isCompleteBoard) {
