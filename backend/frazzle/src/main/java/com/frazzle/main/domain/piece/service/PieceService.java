@@ -2,7 +2,6 @@ package com.frazzle.main.domain.piece.service;
 
 import com.frazzle.main.domain.board.entity.Board;
 import com.frazzle.main.domain.board.entity.BoardClearTypeFlag;
-import com.frazzle.main.domain.board.service.BoardService;
 import com.frazzle.main.domain.directory.entity.Directory;
 import com.frazzle.main.domain.directory.repository.DirectoryRepository;
 import com.frazzle.main.domain.piece.dto.FindPieceResponseDto;
@@ -34,7 +33,6 @@ public class PieceService {
     private final DirectoryRepository directoryRepository;
     private final UserDirectoryRepository userDirectoryRepository;
     private final AwsService awsService;
-    private final BoardService boardService;
 
     private User checkUser(UserPrincipal userPrincipal) {
         return userRepository.findByUserId(userPrincipal.getId())
@@ -131,11 +129,11 @@ public class PieceService {
 
         //첫 등록 시 pieceCount를 올려준다.
         if(isFirstUpdate) {
-            boardService.updatePieceCount(board,board.getPieceCount()+1);
+            board.addPieceCount();
         }
 
         if(board.getPieceCount() == board.getBoardSize()){
-            boardService.updateClearType(board, BoardClearTypeFlag.PUZZLE_CLEARED);
+            board.changeClearType(BoardClearTypeFlag.PUZZLE_CLEARED);
             return true;
         }
 
