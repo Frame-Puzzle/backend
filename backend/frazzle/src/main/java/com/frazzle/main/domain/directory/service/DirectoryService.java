@@ -316,6 +316,7 @@ public class DirectoryService {
                         text = messageNode.asText().substring(0, minIndex + 1); // 마침표까지 포함하여 자릅니다.
                     }
                     text = text.replaceAll("^\\d+\\.\\s*", "").trim();
+                    text = text.replaceAll("\\\"", "").trim();
                     responseGuideList.add(text);
                     return responseGuideList.toArray(new String[0]);
                 }
