@@ -88,4 +88,8 @@ public class Piece {
     public void updateUser(User user){
         this.user = user;
     }
+
+    public void updateContent(String content){
+        this.content = content;
+    }
 }
