@@ -38,7 +38,6 @@ public class BoardService {
     private final DirectoryRepository directoryRepository;
     private final UserDirectoryRepository userDirectoryRepository;
     private final BoardRepository boardRepository;
-    //private final PieceRepository pieceRepository;
     private final PieceService pieceService;
 
     private final AwsService awsService;
@@ -63,8 +62,8 @@ public class BoardService {
 
     public FindBoardAndPiecesResponseDto findBoardAndPieces(UserPrincipal userPrincipal, int boardId) {
         Board board = findBoardByBoardId(userPrincipal, boardId);
-        Optional<Directory> directory = Optional.ofNullable(directoryRepository.findByDirectoryId(board.getDirectory().getDirectoryId())
-                .orElseThrow(() -> new CustomException(ErrorCode.NOT_EXIST_DIRECTORY)));
+        Directory directory = directoryRepository.findByDirectoryId(board.getDirectory().getDirectoryId())
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_EXIST_DIRECTORY));
 
         List<Piece> pieceList = pieceService.findPiecesByBoardId(boardId);
 
@@ -92,8 +91,8 @@ public class BoardService {
 
         FindBoardAndPiecesResponseDto responseDto = FindBoardAndPiecesResponseDto.createFindBoardAndPiecesResponseDto(
                 keywordToken,
-                directory.get().getCategory(),
-                directory.get().getDirectoryName(),
+                directory.getCategory(),
+                directory.getDirectoryName(),
                 ""+board.getBoardInNumber(),
                 board.getBoardSize(),
                 thumbnailer,
@@ -110,8 +109,6 @@ public class BoardService {
         //디렉토리 탐색
         Directory directory = directoryRepository.findByDirectoryId(directoryID)
                 .orElseThrow(()-> new CustomException(ErrorCode.NOT_EXIST_DIRECTORY));
-
-        //Optional<Directory> directory = directoryRepository.findByDirectoryId(directoryID);
 
         //유저 확인
         User user = checkUser(userPrincipal);
@@ -131,14 +128,11 @@ public class BoardService {
         //보드 제작 넘버 세팅
         countingBoard(board, directoryID);
 
-        /*
-        TODO: 미션 생성
-         */
         boardRepository.save(board);
 
-
         //퍼즐 조각들 생성
-        List<Piece> pieceList = createPiece(board);
+        String[] guideToken = boardDto.getGuide();
+        List<Piece> pieceList = createPiece(board, guideToken);
 
         for(Piece p : pieceList){
             pieceService.savePiece(p);
@@ -163,12 +157,19 @@ public class BoardService {
 
         Board board = findBoardByBoardId(userPrincipal, boardID);
 
-        if((board.getClearType() == BoardClearTypeFlag.PUZZLE_GAME_CLEARED.getValue()
-        && board.getUser() != null)){
+        //게임을 클리어했는지 판단, 유저가 등록되어있는지 판단.
+        if((board.getClearType() == BoardClearTypeFlag.PUZZLE_GAME_CLEARED.getValue()) && board.getUser() != null){
 
-            String url = awsService.uploadFile(requestDto.getThumbnailUrl());
+            //기존 이미지가 존재하면 삭제한다.
+            String imageUrl = board.getThumbnailUrl();
 
-            board.changeImageUrl(url);
+            if(imageUrl != null){
+                awsService.deleteImage(imageUrl);
+            }
+
+            imageUrl = awsService.uploadFile(requestDto.getThumbnailUrl());
+
+            board.changeImageUrl(imageUrl);
         }
     }
 
@@ -193,7 +194,7 @@ public class BoardService {
             board.addVoteNumber();
         }
 
-        //삭제 판단
+        //삭제 판단 TODO: 로직 개선하기
         if(board.getVoteNumber() > board.getDirectory().getPeopleNumber()){
             deleteBoard(boardId);
             return true;
@@ -241,12 +242,12 @@ public class BoardService {
                             pieceList.get(i).getImageUrl(),
                             pieceList.get(i).getContent());
         }
-
         //보드 id를 통해 image 조회하기
-        Optional<String> imgUrl = boardRepository.findThumbnailUrlByBoardId(boardId);
+        String imgUrl = boardRepository.findThumbnailUrlByBoardId(boardId)
+                .orElseThrow(()-> new CustomException(ErrorCode.IMAGE_NOT_FOUND));
 
         FindAllImageFromBoardResponseDto responseDto = FindAllImageFromBoardResponseDto
-                .createFindAllImageFromBoardResponseDto(imgUrl.get(), pieceDtoList);
+                .createFindAllImageFromBoardResponseDto(imgUrl, pieceDtoList);
 
         return responseDto;
     }
@@ -262,7 +263,7 @@ public class BoardService {
     }
 
     //퍼즐 조각 생성
-    private List<Piece> createPiece(Board board){
+    private List<Piece> createPiece(Board board, String[] guides){
         int boardSize = board.getBoardSize();
 
         int row = GlobalBoardSize.minimumBoardRow;
@@ -290,30 +291,32 @@ public class BoardService {
             }
         }
 
-        //#####TEST
-        String guideMission = "Mission ";
-        //#######
+        //가이드 미션 부여
+        if(guides != null){
+            int guideCount = guides.length;
 
-        //가이드 부여
-        List<Integer> usingNumberList = getRandomNumber(boardSize, row);
+            List<Integer> usingNumberList = getRandomNumber(boardSize, guideCount);
 
-        for(int i = 0; i< row; i++){
-            pieceList.get(usingNumberList.get(i))
-                    .updateMission(guideMission + (i + 1));
+            for(int i = 0; i< guideCount; i++){
+                pieceList.get(usingNumberList.get(i))
+                        .updateMission(guides[i]);
+            }
         }
 
         return pieceList;
     }
 
-    private List<Integer> getRandomNumber(int maxNumber, int count){
-        if(maxNumber < 0) {
+    //board 넓이만큼의 수 중에서 guideCount개의 미션을 집어넣는다.
+    private List<Integer> getRandomNumber(int boardSize, int guideCount){
+        if(boardSize < 0) {
             throw new CustomException(ErrorCode.CANNOT_BE_NEGATIVE);
         }
         List<Integer> numberList = new ArrayList<>();
 
-        for(int i = 0; i< count; i++){
-            int result = GenerateRandomNickname.getRandom().nextInt(maxNumber);
+        for(int i = 0; i< guideCount; i++){
+            int result = GenerateRandomNickname.getRandom().nextInt(boardSize);
 
+            //중복되는 위치일 시 위치를 다시 부여한다.
             for(int n : numberList) {
                 if(result == n) {
                     i--;
@@ -349,3 +352,4 @@ public class BoardService {
         return result;
     }
 }
+
