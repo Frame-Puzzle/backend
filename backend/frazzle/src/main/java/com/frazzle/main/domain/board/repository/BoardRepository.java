@@ -2,6 +2,7 @@ package com.frazzle.main.domain.board.repository;
 
 import com.frazzle.main.domain.board.entity.Board;
 import com.frazzle.main.domain.directory.entity.Directory;
+import com.frazzle.main.domain.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -23,4 +24,6 @@ public interface BoardRepository extends JpaRepository<Board, Integer>, BoardRep
 
     @Override
     Optional<String> findThumbnailUrlByBoardId(int boardId);
+
+    List<Board> findAllByUser(User user);
 }
