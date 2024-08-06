@@ -16,4 +16,8 @@ public class CreateDirectoryRequestDto {
 
     @NotBlank
     private String directoryName;
+
+    public void changeKoreanCategory(String category) {
+        this.category = category;
+    }
 }

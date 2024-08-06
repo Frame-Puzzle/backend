@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.frazzle.main.domain.board.entity.Board;
 import com.frazzle.main.domain.board.repository.BoardRepository;
 import com.frazzle.main.domain.directory.dto.*;
+import com.frazzle.main.domain.directory.entity.CategoryMapper;
 import com.frazzle.main.domain.directory.entity.Directory;
 import com.frazzle.main.domain.directory.repository.DirectoryRepository;
 import com.frazzle.main.domain.notification.service.NotificationService;
@@ -67,6 +68,10 @@ public class DirectoryService {
         User user = userPrincipal.getUser();
 
         //2. 디렉토리 생성
+        log.info("Category eng: {}", requestDto.getCategory());
+        requestDto.changeKoreanCategory(CategoryMapper.getCategoryInKorean(requestDto.getCategory()));
+        log.info("Category kor: {}", requestDto.getCategory());
+
         Directory directory = Directory.createDirectory(requestDto);
         directoryRepository.save(directory);
 
@@ -187,6 +192,11 @@ public class DirectoryService {
         User user = userPrincipal.getUser();
 
         //2. 유저 디렉토리 조회
+        if(category != null && !category.isEmpty()){
+            log.info("category eng: {}", category);
+            category = CategoryMapper.getCategoryInKorean(category);
+            log.info("category kor: {}", category);
+        }
         List<Directory> directories = directoryRepository.findMyDirectory(user, category);
         List<FindMyDirectoryResponseDto> response = new ArrayList<>();
 
