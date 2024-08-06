@@ -7,5 +7,4 @@ import java.util.List;
 
 public interface NotificationRepositoryCustom {
     List<Notification> findByUser(User user);
-    long deleteByNotification(List<Notification> notifications);
 }

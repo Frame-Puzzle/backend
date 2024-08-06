@@ -1,11 +1,10 @@
 package com.frazzle.main.domain.user.service;
 
+import com.frazzle.main.domain.directory.entity.Directory;
+import com.frazzle.main.domain.directory.service.DirectoryService;
 import com.frazzle.main.domain.user.dto.UpdateUserNicknameRequestDto;
-import com.frazzle.main.domain.user.dto.UpdateUserProfileRequestDto;
-import com.frazzle.main.domain.user.dto.UpdateUserRequestDto;
 import com.frazzle.main.domain.user.entity.User;
 import com.frazzle.main.domain.user.repository.UserRepository;
-import com.frazzle.main.domain.userdirectory.entity.UserDirectory;
 import com.frazzle.main.domain.userdirectory.repository.UserDirectoryRepository;
 import com.frazzle.main.global.aws.service.AwsService;
 import com.frazzle.main.global.exception.CustomException;
@@ -17,9 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Optional;
-
-import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +27,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserDirectoryRepository userDirectoryRepository;
     private final AwsService awsService;
+    private final DirectoryService directoryService;
 
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
@@ -95,17 +94,23 @@ public class UserService {
 
     //사용자 삭제
     @Transactional
-    public Long deleteUser(UserPrincipal userPrincipal) {
+    public void deleteUser(UserPrincipal userPrincipal) {
         //1. 유저 정보 확인
         User user = userPrincipal.getUser();
 
-        //유저가 있으면
-        if(user != null) {
-            userDirectoryRepository.deleteByUser(user);
-            return userRepository.deleteByUserId(user.getUserId());
+        //2. 유저 디렉토리에서 유저가 가입한 디렉토리 리스트 찾기
+        List<Integer> directoryId = userDirectoryRepository.findDirectoryIdByUserAndIsAccept(user, true);
+
+        //3. 반복문으로 디렉토리 탈퇴
+        for(int id : directoryId) {
+            directoryService.leaveDirectory(userPrincipal, id);
         }
 
-        throw new CustomException(ErrorCode.NOT_EXIST_USER);
+        //4. 유저 디렉토리 삭제
+        userDirectoryRepository.deleteByUser(user);
+
+        //4. 유저 삭제
+        userRepository.deleteByUserId(user.getUserId());
     }
 
     //리프레시 토큰 업데이트
