@@ -222,10 +222,14 @@ public class DirectoryService {
         }
 
         //3. 디렉토리 유저 리스트 조회
-        List<User> members = userRepository.findDirectoryUsers(directory);
+        List<User> acceptMembers = userRepository.findDirectoryUsers(directory, true);
+        List<User> notAcceptMembers = userRepository.findDirectoryUsers(directory, false);
         List<MemberListDto> memberList = new ArrayList<>();
-        for(User m : members) {
-            memberList.add(MemberListDto.createMemberList(m));
+        for(User m : acceptMembers) {
+            memberList.add(MemberListDto.createMemberList(m, true));
+        }
+        for(User m: notAcceptMembers) {
+            memberList.add(MemberListDto.createMemberList(m, false));
         }
 
         //4. 디렉토리 퍼즐판 리스트 조회
