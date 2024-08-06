@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -41,7 +42,8 @@ public class PieceService {
     private final UserDirectoryRepository userDirectoryRepository;
     private final AwsService awsService;
     private final FindPeopleCountFromImg findPeopleCountFromImg;
-    private final NotificationService notificationService;
+    private final NotificationRepository notificationRepository;
+    private final UserNotificationRepository userNotificationRepository;
 
     private Directory checkDirectory(int directoryId) {
         return directoryRepository.findByDirectoryId(directoryId)
@@ -147,7 +149,7 @@ public class PieceService {
         if(board.getPieceCount() == board.getBoardSize()){
             board.changeClearType(BoardClearTypeFlag.PUZZLE_CLEARED);
             //알림 추가
-            notificationService.createNotificationWithBoard(board.getDirectory().getCategory(), NotificationTypeFlag.COMPLETE_BOARD.getValue(), user, board);
+            createNotificationWithBoard(board.getDirectory().getCategory(), NotificationTypeFlag.COMPLETE_BOARD.getValue(), user, board);
             return true;
         }
 
@@ -157,5 +159,30 @@ public class PieceService {
     @Transactional
     public void deletePiece(int pieceId){
         pieceRepository.deleteById(pieceId);
+    }
+
+    @Transactional
+    public void createNotificationWithBoard(String keyword, int type, User user, Board board) {
+
+        Directory directory = board.getDirectory();
+        //알림 생성
+        Notification requestNotification = Notification.createNotificationWithBoard(keyword, type, user, directory, board);
+
+        //알림 저장
+        Notification notification =  notificationRepository.save(requestNotification);
+
+        //디렉토리의 참여한 유저들 찾기
+        List<UserDirectory> userDirectoryList = userDirectoryRepository.findByDirectoryAndIsAccept(directory, true);
+
+        List<UserNotification> userNotificationList = new ArrayList<>();
+
+        //유저 알림 저장
+        for(UserDirectory userDirectory: userDirectoryList) {
+            User groupUser = userDirectory.getUser();
+            userNotificationList.add(UserNotification.createUserNotification(groupUser, notification));
+
+        }
+        //디렉토리에 있는 유저들 모두에게 알림 저장
+        userNotificationRepository.saveAll(userNotificationList);
     }
 }

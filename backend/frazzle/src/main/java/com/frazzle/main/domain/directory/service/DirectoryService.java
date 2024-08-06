@@ -146,12 +146,7 @@ public class DirectoryService {
         directory.changePeopleNumber(1);
 
         //5. 앱내 알림 생성
-        Notification notification = Notification.createNotificationWithDirectory(directory.getCategory(), NotificationTypeFlag.INVITE_PEOPLE.getValue(), user, directory);
-        notificationRepository.save(notification);
-
-        //6. 초대된 멤버에게 알림 생성
-        UserNotification userNotification = UserNotification.createUserNotification(member, notification);
-        userNotificationRepository.save(userNotification);
+        createNotificationWithInviteDirectory(directory.getCategory(), NotificationTypeFlag.INVITE_PEOPLE.getValue(), user, member, directory);
 
         /*
         fcm 코드
@@ -414,4 +409,20 @@ public class DirectoryService {
         //4. 디렉토리 삭제
         directoryRepository.delete(directory);
     }
+
+    @Transactional
+    public void createNotificationWithInviteDirectory(String keyword, int type, User user, User inviteMember, Directory directory) {
+        //알림 생성
+        Notification requestNotification = Notification.createNotificationWithDirectory(keyword, type, user, directory);
+
+        //알림 저장
+        Notification notification =  notificationRepository.save(requestNotification);
+
+        UserNotification userNotification = UserNotification.createUserNotification(inviteMember, notification);
+
+        //초대된 사람의 알림 저장
+        userNotificationRepository.save(userNotification);
+
+    }
+
 }

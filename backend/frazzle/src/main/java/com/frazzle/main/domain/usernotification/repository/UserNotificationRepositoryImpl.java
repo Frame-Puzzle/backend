@@ -28,4 +28,13 @@ public class UserNotificationRepositoryImpl implements UserNotificationRepositor
                 .where(userNotification.notification.in(subQuery))
                 .execute();
     }
+
+    @Override
+    public void deleteByNotification(List<Notification> notification) {
+        queryFactory.delete(userNotification)
+                .where(userNotification.notification.in(notification))
+                .execute();
+    }
+
+
 }

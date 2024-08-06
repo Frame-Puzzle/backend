@@ -7,6 +7,7 @@ import com.frazzle.main.domain.board.entity.GlobalBoardSize;
 import com.frazzle.main.domain.board.repository.BoardRepository;
 import com.frazzle.main.domain.directory.entity.Directory;
 import com.frazzle.main.domain.directory.repository.DirectoryRepository;
+import com.frazzle.main.domain.notification.entity.Notification;
 import com.frazzle.main.domain.notification.entity.NotificationTypeFlag;
 import com.frazzle.main.domain.notification.repository.NotificationRepository;
 import com.frazzle.main.domain.notification.service.NotificationService;
@@ -15,7 +16,10 @@ import com.frazzle.main.domain.piece.repository.PieceRepository;
 import com.frazzle.main.domain.piece.service.PieceService;
 import com.frazzle.main.domain.user.entity.User;
 import com.frazzle.main.domain.user.repository.UserRepository;
+import com.frazzle.main.domain.userdirectory.entity.UserDirectory;
 import com.frazzle.main.domain.userdirectory.repository.UserDirectoryRepository;
+import com.frazzle.main.domain.usernotification.entity.UserNotification;
+import com.frazzle.main.domain.usernotification.repository.UserNotificationRepository;
 import com.frazzle.main.global.aws.service.AwsService;
 import com.frazzle.main.global.exception.CustomException;
 import com.frazzle.main.global.exception.ErrorCode;
@@ -40,10 +44,10 @@ public class BoardService {
     private final UserDirectoryRepository userDirectoryRepository;
     private final BoardRepository boardRepository;
     private final PieceService pieceService;
-    private final NotificationService notificationService;
     private final AwsService awsService;
     private final PieceRepository pieceRepository;
     private final NotificationRepository notificationRepository;
+    private final UserNotificationRepository userNotificationRepository;
 
     //퍼즐판 조회
     public Board findBoardByBoardId(int boardId) {
@@ -131,6 +135,8 @@ public class BoardService {
 
         boardRepository.save(board);
 
+        log.info(String.valueOf(board.getBoardId()));
+
         //퍼즐 조각들 생성
         String[] guideToken = boardDto.getGuide();
         List<Piece> pieceList = createPiece(board, guideToken);
@@ -195,7 +201,7 @@ public class BoardService {
             board.enableVote(true);
 
             //알림 전송
-            notificationService.createNotificationWithBoard(board.getDirectory().getCategory(), NotificationTypeFlag.VOTE_BOARD.getValue(), user, board);
+            createNotificationWithBoard(board.getDirectory().getCategory(), NotificationTypeFlag.VOTE_BOARD.getValue(), user, board);
         }
 
         if(isAccept){
@@ -204,13 +210,8 @@ public class BoardService {
 
         boardRepository.save(board);
 
-        log.info(String.valueOf(isAccept));
-        log.info(String.valueOf(board.getVoteNumber()));
-        log.info(String.valueOf(board.getDirectory().getPeopleNumber()));
-
-        //삭제 판단 TODO: 로직 개선하기
         if(board.getVoteNumber() >= board.getDirectory().getPeopleNumber()){
-            deleteBoard(boardId);
+            deleteBoard(board);
             return true;
         }
 
@@ -218,18 +219,22 @@ public class BoardService {
     }
 
     @Transactional
-    public void deleteBoard(int boardId){
-        List<Piece> pieceList = pieceService.findPiecesByBoardId(boardId);
+    public void deleteBoard(Board board){
+        List<Piece> pieceList = pieceService.findPiecesByBoardId(board.getBoardId());
 
         for(Piece p : pieceList){
             pieceService.deletePiece(p.getPieceId());
         }
         //유저 알림 삭제 로직
+        //보드에 연결된 모든 알림 리스트 찾기
+        List<Notification> notificationList = notificationRepository.findAllByBoard(board);
+        //모든 유저 알림 삭제
+        userNotificationRepository.deleteByNotification(notificationList);
 
         //알림 삭제 로직
-//        notificationRepository.deleteByBoard(boardId);
+        notificationRepository.deleteAllByBoard(board);
 
-        boardRepository.deleteById(boardId);
+        boardRepository.deleteById(board.getBoardId());
     }
 
     @Transactional
@@ -269,6 +274,8 @@ public class BoardService {
     }
 
     //### 내장 함수
+
+
 
     //과반수 체크 메소드
     private boolean checkDeleteCondition(int maxPeople, int voteNum){
@@ -366,6 +373,31 @@ public class BoardService {
             result = Authority.CANNOT_UPDATE.getValue();
         }
         return result;
+    }
+
+    @Transactional
+    public void createNotificationWithBoard(String keyword, int type, User user, Board board) {
+
+        Directory directory = board.getDirectory();
+        //알림 생성
+        Notification requestNotification = Notification.createNotificationWithBoard(keyword, type, user, directory, board);
+
+        //알림 저장
+        Notification notification =  notificationRepository.save(requestNotification);
+
+        //디렉토리의 참여한 유저들 찾기
+        List<UserDirectory> userDirectoryList = userDirectoryRepository.findByDirectoryAndIsAccept(directory, true);
+
+        List<UserNotification> userNotificationList = new ArrayList<>();
+
+        //유저 알림 저장
+        for(UserDirectory userDirectory: userDirectoryList) {
+            User groupUser = userDirectory.getUser();
+            userNotificationList.add(UserNotification.createUserNotification(groupUser, notification));
+
+        }
+        //디렉토리에 있는 유저들 모두에게 알림 저장
+        userNotificationRepository.saveAll(userNotificationList);
     }
 }
 

@@ -41,4 +41,8 @@ public class UserDirectory {
     public static UserDirectory createUserDirectory(Directory directory, User user, boolean isAccept) {
         return new UserDirectory(directory, user, isAccept);
     }
+
+    public void updateAccept(Boolean isAccept) {
+        this.isAccept = isAccept;
+    }
 }
