@@ -69,4 +69,8 @@ public class Notification {
                 .build();
     }
 
+    public void updateUser(User user) {
+        this.user = user;
+    }
+
 }
