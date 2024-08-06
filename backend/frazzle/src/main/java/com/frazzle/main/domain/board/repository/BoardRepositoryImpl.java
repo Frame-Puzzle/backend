@@ -2,11 +2,11 @@ package com.frazzle.main.domain.board.repository;
 
 import com.frazzle.main.domain.board.entity.Board;
 import com.frazzle.main.domain.board.entity.QBoard;
+import com.frazzle.main.domain.directory.entity.Directory;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -24,9 +24,9 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom{
     }
 
     @Override
-    public long deleteBoardByBoards(List<Board> boards) {
-        return queryFactory.delete(board)
-                .where(board.in(boards))
+    public void deleteBoardByDirectory(Directory directory) {
+        queryFactory.delete(board)
+                .where(board.directory.in(directory))
                 .execute();
     }
 

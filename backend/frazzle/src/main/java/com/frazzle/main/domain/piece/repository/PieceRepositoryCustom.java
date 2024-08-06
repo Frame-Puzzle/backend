@@ -1,13 +1,10 @@
 package com.frazzle.main.domain.piece.repository;
 
-
-import com.frazzle.main.domain.board.entity.Board;
-
-import java.util.List;
+import com.frazzle.main.domain.directory.entity.Directory;
 
 public interface PieceRepositoryCustom {
 
-    long deletePieceByBoards(List<Board> boards);
+    void deletePieceByDirectory(int directoryId);
 
     void nullifyUserInPiecesByDirectoryAndUser(int userId, int directoryId);
 }

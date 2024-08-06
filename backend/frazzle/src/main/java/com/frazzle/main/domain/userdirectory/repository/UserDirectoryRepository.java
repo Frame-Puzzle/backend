@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface UserDirectoryRepository extends JpaRepository<UserDirectory, Integer> {
+public interface UserDirectoryRepository extends JpaRepository<UserDirectory, Integer>, UserDirectoryRepositoryCustom {
 
     boolean existsByDirectoryAndUserAndIsAccept(Directory directory, User user, boolean isAccept);
     Optional<UserDirectory> findByUser_UserIdAndDirectory_DirectoryIdAndIsAccept(int userId, int directoryId, boolean isAccept);
@@ -20,5 +20,8 @@ public interface UserDirectoryRepository extends JpaRepository<UserDirectory, In
     void deleteByUserAndDirectory(User user, Directory directory);
     boolean existsByDirectoryAndIsAccept(Directory directory, boolean isAccept);
     List<UserDirectory> findByUser(User user);
+    List<UserDirectory> findByDirectory(Directory directory);
+    @Override
+    List<Integer> findDirectoryIdByUserAndIsAccept(User user, boolean isAccept);
     List<UserDirectory> findByDirectoryAndIsAccept(Directory directory, boolean isAccept);
 }

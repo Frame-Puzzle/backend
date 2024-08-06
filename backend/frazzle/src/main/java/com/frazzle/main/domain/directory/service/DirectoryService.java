@@ -382,8 +382,13 @@ public class DirectoryService {
                         ()->new CustomException(ErrorCode.DENIED_DIRECTORY));
 
         //3. 디렉토리 나가기
+        //3-1. 내가 올린 퍼즐 조각의 유저 null로 바꾸기
         pieceRepository.nullifyUserInPiecesByDirectoryAndUser(userId, directoryId);
+        //3-2. 유저 디렉토리 삭제
         userDirectoryRepository.delete(userDirectory);
+        //3-3. 유저 알림 삭제
+        userNotificationRepository.deleteByDirectory(directory);
+        //3-4. 디렉토리 유저 카운트 -1
         directory.changePeopleNumber(-1);
 
         //4. 디렉토리 삭제
@@ -396,20 +401,17 @@ public class DirectoryService {
     //디렉토리 삭제
     @Transactional
     protected void deleteDirectoryData(int directoryId, Directory directory) {
-        // 알림 삭제
-        List<Notification> notifications = notificationRepository.findByDirectory_DirectoryId(directoryId);
-        userNotificationRepository.deleteByNotification(notifications);
-        notificationRepository.deleteByNotification(notifications);
+        //1. 알림 삭제
+        notificationRepository.deleteAllByDirectory(directory);
 
-        // 퍼즐판 및 퍼즐 조각 삭제
-        List<Board> boards = boardRepository.findBoards(directoryId);
-        pieceRepository.deletePieceByBoards(boards);
-        boardRepository.deleteBoardByBoards(boards);
+        //2. 퍼즐판 및 퍼즐 조각 삭제
+        pieceRepository.deletePieceByDirectory(directoryId);
+        boardRepository.deleteBoardByDirectory(directory);
 
-        //유저디렉토리 삭제
+        //3. 유저디렉토리 삭제
         userDirectoryRepository.deleteByDirectory(directory);
 
-        // 디렉토리 삭제
+        //4. 디렉토리 삭제
         directoryRepository.delete(directory);
     }
 }
