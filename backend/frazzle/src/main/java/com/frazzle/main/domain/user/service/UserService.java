@@ -1,17 +1,28 @@
 package com.frazzle.main.domain.user.service;
 
+import com.frazzle.main.domain.board.entity.Board;
+import com.frazzle.main.domain.board.repository.BoardRepository;
 import com.frazzle.main.domain.directory.entity.Directory;
 import com.frazzle.main.domain.directory.service.DirectoryService;
+import com.frazzle.main.domain.notification.entity.Notification;
+import com.frazzle.main.domain.notification.repository.NotificationRepository;
+import com.frazzle.main.domain.piece.entity.Piece;
+import com.frazzle.main.domain.piece.repository.PieceRepository;
+import com.frazzle.main.domain.piece.service.PieceService;
 import com.frazzle.main.domain.user.dto.UpdateUserNicknameRequestDto;
 import com.frazzle.main.domain.user.entity.User;
 import com.frazzle.main.domain.user.repository.UserRepository;
 import com.frazzle.main.domain.userdirectory.repository.UserDirectoryRepository;
+import com.frazzle.main.domain.usernotification.entity.UserNotification;
+import com.frazzle.main.domain.usernotification.repository.UserNotificationRepository;
 import com.frazzle.main.global.aws.service.AwsService;
 import com.frazzle.main.global.exception.CustomException;
 import com.frazzle.main.global.exception.ErrorCode;
 import com.frazzle.main.global.models.UserPrincipal;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,6 +39,11 @@ public class UserService {
     private final UserDirectoryRepository userDirectoryRepository;
     private final AwsService awsService;
     private final DirectoryService directoryService;
+    private final UserNotificationRepository userNotificationRepository;
+    private final PieceRepository pieceRepository;
+    private final BoardRepository boardRepository;
+    private final NotificationRepository notificationRepository;
+    private final EntityManager em;
 
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
@@ -104,6 +120,38 @@ public class UserService {
         //3. 반복문으로 디렉토리 탈퇴
         for(int id : directoryId) {
             directoryService.leaveDirectory(userPrincipal, id);
+        }
+
+        //3. 유저 알림 모두 삭제
+        List<UserNotification> userNotificationList = userNotificationRepository.findByUser(user);
+        if(!userNotificationList.isEmpty()) {
+            userNotificationRepository.deleteAll(userNotificationList);
+        }
+
+        //3. 퍼즐 조각의 관여한 유저id 모두 null로 변경
+        List<Piece> pieceList = pieceRepository.findAllByUser(user);
+        if(!pieceList.isEmpty()) {
+            for (Piece piece : pieceList) {
+                piece.updateUser(null);
+            }
+            pieceRepository.saveAll(pieceList);
+        }
+
+        // 썸네일러일 경우 null로 변경
+        List<Board> boardList = boardRepository.findAllByUser(user);
+        if(!boardList.isEmpty()) {
+            for (Board board : boardList) {
+                board.updateUser(null);
+            }
+            boardRepository.saveAll(boardList);
+        }
+        // 알림을 만들었을 경우 null로 변경
+        List<Notification> notificationList = notificationRepository.findAllByUser(user);
+        if(!notificationList.isEmpty()) {
+            for (Notification notification : notificationList) {
+                notification.updateUser(null);
+            }
+            notificationRepository.saveAll(notificationList);
         }
 
         //4. 유저 디렉토리 삭제
