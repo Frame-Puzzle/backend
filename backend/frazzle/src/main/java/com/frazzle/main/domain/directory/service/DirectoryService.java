@@ -423,10 +423,10 @@ public class DirectoryService {
     @Transactional
     public void createNotificationWithInviteDirectory(String keyword, int type, User user, User inviteMember, Directory directory) {
         //알림 생성
-        Notification requestNotification = Notification.createNotificationWithDirectory(keyword, type, user, directory);
+        Notification notification = Notification.createNotificationWithDirectory(keyword, type, user, directory);
 
         //알림 저장
-        Notification notification =  notificationRepository.save(requestNotification);
+        notification =  notificationRepository.save(notification);
 
         UserNotification userNotification = UserNotification.createUserNotification(inviteMember, notification);
 

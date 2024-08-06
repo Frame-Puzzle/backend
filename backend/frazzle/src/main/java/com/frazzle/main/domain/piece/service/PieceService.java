@@ -166,10 +166,10 @@ public class PieceService {
 
         Directory directory = board.getDirectory();
         //알림 생성
-        Notification requestNotification = Notification.createNotificationWithBoard(keyword, type, user, directory, board);
+        Notification notification = Notification.createNotificationWithBoard(keyword, type, user, directory, board);
 
         //알림 저장
-        Notification notification =  notificationRepository.save(requestNotification);
+        notification =  notificationRepository.save(notification);
 
         //디렉토리의 참여한 유저들 찾기
         List<UserDirectory> userDirectoryList = userDirectoryRepository.findByDirectoryAndIsAccept(directory, true);
