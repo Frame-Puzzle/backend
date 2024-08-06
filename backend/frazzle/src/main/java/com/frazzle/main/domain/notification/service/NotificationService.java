@@ -62,10 +62,17 @@ public class NotificationService {
         //알림 타입 0은 디렉토리 초대
         //accept 상태는 1은 수락 2는 거절
         if(notification.getType()==0) {
+
             Directory directory = notification.getDirectory();
+
+            //만약 이미 수락 혹은 거절(유저디렉토리 존재x) 했다면 에러 발생
+            Optional<UserDirectory> userDirectory = userDirectoryRepository.findByUserAndDirectory(user, directory);
+            if(userDirectory.isEmpty() || userDirectory.get().isAccept()) {
+                throw new CustomException(ErrorCode.NOTIFICATION_NOT_FOUND);
+            }
+
             if(requestDto.getAccept()==1) {
-                UserDirectory userDirectory = userDirectoryRepository.findByUserAndDirectory(user, directory);
-                userDirectory.updateAccept(true);
+                userDirectory.get().updateAccept(true);
             }
 
             //거절 시
