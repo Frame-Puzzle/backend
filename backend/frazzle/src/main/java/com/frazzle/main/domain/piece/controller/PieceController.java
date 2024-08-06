@@ -41,8 +41,8 @@ public class PieceController {
     public ResponseEntity<ResultDto> updatePiece(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable("pieceID") int pieceID,
-            @RequestParam("imgFile") MultipartFile imgFile,
-            @Valid @RequestParam("comment") String comment
+            @RequestParam(name = "imgFile",required = false) MultipartFile imgFile,
+            @RequestParam(name = "comment", required = false) String comment
             )
     {
         boolean isCompleteBoard = pieceService.updatePiece(userPrincipal, pieceID, imgFile, comment);

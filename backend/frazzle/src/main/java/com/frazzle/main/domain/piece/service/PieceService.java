@@ -99,7 +99,7 @@ public class PieceService {
 
         //1-1. 퍼즐조각이 현재 수정 가능한지 검증 -> 등록이 되있다면 처음 등록한 유저만 수정이 가능
         User pieceUser = piece.getUser();
-        
+
         if(pieceUser != null && (user.getUserId() != pieceUser.getUserId())){
             throw new CustomException(ErrorCode.DENIED_UPDATE_PIECE);
         }
@@ -109,8 +109,11 @@ public class PieceService {
             isFirstUpdate = false;
         }
 
-        //2. 파일 변환 multifile S3로 업로드 하고 url 받기
-//        MultipartFile imgFile = requestDto.getImgFile();
+        if(imgFile == null){
+            piece.updateContent(comment);
+            pieceRepository.save(piece);
+            return true;
+        }
 
         //3. Face Detection : 사람 수 파악
         int peopleCount = findPeopleCountFromImg.analyzeImageFile(imgFile);
@@ -128,7 +131,7 @@ public class PieceService {
         String url = awsService.getImageUrl(imageUrl);
 
         //5. 퍼즐 조각 수정
-        piece.updatePieceDto(url, comment, user);
+        piece.updatePieceDto(url, comment, user, peopleCount);
 
         //6. 퍼즐판 완성 체크
         Board board = piece.getBoard();
@@ -138,6 +141,9 @@ public class PieceService {
             board.addPieceCount();
         }
 
+        Directory directory = piece.getBoard().getDirectory();
+        directory.updateModifiedAt();
+
         if(board.getPieceCount() == board.getBoardSize()){
             board.changeClearType(BoardClearTypeFlag.PUZZLE_CLEARED);
             //알림 추가
@@ -146,11 +152,6 @@ public class PieceService {
         }
 
         return false;
-    }
-
-    @Transactional
-    public void savePiece(Piece piece){
-        pieceRepository.save(piece);
     }
 
     @Transactional

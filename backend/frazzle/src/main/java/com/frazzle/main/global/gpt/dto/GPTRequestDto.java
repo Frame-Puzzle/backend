@@ -1,7 +1,6 @@
-package com.frazzle.main.global.openai.dto;
+package com.frazzle.main.global.gpt.dto;
 
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -10,11 +9,11 @@ import java.util.List;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class OpenAiRequestDto {
+public class GPTRequestDto {
     private String model;
     private List<Message> messages;
 
-    public OpenAiRequestDto(String model, String prompt) {
+    public GPTRequestDto(String model, String prompt) {
         this.model = model;
         this.messages = new ArrayList<>();
         this.messages.add(new Message("user", prompt));

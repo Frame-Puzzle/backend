@@ -10,8 +10,8 @@ import com.frazzle.main.domain.directory.repository.DirectoryRepository;
 import com.frazzle.main.domain.notification.entity.NotificationTypeFlag;
 import com.frazzle.main.domain.notification.repository.NotificationRepository;
 import com.frazzle.main.domain.notification.service.NotificationService;
-import com.frazzle.main.domain.piece.dto.FindPieceResponseDto;
 import com.frazzle.main.domain.piece.entity.Piece;
+import com.frazzle.main.domain.piece.repository.PieceRepository;
 import com.frazzle.main.domain.piece.service.PieceService;
 import com.frazzle.main.domain.user.entity.User;
 import com.frazzle.main.domain.user.repository.UserRepository;
@@ -36,13 +36,13 @@ import java.util.List;
 @Slf4j
 public class BoardService {
 
-    private final UserRepository userRepository;
     private final DirectoryRepository directoryRepository;
     private final UserDirectoryRepository userDirectoryRepository;
     private final BoardRepository boardRepository;
     private final PieceService pieceService;
     private final NotificationService notificationService;
     private final AwsService awsService;
+    private final PieceRepository pieceRepository;
     private final NotificationRepository notificationRepository;
 
     //퍼즐판 조회
@@ -133,10 +133,9 @@ public class BoardService {
         //퍼즐 조각들 생성
         String[] guideToken = boardDto.getGuide();
         List<Piece> pieceList = createPiece(board, guideToken);
+        pieceRepository.saveAll(pieceList);
 
-        for(Piece p : pieceList){
-            pieceService.savePiece(p);
-        }
+        directory.updateModifiedAt();
 
         return CreateBoardResponseDto.builder().boardId(board.getBoardId()).build();
     }
@@ -191,7 +190,6 @@ public class BoardService {
 
         User user = userPrincipal.getUser();
 
-
         //투표가 아직 열리지 않았다면
         if(!board.isVote()) {
             board.enableVote(true);
@@ -222,7 +220,7 @@ public class BoardService {
     @Transactional
     public void deleteBoard(int boardId){
         List<Piece> pieceList = pieceService.findPiecesByBoardId(boardId);
-        
+
         for(Piece p : pieceList){
             pieceService.deletePiece(p.getPieceId());
         }

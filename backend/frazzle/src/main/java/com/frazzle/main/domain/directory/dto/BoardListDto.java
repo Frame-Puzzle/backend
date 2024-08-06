@@ -13,12 +13,14 @@ import java.time.LocalDateTime;
 public class BoardListDto {
 
     private int boardId;
+    private int boardSize;
     private int boardName;
     private String thumbnailUrl;
 
     @Builder
-    private BoardListDto(int boardId, int boardName, String thumbnailUrl, LocalDateTime updateDate) {
+    private BoardListDto(int boardId, int boardSize, int boardName, String thumbnailUrl) {
         this.boardId = boardId;
+        this.boardSize = boardSize;
         this.boardName = boardName;
         this.thumbnailUrl = thumbnailUrl;
     }
@@ -26,6 +28,7 @@ public class BoardListDto {
     public static BoardListDto createBoardList(Board board) {
         return BoardListDto.builder()
                 .boardId(board.getBoardId())
+                .boardSize(board.getBoardSize())
                 .boardName(board.getBoardInNumber())
                 .thumbnailUrl(board.getThumbnailUrl())
                 .build();

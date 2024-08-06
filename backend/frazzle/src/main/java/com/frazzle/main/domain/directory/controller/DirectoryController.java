@@ -7,6 +7,8 @@ import com.frazzle.main.domain.directory.dto.*;
 import com.frazzle.main.domain.directory.entity.Directory;
 import com.frazzle.main.domain.directory.service.DirectoryService;
 import com.frazzle.main.global.models.UserPrincipal;
+import com.frazzle.main.global.gpt.dto.GuideRequestDto;
+import com.frazzle.main.global.gpt.dto.GuideResponseDto;
 import com.frazzle.main.global.utils.ResultDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -19,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -134,7 +135,7 @@ public class DirectoryController {
     public ResponseEntity<?> findMyDirectory(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @RequestParam(value = "category", required = false) String category
-     ){
+    ){
         List<FindMyDirectoryResponseDto> response = directoryService.findMyDirectory(userPrincipal, category);
         Map<String, Object> data = new HashMap<>();
         data.put("directoryList", response);
@@ -174,6 +175,26 @@ public class DirectoryController {
     ){
         DetailDirectoryResponsetDto response = directoryService.findDetailDirectory(userPrincipal, directoryId);
         return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "조회에 성공했습니다.", response));
+    }
+
+    //미션 가이드 컨트롤러
+    @Operation(summary = "미선 생성", description = "미선 생성하기")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "생성에 성공했습니다.",
+                    content = @Content(schema = @Schema(implementation = ResultDto.class))),
+            @ApiResponse(responseCode = "404", description = "생성에 실패했습니다.",
+                    content = @Content(schema = @Schema(implementation = ResultDto.class)))
+    })
+    @PostMapping("/{directoryId}/guides")
+    public ResponseEntity<ResultDto> describeImage(
+            @PathVariable("directoryId") int directoryId,
+            @RequestBody GuideRequestDto requestDto) {
+
+        String[] guideList = directoryService.createGuideList(directoryId, requestDto);
+
+        GuideResponseDto responseDto = GuideResponseDto.createGuideResponseDto(guideList);
+
+        return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "미션 생성하는데 성공했습니다.", responseDto));
     }
 
     @Operation(summary = "디렉토리 탈퇴 및 삭제", description = "디렉토리 탈퇴 및 삭제")
