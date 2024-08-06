@@ -44,7 +44,7 @@ public class DirectoryService {
     private final BoardRepository boardRepository;
 
     private static final int MAX_TOKEN = 500;
-    private static final int MAX_MISSION_NUMBER = 5;
+    private static final int MAX_MISSION_NUMBER = 10;
 
     private static final String RESPONSE = "지금 들어온 답변을 할 때 글씨를 전부 붙여서 답변해줘 이를 테면 ~한 사진찍기, ~한 사진찍기 이런 것처럼 절대 출력해서 다시 보낼때 띄어쓰기 하지마 만약 출력되는 게 4개라면 1.~한 사진찍기 2.~한 사진찍기 3.~한 사진찍기 4.~한 사진찍기 이렇게 반드시 답변해줘" +
                 "출력되는게 1개면 한문장만 필요해";
