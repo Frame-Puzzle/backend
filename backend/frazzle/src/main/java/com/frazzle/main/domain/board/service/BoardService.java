@@ -220,16 +220,11 @@ public class BoardService {
 
     @Transactional
     public void deleteBoard(Board board){
-        List<Piece> pieceList = pieceService.findPiecesByBoardId(board.getBoardId());
 
-        for(Piece p : pieceList){
-            pieceService.deletePiece(p.getPieceId());
-        }
-        //유저 알림 삭제 로직
-        //보드에 연결된 모든 알림 리스트 찾기
-        List<Notification> notificationList = notificationRepository.findAllByBoard(board);
+        pieceRepository.deleteAllByBoard(board);
+
         //모든 유저 알림 삭제
-        userNotificationRepository.deleteByNotification(notificationList);
+        userNotificationRepository.deleteByBoard(board);
 
         //알림 삭제 로직
         notificationRepository.deleteAllByBoard(board);
@@ -380,10 +375,10 @@ public class BoardService {
 
         Directory directory = board.getDirectory();
         //알림 생성
-        Notification requestNotification = Notification.createNotificationWithBoard(keyword, type, user, directory, board);
+        Notification notification = Notification.createNotificationWithBoard(keyword, type, user, directory, board);
 
         //알림 저장
-        Notification notification =  notificationRepository.save(requestNotification);
+        notificationRepository.save(notification);
 
         //디렉토리의 참여한 유저들 찾기
         List<UserDirectory> userDirectoryList = userDirectoryRepository.findByDirectoryAndIsAccept(directory, true);

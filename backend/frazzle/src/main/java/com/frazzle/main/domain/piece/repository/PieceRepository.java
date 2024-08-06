@@ -21,6 +21,6 @@ public interface PieceRepository extends JpaRepository<Piece, Integer>, PieceRep
 
     @Override
     void nullifyUserInPiecesByDirectoryAndUser(int userId, int directoryId);
-
+    void deleteAllByBoard(Board board);
     List<Piece> findAllByUser(User user);
 }

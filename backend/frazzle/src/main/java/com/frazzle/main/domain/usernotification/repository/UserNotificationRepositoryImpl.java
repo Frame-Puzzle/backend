@@ -1,5 +1,6 @@
 package com.frazzle.main.domain.usernotification.repository;
 
+import com.frazzle.main.domain.board.entity.Board;
 import com.frazzle.main.domain.directory.entity.Directory;
 import com.frazzle.main.domain.notification.entity.Notification;
 import com.frazzle.main.domain.notification.entity.QNotification;
@@ -30,9 +31,13 @@ public class UserNotificationRepositoryImpl implements UserNotificationRepositor
     }
 
     @Override
-    public void deleteByNotification(List<Notification> notification) {
+    public void deleteByBoard(Board board) {
+        JPQLQuery<Notification> subQuery = JPAExpressions
+                .selectFrom(notification)
+                .where(notification.board.eq(board));
+
         queryFactory.delete(userNotification)
-                .where(userNotification.notification.in(notification))
+                .where(userNotification.notification.in(subQuery))
                 .execute();
     }
 
