@@ -2,6 +2,7 @@ package com.frazzle.main.domain.piece.repository;
 
 import com.frazzle.main.domain.board.entity.Board;
 import com.frazzle.main.domain.piece.entity.Piece;
+import com.frazzle.main.domain.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -20,4 +21,6 @@ public interface PieceRepository extends JpaRepository<Piece, Integer>, PieceRep
 
     @Override
     void nullifyUserInPiecesByDirectoryAndUser(int userId, int directoryId);
+
+    List<Piece> findAllByUser(User user);
 }

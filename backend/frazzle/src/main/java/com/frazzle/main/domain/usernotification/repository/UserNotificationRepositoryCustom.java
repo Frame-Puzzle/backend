@@ -8,4 +8,6 @@ import java.util.List;
 public interface UserNotificationRepositoryCustom {
 
     void deleteByDirectory(Directory directory);
+
+    void deleteByNotification(List<Notification> notification);
 }

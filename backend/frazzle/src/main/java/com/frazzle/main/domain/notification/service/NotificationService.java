@@ -1,7 +1,10 @@
 package com.frazzle.main.domain.notification.service;
 
 import com.frazzle.main.domain.board.entity.Board;
+import com.frazzle.main.domain.board.repository.BoardRepository;
+import com.frazzle.main.domain.board.service.BoardService;
 import com.frazzle.main.domain.directory.entity.Directory;
+import com.frazzle.main.domain.directory.repository.DirectoryRepository;
 import com.frazzle.main.domain.notification.dto.AcceptNotificationRequestDto;
 import com.frazzle.main.domain.notification.entity.Notification;
 import com.frazzle.main.domain.notification.repository.NotificationRepository;
@@ -29,6 +32,9 @@ public class NotificationService {
     private final UserNotificationRepository userNotificationRepository;
     private final UserRepository userRepository;
     private final UserDirectoryRepository userDirectoryRepository;
+    private final BoardService boardService;
+    private final DirectoryRepository directoryRepository;
+    private final BoardRepository boardRepository;
 
     @Transactional
     public List<UserNotification> findAllByUser(UserPrincipal userPrincipal) {
@@ -53,45 +59,67 @@ public class NotificationService {
 
         userNotification.updateStatus(requestDto.getAccept());
 
-    }
+        //알림 타입 0은 디렉토리 초대
+        //accept 상태는 1은 수락 2는 거절
+        if(notification.getType()==0) {
 
-    @Transactional
-    public void createNotificationWithInviteDirectory(String keyword, int type, User user, User inviteMember, Directory directory) {
-        //알림 생성
-        Notification requestNotification = Notification.createNotificationWithDirectory(keyword, type, user, directory);
+            Directory directory = notification.getDirectory();
 
-        //알림 저장
-        Notification notification =  notificationRepository.save(requestNotification);
+            //만약 이미 수락 혹은 거절(유저디렉토리 존재x) 했다면 에러 발생
+            Optional<UserDirectory> userDirectory = userDirectoryRepository.findByUserAndDirectory(user, directory);
+            if(userDirectory.isEmpty() || userDirectory.get().isAccept()) {
+                throw new CustomException(ErrorCode.NOTIFICATION_NOT_FOUND);
+            }
 
-        UserNotification userNotification = UserNotification.createUserNotification(inviteMember, notification);
+            if(requestDto.getAccept()==1) {
+                userDirectory.get().updateAccept(true);
+            }
 
-        //초대된 사람의 알림 저장
-        userNotificationRepository.save(userNotification);
-
-    }
-
-    @Transactional
-    public void createNotificationWithBoard(String keyword, int type, User user, Board board) {
-
-        Directory directory = board.getDirectory();
-        //알림 생성
-        Notification requestNotification = Notification.createNotificationWithBoard(keyword, type, user, directory, board);
-
-        //알림 저장
-        Notification notification =  notificationRepository.save(requestNotification);
-
-        //디렉토리의 참여한 유저들 찾기
-        List<UserDirectory> userDirectoryList = userDirectoryRepository.findByDirectoryAndIsAccept(directory, true);
-
-        List<UserNotification> userNotificationList = new ArrayList<>();
-
-        //유저 알림 저장
-        for(UserDirectory userDirectory: userDirectoryList) {
-            User groupUser = userDirectory.getUser();
-            userNotificationList.add(UserNotification.createUserNotification(groupUser, notification));
-
+            //거절 시
+            if(requestDto.getAccept()==2) {
+                userDirectoryRepository.deleteByUserAndDirectory(user, directory);
+                directory.changePeopleNumber(-1);
+            }
         }
-        //디렉토리에 있는 유저들 모두에게 알림 저장
-        userNotificationRepository.saveAll(userNotificationList);
+
+        //알림 타입 1은 투표 하기
+        if(notification.getType()==1) {
+            Board board = notification.getBoard();
+            //1은 삭제 수락
+            if(requestDto.getAccept()==1) {
+                updateVote(board, true);
+            }
+            
+            //2는 삭제 거절
+            if(requestDto.getAccept()==2) {
+                updateVote(board, false);
+            }
+        }
+
+
     }
+
+    @Transactional
+    public void updateVote(Board board, Boolean vote) {
+        //퍼즐판 투표가 비활성화 되면
+        if(!board.isVote()) {
+            throw new CustomException(ErrorCode.VOTE_NOT_FOUND);
+        }
+        //투표 수락
+        if(vote) {
+            board.addVoteNumber();
+            boardRepository.save(board);
+            if (board.getVoteNumber() >= board.getDirectory().getPeopleNumber()) {
+                boardService.deleteBoard(board);
+            }
+        }
+
+        if(!vote) {
+            board.changeVote();
+            board.changeVoteNumber(0);
+            boardRepository.save(board);
+        }
+        
+    }
+
 }

@@ -151,12 +151,11 @@ public class DirectoryService {
         directory.changePeopleNumber(1);
 
         //5. 앱내 알림 생성
-        Notification notification = Notification.createNotificationWithDirectory(directory.getCategory(), NotificationTypeFlag.INVITE_PEOPLE.getValue(), user, directory);
-        notificationRepository.save(notification);
+        createNotificationWithInviteDirectory(directory.getCategory(), NotificationTypeFlag.INVITE_PEOPLE.getValue(), user, member, directory);
 
-        //6. 초대된 멤버에게 알림 생성
-        UserNotification userNotification = UserNotification.createUserNotification(member, notification);
-        userNotificationRepository.save(userNotification);
+        /*
+        fcm 코드
+         */
     }
 
     //디렉토리 멤버 초대 취소
@@ -377,25 +376,42 @@ public class DirectoryService {
     @Transactional
     public void leaveDirectory(UserPrincipal userPrincipal, int directoryId) {
         //1. 유저 및 디렉토리 정보 확인
-        int userId = userPrincipal.getId();
+        User user = userPrincipal.getUser();
         Directory directory = directoryRepository.findByDirectoryId(directoryId).orElseThrow(
                 () -> new CustomException(ErrorCode.NOT_EXIST_DIRECTORY)
         );
 
         //2. 디렉토리 권한 확인
         UserDirectory userDirectory = userDirectoryRepository
-                .findByUser_UserIdAndDirectory_DirectoryIdAndIsAccept(userId, directoryId,true).orElseThrow(
+                .findByUser_UserIdAndDirectory_DirectoryIdAndIsAccept(user.getUserId(), directoryId,true).orElseThrow(
                         ()->new CustomException(ErrorCode.DENIED_DIRECTORY));
 
         //3. 디렉토리 나가기
         //3-1. 내가 올린 퍼즐 조각의 유저 null로 바꾸기
-        pieceRepository.nullifyUserInPiecesByDirectoryAndUser(userId, directoryId);
+        pieceRepository.nullifyUserInPiecesByDirectoryAndUser(user.getUserId(), directoryId);
         //3-2. 유저 디렉토리 삭제
         userDirectoryRepository.delete(userDirectory);
         //3-3. 유저 알림 삭제
         userNotificationRepository.deleteByDirectory(directory);
         //3-4. 디렉토리 유저 카운트 -1
         directory.changePeopleNumber(-1);
+
+        // 썸네일러일 경우 null로 변경
+        List<Board> boardList = boardRepository.findAllByUser(user);
+        if(!boardList.isEmpty()) {
+            for (Board board : boardList) {
+                board.updateUser(null);
+            }
+            boardRepository.saveAll(boardList);
+        }
+        // 알림을 만들었을 경우 null로 변경
+        List<Notification> notificationList = notificationRepository.findAllByUser(user);
+        if(!notificationList.isEmpty()) {
+            for (Notification notification : notificationList) {
+                notification.updateUser(null);
+            }
+            notificationRepository.saveAll(notificationList);
+        }
 
         //4. 디렉토리 삭제
         if(!userDirectoryRepository.existsByDirectoryAndIsAccept(directory, true)
@@ -420,4 +436,20 @@ public class DirectoryService {
         //4. 디렉토리 삭제
         directoryRepository.delete(directory);
     }
+
+    @Transactional
+    public void createNotificationWithInviteDirectory(String keyword, int type, User user, User inviteMember, Directory directory) {
+        //알림 생성
+        Notification requestNotification = Notification.createNotificationWithDirectory(keyword, type, user, directory);
+
+        //알림 저장
+        Notification notification =  notificationRepository.save(requestNotification);
+
+        UserNotification userNotification = UserNotification.createUserNotification(inviteMember, notification);
+
+        //초대된 사람의 알림 저장
+        userNotificationRepository.save(userNotification);
+
+    }
+
 }

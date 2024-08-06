@@ -87,11 +87,14 @@ public class NotificationController {
     public ResponseEntity<ResultDto> acceptNotification(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable("notificationId") int notificationId,
-            @Valid @RequestBody AcceptNotificationRequestDto requestDto) {
+            @RequestBody AcceptNotificationRequestDto requestDto) {
+
+        log.info(String.valueOf(requestDto.getAccept()));
+        log.info(String.valueOf(requestDto.getRead()));
 
         notificationService.updateUserNotification(userPrincipal, notificationId, requestDto);
 
-        return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "알림 전체 조회가 성공했습니다."));
+        return ResponseEntity.status(HttpStatus.OK).body(ResultDto.res(HttpStatus.OK.value(), "알림을 읽는데 성공했습니다."));
     }
 
 
