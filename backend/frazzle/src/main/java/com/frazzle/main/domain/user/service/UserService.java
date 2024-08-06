@@ -122,7 +122,12 @@ public class UserService {
             directoryService.leaveDirectory(userPrincipal, id);
         }
 
-        //4. 유저 디렉토리 삭제
+        List<UserNotification> userNotificationList = userNotificationRepository.findByUser(user);
+        if(!userNotificationList.isEmpty()) {
+            userNotificationRepository.deleteAll(userNotificationList);
+        }
+
+            //4. 유저 디렉토리 삭제
         userDirectoryRepository.deleteByUser(user);
 
         //4. 유저 삭제
