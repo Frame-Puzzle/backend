@@ -23,4 +23,5 @@ public interface UserDirectoryRepository extends JpaRepository<UserDirectory, In
     List<UserDirectory> findByDirectory(Directory directory);
     @Override
     List<Integer> findDirectoryIdByUserAndIsAccept(User user, boolean isAccept);
+    List<UserDirectory> findByDirectoryAndIsAccept(Directory directory, boolean isAccept);
 }

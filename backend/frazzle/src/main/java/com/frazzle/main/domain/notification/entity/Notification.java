@@ -27,8 +27,7 @@ public class Notification {
     private String keyword;
 
     @Column(name = "type", nullable = false)
-    private String type;
-
+    private int type;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -43,7 +42,7 @@ public class Notification {
     private Board board;
 
     @Builder
-    private Notification(String keyword, String type, User user, Directory directory, Board board) {
+    private Notification(String keyword, int type, User user, Directory directory, Board board) {
         this.keyword = keyword;
         this.type = type;
         this.user = user;
@@ -51,7 +50,7 @@ public class Notification {
         this.board = board;
     }
 
-    public static Notification createNotificationWithDirectory(String keyword, String type, User user, Directory directory) {
+    public static Notification createNotificationWithDirectory(String keyword, int type, User user, Directory directory) {
         return Notification.builder()
                 .keyword(keyword)
                 .type(type)
@@ -60,7 +59,7 @@ public class Notification {
                 .build();
     }
 
-    public static Notification createNotificationWithBoard(String keyword, String type, User user, Directory directory, Board board) {
+    public static Notification createNotificationWithBoard(String keyword, int type, User user, Directory directory, Board board) {
         return Notification.builder()
                 .keyword(keyword)
                 .type(type)

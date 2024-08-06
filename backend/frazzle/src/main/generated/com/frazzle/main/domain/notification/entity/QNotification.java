@@ -32,7 +32,7 @@ public class QNotification extends EntityPathBase<Notification> {
 
     public final NumberPath<Integer> notificationId = createNumber("notificationId", Integer.class);
 
-    public final StringPath type = createString("type");
+    public final NumberPath<Integer> type = createNumber("type", Integer.class);
 
     public final com.frazzle.main.domain.user.entity.QUser user;
 

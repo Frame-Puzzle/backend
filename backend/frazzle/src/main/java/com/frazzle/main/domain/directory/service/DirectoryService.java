@@ -3,18 +3,19 @@ package com.frazzle.main.domain.directory.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.frazzle.main.domain.board.entity.Board;
 import com.frazzle.main.domain.board.repository.BoardRepository;
-import com.frazzle.main.domain.board.service.BoardService;
 import com.frazzle.main.domain.directory.dto.*;
 import com.frazzle.main.domain.directory.entity.Directory;
 import com.frazzle.main.domain.directory.repository.DirectoryRepository;
 import com.frazzle.main.domain.notification.service.NotificationService;
 import com.frazzle.main.domain.notification.entity.Notification;
+import com.frazzle.main.domain.notification.entity.NotificationTypeFlag;
 import com.frazzle.main.domain.notification.repository.NotificationRepository;
 import com.frazzle.main.domain.piece.repository.PieceRepository;
 import com.frazzle.main.domain.user.entity.User;
 import com.frazzle.main.domain.user.repository.UserRepository;
 import com.frazzle.main.domain.userdirectory.entity.UserDirectory;
 import com.frazzle.main.domain.userdirectory.repository.UserDirectoryRepository;
+import com.frazzle.main.domain.usernotification.entity.UserNotification;
 import com.frazzle.main.domain.usernotification.repository.UserNotificationRepository;
 import com.frazzle.main.global.exception.CustomException;
 import com.frazzle.main.global.exception.ErrorCode;
@@ -59,8 +60,7 @@ public class DirectoryService {
     private final NotificationRepository notificationRepository;
     private final UserNotificationRepository userNotificationRepository;
     private final PieceRepository pieceRepository;
-    private final NotificationService notificationService;
-    //디렉토리 생성
+
     @Transactional
     public Directory createDirectory(UserPrincipal userPrincipal, CreateDirectoryRequestDto requestDto) {
         //1. 유저 정보 확인
@@ -87,7 +87,7 @@ public class DirectoryService {
 
         //2. 유저가 디렉토리에 가입되어 있지 않으면 에러
         if(!userDirectoryRepository.existsByDirectoryAndUserAndIsAccept(directory, user, true)) {
-          throw new CustomException(ErrorCode.DENIED_UPDATE);
+            throw new CustomException(ErrorCode.DENIED_UPDATE);
         }
 
         //3. 유저가 디렉토리에 가입되어 있으면 수정
@@ -145,8 +145,14 @@ public class DirectoryService {
         userDirectoryRepository.save(UserDirectory.createUserDirectory(directory, member, false));
         directory.changePeopleNumber(1);
 
-        //5. 알림 생성 -> 키워드 타입 임시로
-        notificationService.createNotificationWithInviteDirectory(directory.getDirectoryName(), "디렉토리 초대", user, member, directory);
+        //5. 앱내 알림 생성
+        Notification notification = Notification.createNotificationWithDirectory(directory.getCategory(), NotificationTypeFlag.INVITE_PEOPLE.getValue(), user, directory);
+        notificationRepository.save(notification);
+
+        //6. 초대된 멤버에게 알림 생성
+        UserNotification userNotification = UserNotification.createUserNotification(member, notification);
+        userNotificationRepository.save(userNotification);
+
         /*
         fcm 코드
          */
