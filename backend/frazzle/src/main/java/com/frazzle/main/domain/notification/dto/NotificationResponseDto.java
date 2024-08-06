@@ -20,9 +20,11 @@ public class NotificationResponseDto {
     private Boolean isRead;
     private int acceptStatus;
     private int boardId;
+    private String profileImg;
+    private int boardNum;
 
     @Builder
-    public NotificationResponseDto(int notificationId, LocalDateTime createTime, int type, String directoryName, String category, String createUserName, Boolean isRead, int acceptStatus, int boardId) {
+    public NotificationResponseDto(int notificationId, LocalDateTime createTime, int type, String directoryName, String category, String createUserName, Boolean isRead, int acceptStatus, int boardId, String profileImg, int boardNum) {
         this.notificationId = notificationId;
         this.createTime = createTime;
         this.type = type;
@@ -32,12 +34,17 @@ public class NotificationResponseDto {
         this.isRead = isRead;
         this.acceptStatus = acceptStatus;
         this.boardId = boardId;
+        this.profileImg = profileImg;
+        this.boardNum = boardNum;
     }
 
 
     public static NotificationResponseDto createNotificationResponse(UserNotification userNotification) {
         Notification notification = userNotification.getNotification();
         Directory directory = notification.getDirectory();
+
+        String profileImg = (notification.getUser() != null) ? notification.getUser().getProfileImg() : null;
+
         if(notification.getBoard() != null) {
             return NotificationResponseDto.builder()
                     .notificationId(notification.getNotificationId())
@@ -49,6 +56,8 @@ public class NotificationResponseDto {
                     .isRead(userNotification.getIsRead())
                     .acceptStatus(userNotification.getAcceptStatus())
                     .boardId(notification.getBoard().getBoardId())
+                    .boardNum(notification.getBoard().getBoardInNumber())
+                    .profileImg(profileImg)
                     .build();
         }
 
@@ -62,6 +71,7 @@ public class NotificationResponseDto {
                 .isRead(userNotification.getIsRead())
                 .acceptStatus(userNotification.getAcceptStatus())
                 .boardId(0)
+                .profileImg(profileImg)
                 .build();
 
     }
