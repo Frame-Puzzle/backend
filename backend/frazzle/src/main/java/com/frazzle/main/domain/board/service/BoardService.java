@@ -92,6 +92,7 @@ public class BoardService {
                 ""+board.getBoardInNumber(),
                 board.getBoardSize(),
                 thumbnailer,
+                board.getClearType(),
                 pieceResponseDtoList
                 );
 
@@ -143,7 +144,6 @@ public class BoardService {
     {
         User user = userPrincipal.getUser();
         Board board = findBoardByBoardId(boardId);
-
         board.updateUser(user);
     }
 
