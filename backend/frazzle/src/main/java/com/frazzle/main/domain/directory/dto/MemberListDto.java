@@ -13,19 +13,22 @@ public class MemberListDto {
     int userId;
     String nickname;
     String profileUrl;
+    boolean isAccept;
 
     @Builder
-    private MemberListDto(int userId, String nickname, String profileUrl) {
+    private MemberListDto(int userId, String nickname, String profileUrl, boolean isAccept) {
         this.userId = userId;
         this.nickname = nickname;
         this.profileUrl = profileUrl;
+        this.isAccept = isAccept;
     }
 
-    public static MemberListDto createMemberList(User user) {
+    public static MemberListDto createMemberList(User user, boolean isAccept) {
         return MemberListDto.builder()
                 .userId(user.getUserId())
                 .nickname(user.getNickname())
                 .profileUrl(user.getProfileImg())
+                .isAccept(isAccept)
                 .build();
     }
 }
