@@ -1,4 +1,4 @@
-package com.frazzle.main.domain.chat.dto;
+package com.frazzle.main.domain.game.chat.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
