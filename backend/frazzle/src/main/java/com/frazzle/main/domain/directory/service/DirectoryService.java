@@ -376,25 +376,42 @@ public class DirectoryService {
     @Transactional
     public void leaveDirectory(UserPrincipal userPrincipal, int directoryId) {
         //1. 유저 및 디렉토리 정보 확인
-        int userId = userPrincipal.getId();
+        User user = userPrincipal.getUser();
         Directory directory = directoryRepository.findByDirectoryId(directoryId).orElseThrow(
                 () -> new CustomException(ErrorCode.NOT_EXIST_DIRECTORY)
         );
 
         //2. 디렉토리 권한 확인
         UserDirectory userDirectory = userDirectoryRepository
-                .findByUser_UserIdAndDirectory_DirectoryIdAndIsAccept(userId, directoryId,true).orElseThrow(
+                .findByUser_UserIdAndDirectory_DirectoryIdAndIsAccept(user.getUserId(), directoryId,true).orElseThrow(
                         ()->new CustomException(ErrorCode.DENIED_DIRECTORY));
 
         //3. 디렉토리 나가기
         //3-1. 내가 올린 퍼즐 조각의 유저 null로 바꾸기
-        pieceRepository.nullifyUserInPiecesByDirectoryAndUser(userId, directoryId);
+        pieceRepository.nullifyUserInPiecesByDirectoryAndUser(user.getUserId(), directoryId);
         //3-2. 유저 디렉토리 삭제
         userDirectoryRepository.delete(userDirectory);
         //3-3. 유저 알림 삭제
         userNotificationRepository.deleteByDirectory(directory);
         //3-4. 디렉토리 유저 카운트 -1
         directory.changePeopleNumber(-1);
+
+        // 썸네일러일 경우 null로 변경
+        List<Board> boardList = boardRepository.findAllByUser(user);
+        if(!boardList.isEmpty()) {
+            for (Board board : boardList) {
+                board.updateUser(null);
+            }
+            boardRepository.saveAll(boardList);
+        }
+        // 알림을 만들었을 경우 null로 변경
+        List<Notification> notificationList = notificationRepository.findAllByUser(user);
+        if(!notificationList.isEmpty()) {
+            for (Notification notification : notificationList) {
+                notification.updateUser(null);
+            }
+            notificationRepository.saveAll(notificationList);
+        }
 
         //4. 디렉토리 삭제
         if(!userDirectoryRepository.existsByDirectoryAndIsAccept(directory, true)

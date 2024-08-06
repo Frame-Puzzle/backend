@@ -122,38 +122,6 @@ public class UserService {
             directoryService.leaveDirectory(userPrincipal, id);
         }
 
-        //3. 유저 알림 모두 삭제
-        List<UserNotification> userNotificationList = userNotificationRepository.findByUser(user);
-        if(!userNotificationList.isEmpty()) {
-            userNotificationRepository.deleteAll(userNotificationList);
-        }
-
-        //3. 퍼즐 조각의 관여한 유저id 모두 null로 변경
-        List<Piece> pieceList = pieceRepository.findAllByUser(user);
-        if(!pieceList.isEmpty()) {
-            for (Piece piece : pieceList) {
-                piece.updateUser(null);
-            }
-            pieceRepository.saveAll(pieceList);
-        }
-
-        // 썸네일러일 경우 null로 변경
-        List<Board> boardList = boardRepository.findAllByUser(user);
-        if(!boardList.isEmpty()) {
-            for (Board board : boardList) {
-                board.updateUser(null);
-            }
-            boardRepository.saveAll(boardList);
-        }
-        // 알림을 만들었을 경우 null로 변경
-        List<Notification> notificationList = notificationRepository.findAllByUser(user);
-        if(!notificationList.isEmpty()) {
-            for (Notification notification : notificationList) {
-                notification.updateUser(null);
-            }
-            notificationRepository.saveAll(notificationList);
-        }
-
         //4. 유저 디렉토리 삭제
         userDirectoryRepository.deleteByUser(user);
 
