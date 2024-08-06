@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class AcceptNotificationRequestDto {
-    @NotBlank
-    private Boolean isRead;
-    @NotBlank
+
+    private Boolean read;
+
     private int accept;
 }
