@@ -1,6 +1,7 @@
 package com.frazzle.main.domain.game.room.controller;
 
 import com.frazzle.main.domain.game.chat.dto.SendMessageDto;
+import com.frazzle.main.domain.game.chat.service.ChatService;
 import com.frazzle.main.domain.game.room.entity.Room;
 import com.frazzle.main.domain.game.room.entity.RoomNotification;
 import com.frazzle.main.domain.game.room.entity.RoomUser;
@@ -32,14 +33,55 @@ public class RoomController {
 
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final RoomService roomService;
+    private final ChatService chatService;
     private final UserService userService;
     private final UserRepository userRepository;
 
+    //대기방 입장
     @MessageMapping("/room/entry/{boardId}")
     public void entryChat(
             @DestinationVariable int boardId,
             SendMessageDto sendMessageDto,
             SimpMessageHeaderAccessor accessor) {
+
+        //jwt로 부터 이메일을 얻어 유저를 얻음
+        String email = (String) accessor.getSessionAttributes().get("senderEmail");
+
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new CustomException(ErrorCode.NOT_EXIST_USER)
+        );
+
+        //대기방에서 유저의 정보
+        //유저 아이디, 유저 닉네임, 유저 프로필 필요
+        RoomUser roomUser = RoomUser.createRoomUser(user.getUserId(), user.getNickname(), user.getProfileImg());
+
+        //퍼즐판의 id를 통해 대기방을 만들거고 유저 추가
+        roomService.addUserToRoom(boardId, roomUser);
+
+        //보드id를 통해 대기방 정보 찾기
+        Room room = roomService.getRoom(boardId);
+
+        log.info("entryChat roomId={}, room={}", boardId, room);
+
+        //알림 추가
+        RoomNotification notification = RoomNotification.createRoomNotification("입장", room);
+
+        // /sub/room으로 메시지 보내기
+        simpMessagingTemplate.convertAndSend("/sub/room/" + boardId, notification);
+
+    }
+
+    //대기방 나가기
+    @MessageMapping("/room/exit/{boardId}")
+    public void exitChat(
+            @DestinationVariable int boardId,
+            SendMessageDto sendMessageDto,
+            SimpMessageHeaderAccessor accessor) {
+
+        log.info("exitChat roomId={}, sendMessageDto={}", boardId, sendMessageDto);
+        log.info(sendMessageDto.toString());
+
+        //jwt로 부터 이메일을 얻어 유저를 얻음
         String email = (String) accessor.getSessionAttributes().get("senderEmail");
 
         User user = userRepository.findByEmail(email).orElseThrow(
@@ -47,32 +89,10 @@ public class RoomController {
         );
 
         RoomUser roomUser = RoomUser.createRoomUser(user.getUserId(), user.getNickname(), user.getProfileImg());
-        roomService.addUserToRoom(boardId, roomUser);
-
-        Room room = roomService.getRoom(boardId);
-        log.info("entryChat roomId={}, room={}", boardId, room);
-        RoomNotification notification = RoomNotification.createRoomNotification("입장", room);
-
-        simpMessagingTemplate.convertAndSend("/sub/room/" + boardId, notification);
-    }
-
-    @MessageMapping("/room/exit/{boardId}")
-    public void exitChat(
-            @AuthenticationPrincipal UserPrincipal userPrincipal,
-            @DestinationVariable int boardId,
-            SendMessageDto sendMessageDto,
-            StompHeaderAccessor headerAccessor) {
-
-        log.info("exitChat roomId={}, sendMessageDto={}", boardId, sendMessageDto);
-        log.info(sendMessageDto.toString());
-
-        User user = userPrincipal.getUser();
-        log.info(user.getNickname());
-
-        RoomUser roomUser = RoomUser.createRoomUser(user.getUserId(), user.getNickname(), user.getProfileImg());
+        //유저 제거
         roomService.removeUserFromRoom(boardId, roomUser);
 
-        // Notify all users about the updated user list
+        //대기방에 메시지 보내기
         Room room = roomService.getRoom(boardId);
         RoomNotification notification = RoomNotification.createRoomNotification("퇴장", room);
         simpMessagingTemplate.convertAndSend("/sub/room/" + boardId, notification);

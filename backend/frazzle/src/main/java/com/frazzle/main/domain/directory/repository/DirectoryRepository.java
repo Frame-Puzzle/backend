@@ -18,5 +18,5 @@ public interface DirectoryRepository extends JpaRepository<Directory, Integer>, 
     List<Directory> findMyDirectory(User user, String category);
 
     @Override
-    Directory findByBoardId(int boardId);
+    Optional<Directory> findByBoardId(int boardId);
 }

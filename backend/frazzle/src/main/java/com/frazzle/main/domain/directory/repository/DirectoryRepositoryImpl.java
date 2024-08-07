@@ -14,6 +14,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 public class DirectoryRepositoryImpl implements DirectoryRepositoryCustom{
@@ -47,16 +48,16 @@ public class DirectoryRepositoryImpl implements DirectoryRepositoryCustom{
     }
 
     @Override
-    public Directory findByBoardId(int boardId) {
+    public Optional<Directory> findByBoardId(int boardId) {
         JPQLQuery<Directory> subquery = JPAExpressions
                 .select(board.directory)
                 .from(board)
                 .where(board.boardId.eq(boardId));
 
-        return queryFactory
+        return Optional.ofNullable(queryFactory
                 .selectFrom(directory)
                 .where(directory.eq(subquery))
-                .fetchOne(); // 단일 결과를 반환하도록 수정
+                .fetchOne()); // 단일 결과를 반환하도록 수정
     }
 
 }

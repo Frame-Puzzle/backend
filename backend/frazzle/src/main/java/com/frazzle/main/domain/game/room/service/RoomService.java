@@ -37,15 +37,10 @@ public class RoomService {
     public void createRoom(int boardId) {
 
         if (!roomList.containsKey(boardId)) {
-//            Board board = boardRepository.findByBoardId(boardId).orElseThrow(
-//                    () -> new CustomException(ErrorCode.NOT_EXIST_BOARD)
-//            );
-//
-//            Directory directory =  directoryRepository.findB(4).orElseThrow(
-//                    () -> new CustomException(ErrorCode.NOT_EXIST_DIRECTORY)
-//            );
 
-            Directory directory = directoryRepository.findByBoardId(boardId);
+            Directory directory = directoryRepository.findByBoardId(boardId).orElseThrow(
+                    () -> new CustomException(ErrorCode.NOT_EXIST_DIRECTORY)
+            );
 
             Room room = Room.createRoom(boardId, directory.getPeopleNumber());
             roomList.put(boardId, room);
@@ -81,19 +76,21 @@ public class RoomService {
             return;
         }
 
+        //없으면 대기방에 속한 유저들에게 알림 주기
         notifyUserAdded(room, roomUser);
         room.addRoomUser(roomUser);
     }
 
-    public void removeUserFromRoom(int roomId, RoomUser roomUser) {
+    public void removeUserFromRoom(int roomId, RoomUser inputUser) {
 
         Room room = roomList.get(roomId);
         RoomUser removeUser = null;
         if (room != null) {
             List<RoomUser> roomUserList = room.getRoomUserList();
+            //유저 닉네임 같은 것 찾기
             for (RoomUser user : roomUserList) {
-                if (roomUser.getNickname().equals(user.getNickname())) {
-                    removeUser = roomUser;
+                if (inputUser.equals(user)) {
+                    removeUser = user;
                     break;
                 }
             }
@@ -101,7 +98,7 @@ public class RoomService {
             roomUserList.remove(removeUser);
             notifyUserRemoved(room, removeUser);
 
-            if(room.getKing().equals(roomUser.getNickname())) {
+            if(room.getKing().equals(inputUser)) {
                 room.updateUser(room.getRoomUserList().get(0));
             }
 

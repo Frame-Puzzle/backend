@@ -1,5 +1,6 @@
 package com.frazzle.main.domain.game.room.entity;
 
+import com.frazzle.main.domain.user.entity.User;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -9,16 +10,24 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-
+/*
+방 id -> boardId
+maxPeople -> 게임의 최대 인원수 == 디렉토리의 최대 인원수
+roomUserList -> 방의 유저 리스트
+start -> 시작 시간
+end -> 끝나는 시간
+king -> 반장
+ */
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Room {
+
     private int roomId;
     private int maxPeople;
     private List<RoomUser> roomUserList;
     private Date startTime;
     private Date endTime;
-    private String king;
+    private RoomUser king;
 
     @Builder
     private Room(int roomId, int maxPeople, List<RoomUser> roomUserList, Date startTime, Date endTime) {
@@ -54,7 +63,7 @@ public class Room {
     }
 
     public void updateUser(RoomUser roomUser) {
-        this.king = roomUser.getNickname();
+        this.king = roomUser;
     }
 
 }

@@ -27,6 +27,9 @@ import org.springframework.web.socket.messaging.SessionConnectEvent;
 
 import java.security.Principal;
 
+/*
+웹 소켓 시 token 검증
+ */
 @RequiredArgsConstructor
 @Component
 @Slf4j
@@ -45,6 +48,7 @@ public class StompHandler implements ChannelInterceptor {
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
 
+        //토큰 존재 여부 확인
         if (accessor.getCommand() == StompCommand.CONNECT) {
             if (!this.validateAccessToken(accessor.getFirstNativeHeader("Authorization"))) {
                 throw new CustomException(ErrorCode.NOT_EXIST_USER);
@@ -55,6 +59,7 @@ public class StompHandler implements ChannelInterceptor {
     }
 
     private boolean validateAccessToken(String accessToken) {
+        //토큰 존재 x면 false
         if (accessToken == null) {
             return false;
         }
@@ -65,8 +70,11 @@ public class StompHandler implements ChannelInterceptor {
             accessToken = bearerToken.substring(7);
 
             try {
+                //토큰으로부터 userId를 가져옴
                 String payload = jwtTokenService.getPayload(accessToken);
+                //유저 정보 찾기
                 User user = userRepository.findById(Integer.parseInt(payload)).get();
+                //유저의 이메일을 임시 저장
                 this.email = user.getEmail();
 
                 return jwtTokenService.validateToken(accessToken);
@@ -78,13 +86,17 @@ public class StompHandler implements ChannelInterceptor {
         return false;
     }
 
+    //검증을 할때마다 검증 하는 메서드
     @EventListener(SessionConnectEvent.class)
     public void onApplicationEvent(SessionConnectEvent event) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
         String accessToken = accessor.getFirstNativeHeader("Authorization");
 
         if (this.validateAccessToken(accessToken)) {
+
             log.info("validate access token"+accessToken);
+
+            //헤더에 senderEmail에 email값을 저장
             accessor.getSessionAttributes().put("senderEmail", email);
         }
     }
