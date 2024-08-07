@@ -61,7 +61,19 @@ public class WebSocketController {
     @MessageMapping("/message/{boardId}")
     public void sendMessage(
             @DestinationVariable int boardId,
-            SendMessageDto sendMessage) {
+            SendMessageDto sendMessage,
+            SimpMessageHeaderAccessor accessor) {
+
+        //이메일로부터 사용자 찾기
+        String email = (String) accessor.getSessionAttributes().get("senderEmail");
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new CustomException(ErrorCode.NOT_EXIST_USER)
+        );
+
+        sendMessage.changeNickname(user.getNickname());
+
+        log.info(sendMessage.toString());
+
         simpMessagingTemplate.convertAndSend("/sub/message/" + boardId, sendMessage);
     }
 
