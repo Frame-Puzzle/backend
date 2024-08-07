@@ -32,31 +32,6 @@ public class WebSocketController {
     private final ChatService chatService;
     private final UserRepository userRepository;
 
-    @MessageMapping("/message/entry/{boardId}")
-    public void entryChat(
-            @DestinationVariable int boardId,
-            SendMessageDto sendMessageDto,
-            SimpMessageHeaderAccessor accessor) {
-
-        //이메일로부터 사용자 찾기
-        String email = (String) accessor.getSessionAttributes().get("senderEmail");
-        User user = userRepository.findByEmail(email).orElseThrow(
-                () -> new CustomException(ErrorCode.NOT_EXIST_USER)
-        );
-
-        RoomUser roomUser = RoomUser.createRoomUser(user.getUserId(), user.getNickname(), user.getProfileImg());
-
-        //채팅에 접속
-        sendMessageDto = chatService.entryChat(roomUser, boardId, sendMessageDto);
-
-        log.info("message: " + sendMessageDto.getMessage());
-
-        log.info("user.getUserId: "+user.getUserId());
-
-        // /sub/message를 구독한 메서드에 메시지 보냄
-        simpMessagingTemplate.convertAndSend("/sub/message/" + boardId, sendMessageDto);
-    }
-
     //채팅 보내는 메서드
     @MessageMapping("/message/{boardId}")
     public void sendMessage(
@@ -77,15 +52,4 @@ public class WebSocketController {
         simpMessagingTemplate.convertAndSend("/sub/message/" + boardId, sendMessage);
     }
 
-    //채팅 나가는 메서드
-    @MessageMapping("/message/exit/{boardId}")
-    public void exitChat(
-            @Header("Authorization") String authorization,
-            @DestinationVariable int boardId,
-            SendMessageDto sendMessage) {
-        sendMessage.entryMessage(sendMessage.getUserId() + "님이 퇴장하셨습니다.");
-        log.info("message: " + sendMessage.getMessage());
-        log.info(authorization);
-        simpMessagingTemplate.convertAndSend("/sub/message/" + boardId, sendMessage);
-    }
 }
