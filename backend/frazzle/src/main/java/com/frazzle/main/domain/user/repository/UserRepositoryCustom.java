@@ -20,5 +20,5 @@ public interface UserRepositoryCustom {
 
     Long updateRefreshToken(User updateUser, String refreshToken);
 
-    List<User> findDirectoryUsers(Directory directory);
+    List<User> findDirectoryUsers(Directory directory, boolean isAccept);
 }
