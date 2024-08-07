@@ -33,7 +33,7 @@ public class User {
     @Column(name = "social_type", length = 10, nullable = false)
     private String socialType;
 
-    @Column(name = "profile_img", unique = true)
+    @Column(name = "profile_img")
     private String profileImg;
 
     @Column(name = "refresh_token")
@@ -82,6 +82,7 @@ public class User {
                 .nickname(nickname)
                 .email(email)
                 .socialType(socialType)
+                .profileImg("https://frazzle208.s3.ap-northeast-2.amazonaws.com/img/profile-default.png")
                 .build();
     }
     public void updateUserProfileImg(String profileImg) {
