@@ -40,6 +40,7 @@ public class ChatService {
         String nickname = user.getNickname();
         sendMessageDto.changeNickname(nickname);
         sendMessageDto.changeUserId(user.getUserId());
+        sendMessageDto.entryMessage(user.getNickname()+"님이 입장하십니다.");
         return sendMessageDto;
     }
 }

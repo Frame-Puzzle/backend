@@ -69,6 +69,16 @@ public class RoomController {
         // /sub/room으로 메시지 보내기
         simpMessagingTemplate.convertAndSend("/sub/room/" + boardId, notification);
 
+        //채팅에 접속
+        sendMessageDto = chatService.entryChat(roomUser, boardId, sendMessageDto);
+
+        log.info("message: " + sendMessageDto.getMessage());
+
+        log.info("user.getUserId: "+user.getUserId());
+
+        // /sub/message를 구독한 메서드에 메시지 보냄
+        simpMessagingTemplate.convertAndSend("/sub/message/" + boardId, sendMessageDto);
+
     }
 
     //대기방 나가기
