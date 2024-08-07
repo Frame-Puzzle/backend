@@ -19,6 +19,13 @@ public class SendMessageDto {
     @NotBlank
     private String message;
 
+    @NotBlank
+    private String nickname;
+
+    public void changeNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
     public void changeUserId(int userId) {
         this.userId = userId;
     };
