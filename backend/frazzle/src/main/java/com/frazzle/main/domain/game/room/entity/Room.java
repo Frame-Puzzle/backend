@@ -23,23 +23,27 @@ king -> 반장
 public class Room {
 
     private int roomId;
+    private String imgUrl;
     private int maxPeople;
     private List<RoomUser> roomUserList;
     private Date startTime;
     private Date endTime;
     private RoomUser king;
 
+
     @Builder
-    private Room(int roomId, int maxPeople, List<RoomUser> roomUserList, Date startTime, Date endTime) {
+    public Room(int roomId, String imgUrl, int maxPeople, List<RoomUser> roomUserList, Date startTime, Date endTime, RoomUser king) {
         this.roomId = roomId;
+        this.imgUrl = imgUrl;
         this.maxPeople = maxPeople;
         this.roomUserList = roomUserList;
         this.startTime = startTime;
         this.endTime = endTime;
+        this.king = king;
     }
 
     //객체 생성 후 10분동안만 가능
-    public static Room createRoom(int roomId, int maxPeople) {
+    public static Room createRoom(int roomId, int maxPeople, String imgUrl) {
         Date startTime = new Date();
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(startTime);
@@ -51,6 +55,7 @@ public class Room {
                 .startTime(startTime)
                 .endTime(calendar.getTime())
                 .maxPeople(maxPeople)
+                .imgUrl(imgUrl)
                 .build();
     }
 

@@ -8,11 +8,15 @@ import com.frazzle.main.domain.directory.repository.DirectoryRepository;
 import com.frazzle.main.domain.game.room.entity.Room;
 import com.frazzle.main.domain.game.room.entity.RoomUser;
 import com.frazzle.main.domain.game.room.listener.RoomEventListener;
+import com.frazzle.main.domain.piece.entity.Piece;
+import com.frazzle.main.domain.piece.repository.PieceRepository;
 import com.frazzle.main.domain.user.entity.User;
+import com.frazzle.main.domain.user.repository.UserRepository;
 import com.frazzle.main.global.exception.CustomException;
 import com.frazzle.main.global.exception.ErrorCode;
 import com.frazzle.main.global.models.UserPrincipal;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -25,13 +29,14 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class RoomService {
-    private static final Logger log = LoggerFactory.getLogger(RoomService.class);
     private final Map<Integer, Room> roomList = new HashMap<>();
     private final List<RoomEventListener> listeners = new ArrayList<>();
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private final BoardRepository boardRepository;
     private final DirectoryRepository directoryRepository;
+    private final PieceRepository pieceRepository;
 
     @Transactional
     public void createRoom(int boardId) {
@@ -41,8 +46,14 @@ public class RoomService {
             Directory directory = directoryRepository.findByBoardId(boardId).orElseThrow(
                     () -> new CustomException(ErrorCode.NOT_EXIST_DIRECTORY)
             );
+            Board board = boardRepository.findById(boardId).orElseThrow(
+                    () -> new CustomException(ErrorCode.NOT_EXIST_BOARD)
+            );
 
-            Room room = Room.createRoom(boardId, directory.getPeopleNumber());
+            Piece piece = pieceRepository.findByBoardOrderByPeopleCountDesc(board);
+
+
+            Room room = Room.createRoom(boardId, directory.getPeopleNumber(), piece.getImageUrl());
             roomList.put(boardId, room);
             long delay = room.getEndTime().getTime() - System.currentTimeMillis();
             scheduler.schedule(() -> removeRoom(boardId), delay, TimeUnit.MILLISECONDS);
@@ -101,7 +112,6 @@ public class RoomService {
             if(room.getKing().equals(inputUser)) {
                 room.updateUser(room.getRoomUserList().get(0));
             }
-
 
             if (room.getRoomUserList().isEmpty()) {
                 roomList.remove(roomId);
