@@ -7,6 +7,7 @@ import com.frazzle.main.global.models.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -32,6 +33,7 @@ public class WebSocketController {
         sendMessageDto = chatService.entryChat(userPrincipal, boardId, sendMessageDto);
         log.info("message: " + sendMessageDto.getMessage());
 //        headerAccessor.getSessionAttributes().put("roomId", String.valueOf(boardId));  // 세션에 방 ID 저장
+        log.info("chat"+userPrincipal.getId());
         simpMessagingTemplate.convertAndSend("/sub/message/" + boardId, sendMessageDto);
     }
 
@@ -44,11 +46,12 @@ public class WebSocketController {
 
     @MessageMapping("/message/exit/{boardId}")
     public void exitChat(
-            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @Header("Authorization") String authorization,
             @DestinationVariable int boardId,
             SendMessageDto sendMessage) {
-        sendMessage.entryMessage(sendMessage.getNickname() + "님이 퇴장하셨습니다.");
+        sendMessage.entryMessage(sendMessage.getUserId() + "님이 퇴장하셨습니다.");
         log.info("message: " + sendMessage.getMessage());
+        log.info(authorization);
         simpMessagingTemplate.convertAndSend("/sub/message/" + boardId, sendMessage);
     }
 }

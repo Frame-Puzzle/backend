@@ -9,6 +9,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import javax.security.auth.Subject;
+import java.security.Principal;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -17,7 +19,7 @@ import java.util.Map;
 @Getter
 @AllArgsConstructor
 //사용자 정보를 시큐리티에서도 가능하게 함
-public class UserPrincipal implements UserDetails {
+public class UserPrincipal implements UserDetails, Principal {
 
     //사용자의 pk값
     private int id;
@@ -66,5 +68,15 @@ public class UserPrincipal implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    @Override
+    public String getName() {
+        return this.email;
+    }
+
+    @Override
+    public boolean implies(Subject subject) {
+        return Principal.super.implies(subject);
     }
 }

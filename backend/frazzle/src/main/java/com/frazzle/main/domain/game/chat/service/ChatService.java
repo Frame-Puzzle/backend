@@ -29,7 +29,7 @@ public class ChatService {
 //            throw new CustomException(ErrorCode.DENIED_PLAY_CHAT);
 //        }
 //        String nickname = userRepository.findNicknameByUserId(user.getUserId());
-        sendMessageDto.changeNickname("nickname");
+        sendMessageDto.changeUserId(2);
         sendMessageDto.entryMessage("nickname"+"님이 입장하셨습니다.");
         return sendMessageDto;
     }

@@ -2,27 +2,25 @@ package com.frazzle.main.domain.game.chat.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
+@ToString
 public class SendMessageDto {
 
     @NotNull
     int boardId;
 
     @NotBlank
-    private String nickname;
+    private int userId;
 
     @NotBlank
     private String message;
 
-    public void changeNickname(String nickname) {
-        this.nickname = nickname;
+    public void changeUserId(int userId) {
+        this.userId = userId;
     };
 
     public void entryMessage(String message) {
