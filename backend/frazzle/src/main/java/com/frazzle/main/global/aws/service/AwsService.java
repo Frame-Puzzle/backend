@@ -33,9 +33,16 @@ public class AwsService {
     public String uploadFile(MultipartFile file) {
         try {
             File fileObj = convertMultiPartFileToFile(file);
+            String originalFilename = file.getOriginalFilename();
+
+            String extension = "";
+            int dotIndex = originalFilename.lastIndexOf('.');
+            if (dotIndex > 0) {
+                extension = originalFilename.substring(dotIndex);
+            }
 
             //uuid로 랜덤
-            String uniqueFileName = UUID.randomUUID().toString();
+            String uniqueFileName = UUID.randomUUID().toString()+extension;
 
             s3Client.putObject(new PutObjectRequest(name, uniqueFileName, fileObj));
             fileObj.delete();
