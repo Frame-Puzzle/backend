@@ -1,14 +1,14 @@
-package com.frazzle.main.domain.chat.service;
+package com.frazzle.main.domain.socket.chat.service;
 
-import com.frazzle.main.domain.chat.dto.SendMessageDto;
 import com.frazzle.main.domain.directory.entity.Directory;
+import com.frazzle.main.domain.socket.chat.dto.SendMessageDto;
 import com.frazzle.main.domain.directory.repository.DirectoryRepository;
+import com.frazzle.main.domain.socket.roby.entity.RobyUser;
 import com.frazzle.main.domain.user.entity.User;
 import com.frazzle.main.domain.user.repository.UserRepository;
 import com.frazzle.main.domain.userdirectory.repository.UserDirectoryRepository;
 import com.frazzle.main.global.exception.CustomException;
 import com.frazzle.main.global.exception.ErrorCode;
-import com.frazzle.main.global.models.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,18 +23,23 @@ public class ChatService {
     private final DirectoryRepository directoryRepository;
 
     @Transactional
-    public SendMessageDto entryChat(UserPrincipal userPrincipal, int directoryId, SendMessageDto sendMessageDto) {
-        User user = userPrincipal.getUser();
-        Directory directory = directoryRepository.findById(directoryId).orElseThrow(
-                ()->new CustomException(ErrorCode.NOT_EXIST_DIRECTORY)
+    public SendMessageDto entryChat(RobyUser robyUser, int boardId, SendMessageDto sendMessageDto) {
+
+        Directory directory = directoryRepository.findByBoardId(boardId).orElseThrow(
+                () -> new CustomException(ErrorCode.NOT_EXIST_DIRECTORY)
+        );
+
+        User user = userRepository.findByUserId(robyUser.getUserId()).orElseThrow(
+                () -> new CustomException(ErrorCode.NOT_EXIST_USER)
         );
 
         if(!userDirectoryRepository.existsByDirectoryAndUserAndIsAccept(directory, user, true)){
             throw new CustomException(ErrorCode.DENIED_PLAY_CHAT);
         }
-        String nickname = userRepository.findNicknameByUserId(user.getUserId());
+        String nickname = user.getNickname();
         sendMessageDto.changeNickname(nickname);
-        sendMessageDto.entryMessage(nickname+"님이 입장하셨습니다.");
+        sendMessageDto.changeUserId(user.getUserId());
+        sendMessageDto.entryMessage(user.getNickname()+"님이 입장하였습니다.");
         return sendMessageDto;
     }
 }
