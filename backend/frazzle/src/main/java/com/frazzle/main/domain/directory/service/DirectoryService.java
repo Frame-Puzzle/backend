@@ -183,6 +183,7 @@ public class DirectoryService {
         //3. 초대 취소
         userDirectoryRepository.deleteByUserAndDirectory(member, directory);
         directory.changePeopleNumber(-1);
+        userNotificationRepository.updateMemberCancel(member, directory);
     }
 
     //내 디렉토리 카테고리별 찾기
