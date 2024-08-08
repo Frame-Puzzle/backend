@@ -113,4 +113,25 @@ public class BoardController {
                 .body(ResultDto.res(HttpStatus.OK.value(),
                         "썸네일 수정 성공"));
     }
+
+    //게임 대기방 생성시 대표 사진 조회
+    @PutMapping("/{boardID}/games")
+    @Operation(summary = "게임 대기방 생성시 대표 사진 조회", description = "게임 대기방 생성시 대표 사진 조회하기")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "조회에 성공했습니다.",
+                    content = @Content(schema = @Schema(implementation = ResultDto.class))),
+            @ApiResponse(responseCode = "404", description = "조회에 실패했습니다.",
+                    content = @Content(schema = @Schema(implementation = ResultDto.class)))
+    })
+    public ResponseEntity<ResultDto> findMaxPeople(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable("boardID") int boardID) {
+
+        FindMaxPeopleResponseDto responseDto = boardService.findMaxPeople(userPrincipal, boardID);
+
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ResultDto.res(HttpStatus.OK.value(),
+                        "조회에 성공했슴니다.", responseDto));
+    }
 }

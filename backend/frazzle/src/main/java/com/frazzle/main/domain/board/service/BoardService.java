@@ -394,5 +394,26 @@ public class BoardService {
         //디렉토리에 있는 유저들 모두에게 알림 저장
         userNotificationRepository.saveAll(userNotificationList);
     }
+
+    public FindMaxPeopleResponseDto findMaxPeople(UserPrincipal userPrincipal, int boardID) {
+        User user = userPrincipal.getUser();
+
+        //퍼즐판 존재 여부 확인
+        Board board = boardRepository.findByBoardId(boardID).orElseThrow(
+                () -> new CustomException(ErrorCode.NOT_EXIST_BOARD)
+        );
+
+        Directory directory = board.getDirectory();
+
+        //권환 확인
+        userDirectoryRepository.findByUser_UserIdAndDirectory_DirectoryIdAndIsAccept(user.getUserId(), directory.getDirectoryId(), true).orElseThrow(
+                () -> new CustomException(ErrorCode.DENIED_DIRECTORY)
+        );
+
+        //보드와 연관된 퍼즐조각중 사람 수가 가장 많은 거 하나만 가져오기
+        Piece piece = pieceRepository.findByBoardOrderByPeopleCountDesc(board);
+
+        return FindMaxPeopleResponseDto.createResponseDto(piece.getImageUrl(), directory.getDirectoryName(), board.getBoardInNumber());
+    }
 }
 
