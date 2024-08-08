@@ -86,8 +86,11 @@ public class BoardService {
             );
         }
 
-        String keywordToken[] = ParseStringWord.hashTagToStringToken(board.getKeyword());
+        String keywordToken[] = null;
 
+        if(board.getKeyword()==null) {
+            keywordToken = ParseStringWord.hashTagToStringToken(board.getKeyword());
+        }
         String thumbnailer = null;
         if(board.getUser() != null)
             thumbnailer = board.getUser().getNickname();
@@ -123,9 +126,11 @@ public class BoardService {
             throw new CustomException(ErrorCode.UNAUTHORIZED);
         }
 
-        String[] keywordToken = boardDto.getKeyword();
-        String mergedKeyword = ParseStringWord.StringToHashTag(keywordToken);
+        String mergedKeyword = null;
 
+        if (boardDto.getKeyword() != null) {
+            mergedKeyword = ParseStringWord.StringToHashTag(boardDto.getKeyword());
+        }
         //보드 생성
         directory.addBoardNumber();
         Board board = Board.createBoard(boardDto, directory, mergedKeyword);
