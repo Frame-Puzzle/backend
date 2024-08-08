@@ -1,4 +1,4 @@
-package com.frazzle.main.domain.game.room.entity;
+package com.frazzle.main.domain.game.roby.entity;
 
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -13,20 +13,20 @@ import java.util.Objects;
  */
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class RoomUser {
+public class RobyUser {
     private int userId;
     private String nickname;
     private String profileImg;
 
     @Builder
-    private RoomUser(int userId, String nickname, String profileImg) {
+    private RobyUser(int userId, String nickname, String profileImg) {
         this.userId = userId;
         this.nickname = nickname;
         this.profileImg = profileImg;
     }
 
-    public static RoomUser createRoomUser(int userId, String nickname, String profileImg) {
-        return RoomUser.builder()
+    public static RobyUser createRoomUser(int userId, String nickname, String profileImg) {
+        return RobyUser.builder()
                 .userId(userId)
                 .nickname(nickname)
                 .profileImg(profileImg)
@@ -36,9 +36,9 @@ public class RoomUser {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof RoomUser)) return false;
-        RoomUser roomUser = (RoomUser) o;
-        return getUserId() == roomUser.getUserId() && Objects.equals(getNickname(), roomUser.getNickname()) && Objects.equals(getProfileImg(), roomUser.getProfileImg());
+        if (!(o instanceof RobyUser)) return false;
+        RobyUser robyUser = (RobyUser) o;
+        return getUserId() == robyUser.getUserId() && Objects.equals(getNickname(), robyUser.getNickname()) && Objects.equals(getProfileImg(), robyUser.getProfileImg());
     }
 
     @Override

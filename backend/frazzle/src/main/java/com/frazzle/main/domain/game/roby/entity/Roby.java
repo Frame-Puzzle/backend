@@ -1,6 +1,5 @@
-package com.frazzle.main.domain.game.room.entity;
+package com.frazzle.main.domain.game.roby.entity;
 
-import com.frazzle.main.domain.user.entity.User;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,38 +19,38 @@ king -> 반장
  */
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Room {
+public class Roby {
 
-    private int roomId;
+    private int robyId;
     private String imgUrl;
     private int maxPeople;
-    private List<RoomUser> roomUserList;
+    private List<RobyUser> robyUserList;
     private Date startTime;
     private Date endTime;
-    private RoomUser king;
+    private RobyUser king;
 
 
     @Builder
-    public Room(int roomId, String imgUrl, int maxPeople, List<RoomUser> roomUserList, Date startTime, Date endTime, RoomUser king) {
-        this.roomId = roomId;
+    public Roby(int robyId, String imgUrl, int maxPeople, List<RobyUser> robyUserList, Date startTime, Date endTime, RobyUser king) {
+        this.robyId = robyId;
         this.imgUrl = imgUrl;
         this.maxPeople = maxPeople;
-        this.roomUserList = roomUserList;
+        this.robyUserList = robyUserList;
         this.startTime = startTime;
         this.endTime = endTime;
         this.king = king;
     }
 
     //객체 생성 후 10분동안만 가능
-    public static Room createRoom(int roomId, int maxPeople, String imgUrl) {
+    public static Roby createRoby(int robyId, int maxPeople, String imgUrl) {
         Date startTime = new Date();
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(startTime);
         calendar.add(Calendar.MINUTE, 10);
 
-        return Room.builder()
-                .roomId(roomId)
-                .roomUserList(new ArrayList<>())
+        return Roby.builder()
+                .robyId(robyId)
+                .robyUserList(new ArrayList<>())
                 .startTime(startTime)
                 .endTime(calendar.getTime())
                 .maxPeople(maxPeople)
@@ -59,16 +58,16 @@ public class Room {
                 .build();
     }
 
-    public void addRoomUser(RoomUser roomUser) {
-        roomUserList.add(roomUser);
+    public void addRobyUser(RobyUser robyUser) {
+        robyUserList.add(robyUser);
     }
 
-    public void removeRoomUser(RoomUser roomUser) {
-        roomUserList.remove(roomUser);
+    public void removeRobyUser(RobyUser robyUser) {
+        robyUserList.remove(robyUser);
     }
 
-    public void updateUser(RoomUser roomUser) {
-        this.king = roomUser;
+    public void updateUser(RobyUser robyUser) {
+        this.king = robyUser;
     }
 
 }

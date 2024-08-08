@@ -1,44 +1,37 @@
-package com.frazzle.main.domain.game.room.controller;
+package com.frazzle.main.domain.game.roby.controller;
 
 import com.frazzle.main.domain.game.chat.dto.SendMessageDto;
 import com.frazzle.main.domain.game.chat.service.ChatService;
-import com.frazzle.main.domain.game.room.entity.Room;
-import com.frazzle.main.domain.game.room.entity.RoomNotification;
-import com.frazzle.main.domain.game.room.entity.RoomUser;
-import com.frazzle.main.domain.game.room.service.RoomService;
+import com.frazzle.main.domain.game.roby.entity.Roby;
+import com.frazzle.main.domain.game.roby.entity.RobyNotification;
+import com.frazzle.main.domain.game.roby.entity.RobyUser;
+import com.frazzle.main.domain.game.roby.service.RobyService;
 import com.frazzle.main.domain.user.entity.User;
 import com.frazzle.main.domain.user.repository.UserRepository;
 import com.frazzle.main.domain.user.service.UserService;
 import com.frazzle.main.global.exception.CustomException;
 import com.frazzle.main.global.exception.ErrorCode;
-import com.frazzle.main.global.models.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
-import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.security.Principal;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-public class RoomController {
+public class RobyController {
 
     private final SimpMessagingTemplate simpMessagingTemplate;
-    private final RoomService roomService;
+    private final RobyService robyService;
     private final ChatService chatService;
     private final UserService userService;
     private final UserRepository userRepository;
 
     //대기방 입장
-    @MessageMapping("/room/entry/{boardId}")
+    @MessageMapping("/roby/entry/{boardId}")
     public void entryChat(
             @DestinationVariable int boardId,
             SendMessageDto sendMessageDto,
@@ -53,24 +46,24 @@ public class RoomController {
 
         //대기방에서 유저의 정보
         //유저 아이디, 유저 닉네임, 유저 프로필 필요
-        RoomUser roomUser = RoomUser.createRoomUser(user.getUserId(), user.getNickname(), user.getProfileImg());
+        RobyUser robyUser = RobyUser.createRoomUser(user.getUserId(), user.getNickname(), user.getProfileImg());
 
         //퍼즐판의 id를 통해 대기방을 만들거고 유저 추가
-        roomService.addUserToRoom(boardId, roomUser);
+        robyService.addUserToRoby(boardId, robyUser);
 
         //보드id를 통해 대기방 정보 찾기
-        Room room = roomService.getRoom(boardId);
+        Roby roby = robyService.getRoby(boardId);
 
-        log.info("entryChat roomId={}, room={}", boardId, room);
+        log.info("entryChat roomId={}, roby={}", boardId, roby);
 
         //알림 추가
-        RoomNotification notification = RoomNotification.createRoomNotification("입장", room);
+        RobyNotification notification = RobyNotification.createRoomNotification("입장", roby);
 
         // /sub/room으로 메시지 보내기
-        simpMessagingTemplate.convertAndSend("/sub/room/" + boardId, notification);
+        simpMessagingTemplate.convertAndSend("/sub/roby/" + boardId, notification);
 
         //채팅에 접속
-        sendMessageDto = chatService.entryChat(roomUser, boardId, sendMessageDto);
+        sendMessageDto = chatService.entryChat(robyUser, boardId, sendMessageDto);
 
         log.info("message: " + sendMessageDto.getMessage());
 
@@ -82,7 +75,7 @@ public class RoomController {
     }
 
     //대기방 나가기
-    @MessageMapping("/room/exit/{boardId}")
+    @MessageMapping("/roby/exit/{boardId}")
     public void exitChat(
             @DestinationVariable int boardId,
             SendMessageDto sendMessageDto,
@@ -98,13 +91,13 @@ public class RoomController {
                 () -> new CustomException(ErrorCode.NOT_EXIST_USER)
         );
 
-        RoomUser roomUser = RoomUser.createRoomUser(user.getUserId(), user.getNickname(), user.getProfileImg());
+        RobyUser robyUser = RobyUser.createRoomUser(user.getUserId(), user.getNickname(), user.getProfileImg());
         //유저 제거
-        roomService.removeUserFromRoom(boardId, roomUser);
+        robyService.removeUserFromRoby(boardId, robyUser);
 
         //대기방에 메시지 보내기
-        Room room = roomService.getRoom(boardId);
-        RoomNotification notification = RoomNotification.createRoomNotification("퇴장", room);
-        simpMessagingTemplate.convertAndSend("/sub/room/" + boardId, notification);
+        Roby roby = robyService.getRoby(boardId);
+        RobyNotification notification = RobyNotification.createRoomNotification("퇴장", roby);
+        simpMessagingTemplate.convertAndSend("/sub/roby/" + boardId, notification);
     }
 }

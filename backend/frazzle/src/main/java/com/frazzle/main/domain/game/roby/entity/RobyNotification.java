@@ -1,11 +1,9 @@
-package com.frazzle.main.domain.game.room.entity;
+package com.frazzle.main.domain.game.roby.entity;
 
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 /*
 대기방 메시지
@@ -21,20 +19,20 @@ king -> 반장
  */
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class RoomNotification {
+public class RobyNotification {
     private String event;
-    private Room room;
+    private Roby roby;
 
     @Builder
-    private RoomNotification(String event, Room room) {
+    private RobyNotification(String event, Roby roby) {
         this.event = event;
-        this.room = room;
+        this.roby = roby;
     }
 
-    public static RoomNotification createRoomNotification(String event, Room room) {
-        return RoomNotification.builder()
+    public static RobyNotification createRoomNotification(String event, Roby roby) {
+        return RobyNotification.builder()
                 .event(event)
-                .room(room).build();
+                .roby(roby).build();
     }
 }
 

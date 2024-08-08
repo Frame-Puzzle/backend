@@ -3,13 +3,12 @@ package com.frazzle.main.domain.game.chat.service;
 import com.frazzle.main.domain.directory.entity.Directory;
 import com.frazzle.main.domain.game.chat.dto.SendMessageDto;
 import com.frazzle.main.domain.directory.repository.DirectoryRepository;
-import com.frazzle.main.domain.game.room.entity.RoomUser;
+import com.frazzle.main.domain.game.roby.entity.RobyUser;
 import com.frazzle.main.domain.user.entity.User;
 import com.frazzle.main.domain.user.repository.UserRepository;
 import com.frazzle.main.domain.userdirectory.repository.UserDirectoryRepository;
 import com.frazzle.main.global.exception.CustomException;
 import com.frazzle.main.global.exception.ErrorCode;
-import com.frazzle.main.global.models.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,13 +23,13 @@ public class ChatService {
     private final DirectoryRepository directoryRepository;
 
     @Transactional
-    public SendMessageDto entryChat(RoomUser roomUser, int boardId, SendMessageDto sendMessageDto) {
+    public SendMessageDto entryChat(RobyUser robyUser, int boardId, SendMessageDto sendMessageDto) {
 
         Directory directory = directoryRepository.findByBoardId(boardId).orElseThrow(
                 () -> new CustomException(ErrorCode.NOT_EXIST_DIRECTORY)
         );
 
-        User user = userRepository.findByUserId(roomUser.getUserId()).orElseThrow(
+        User user = userRepository.findByUserId(robyUser.getUserId()).orElseThrow(
                 () -> new CustomException(ErrorCode.NOT_EXIST_USER)
         );
 
@@ -40,7 +39,7 @@ public class ChatService {
         String nickname = user.getNickname();
         sendMessageDto.changeNickname(nickname);
         sendMessageDto.changeUserId(user.getUserId());
-        sendMessageDto.entryMessage(user.getNickname()+"님이 입장하십니다.");
+        sendMessageDto.entryMessage(user.getNickname()+"님이 입장하였습니다.");
         return sendMessageDto;
     }
 }
