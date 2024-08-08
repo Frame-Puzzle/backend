@@ -388,8 +388,8 @@ public class BoardService {
         //유저 알림 저장
         for(UserDirectory userDirectory: userDirectoryList) {
             User groupUser = userDirectory.getUser();
+            if(groupUser.getUserId() == user.getUserId()) continue;
             userNotificationList.add(UserNotification.createUserNotification(groupUser, notification));
-
         }
         //디렉토리에 있는 유저들 모두에게 알림 저장
         userNotificationRepository.saveAll(userNotificationList);

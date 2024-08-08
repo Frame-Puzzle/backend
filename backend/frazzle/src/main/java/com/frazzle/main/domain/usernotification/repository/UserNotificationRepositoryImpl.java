@@ -4,6 +4,7 @@ import com.frazzle.main.domain.board.entity.Board;
 import com.frazzle.main.domain.directory.entity.Directory;
 import com.frazzle.main.domain.notification.entity.Notification;
 import com.frazzle.main.domain.notification.entity.QNotification;
+import com.frazzle.main.domain.user.entity.User;
 import com.frazzle.main.domain.usernotification.entity.QUserNotification;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
@@ -38,6 +39,29 @@ public class UserNotificationRepositoryImpl implements UserNotificationRepositor
 
         queryFactory.delete(userNotification)
                 .where(userNotification.notification.in(subQuery))
+                .execute();
+    }
+
+    @Override
+    public void updateCancelUserNotification(int notificationId) {
+        queryFactory.update(userNotification)
+                .set(userNotification.acceptStatus, 3)
+                .where(userNotification.notification.notificationId.eq(notificationId))
+                .execute();
+    }
+
+    @Override
+    public void updateMemberCancel(User user, Directory directory) {
+        queryFactory.update(userNotification)
+                .set(userNotification.acceptStatus, 3)
+                .where(userNotification.user.eq(user)
+                        .and(userNotification.acceptStatus.eq(0))
+                        .and(userNotification.notification.in(
+                                JPAExpressions.select(notification)
+                                        .from(notification)
+                                        .where(notification.directory.eq(directory)
+                                                .and(notification.type.eq(0)))
+                        )))
                 .execute();
     }
 

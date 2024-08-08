@@ -18,6 +18,8 @@ import com.frazzle.main.global.exception.CustomException;
 import com.frazzle.main.global.exception.ErrorCode;
 import com.frazzle.main.global.models.UserPrincipal;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +30,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class NotificationService {
+    private static final Logger log = LoggerFactory.getLogger(NotificationService.class);
     private final NotificationRepository notificationRepository;
     private final UserNotificationRepository userNotificationRepository;
     private final UserRepository userRepository;
@@ -85,14 +88,15 @@ public class NotificationService {
         //알림 타입 1은 투표 하기
         if(notification.getType()==1) {
             Board board = notification.getBoard();
+
             //1은 삭제 수락
             if(requestDto.getAccept()==1) {
-                updateVote(board, true);
+                updateVote(board, true, notificationId);
             }
             
             //2는 삭제 거절
             if(requestDto.getAccept()==2) {
-                updateVote(board, false);
+                updateVote(board, false, notificationId);
             }
         }
 
@@ -100,7 +104,7 @@ public class NotificationService {
     }
 
     @Transactional
-    public void updateVote(Board board, Boolean vote) {
+    public void updateVote(Board board, Boolean vote, int notificationId) {
         //퍼즐판 투표가 비활성화 되면
         if(!board.isVote()) {
             throw new CustomException(ErrorCode.VOTE_NOT_FOUND);
@@ -108,8 +112,8 @@ public class NotificationService {
         //투표 수락
         if(vote) {
             board.addVoteNumber();
-            boardRepository.save(board);
-            if (board.getVoteNumber() >= board.getDirectory().getPeopleNumber()) {
+            int directoryNumber = userDirectoryRepository.countByDirectoryAndIsAccept(board.getDirectory(), true);
+            if (board.getVoteNumber() >= directoryNumber) {
                 boardService.deleteBoard(board);
             }
         }
@@ -117,7 +121,7 @@ public class NotificationService {
         if(!vote) {
             board.changeVote();
             board.changeVoteNumber(0);
-            boardRepository.save(board);
+            userNotificationRepository.updateCancelUserNotification(notificationId);
         }
         
     }
