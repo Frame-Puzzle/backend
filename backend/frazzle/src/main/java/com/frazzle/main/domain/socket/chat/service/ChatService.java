@@ -1,9 +1,9 @@
-package com.frazzle.main.domain.game.chat.service;
+package com.frazzle.main.domain.socket.chat.service;
 
 import com.frazzle.main.domain.directory.entity.Directory;
-import com.frazzle.main.domain.game.chat.dto.SendMessageDto;
+import com.frazzle.main.domain.socket.chat.dto.SendMessageDto;
 import com.frazzle.main.domain.directory.repository.DirectoryRepository;
-import com.frazzle.main.domain.game.roby.entity.RobyUser;
+import com.frazzle.main.domain.socket.roby.entity.RobyUser;
 import com.frazzle.main.domain.user.entity.User;
 import com.frazzle.main.domain.user.repository.UserRepository;
 import com.frazzle.main.domain.userdirectory.repository.UserDirectoryRepository;

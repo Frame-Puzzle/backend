@@ -1,4 +1,4 @@
-package com.frazzle.main.domain.game.roby.entity;
+package com.frazzle.main.domain.socket.roby.entity;
 
 import lombok.AccessLevel;
 import lombok.Builder;

@@ -1,4 +1,4 @@
-package com.frazzle.main.domain.game.roby.handler;
+package com.frazzle.main.domain.socket.roby.handler;
 
 import com.frazzle.main.domain.auth.service.JwtTokenService;
 import com.frazzle.main.domain.user.entity.User;

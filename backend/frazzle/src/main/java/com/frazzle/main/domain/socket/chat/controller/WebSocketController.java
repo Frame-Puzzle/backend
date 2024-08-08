@@ -1,8 +1,8 @@
 package com.frazzle.main.domain.chat.controller;
 
 
-import com.frazzle.main.domain.game.chat.dto.SendMessageDto;
-import com.frazzle.main.domain.game.chat.service.ChatService;
+import com.frazzle.main.domain.socket.chat.dto.SendMessageDto;
+import com.frazzle.main.domain.socket.chat.service.ChatService;
 import com.frazzle.main.domain.user.entity.User;
 import com.frazzle.main.domain.user.repository.UserRepository;
 import com.frazzle.main.global.exception.CustomException;

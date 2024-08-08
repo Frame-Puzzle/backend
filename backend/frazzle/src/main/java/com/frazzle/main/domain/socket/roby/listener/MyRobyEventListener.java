@@ -1,9 +1,9 @@
-package com.frazzle.main.domain.game.roby.listener;
+package com.frazzle.main.domain.socket.roby.listener;
 
-import com.frazzle.main.domain.game.roby.entity.Roby;
-import com.frazzle.main.domain.game.roby.entity.RobyNotification;
-import com.frazzle.main.domain.game.roby.entity.RobyUser;
-import com.frazzle.main.domain.game.roby.service.RobyService;
+import com.frazzle.main.domain.socket.roby.entity.Roby;
+import com.frazzle.main.domain.socket.roby.entity.RobyNotification;
+import com.frazzle.main.domain.socket.roby.entity.RobyUser;
+import com.frazzle.main.domain.socket.roby.service.RobyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;

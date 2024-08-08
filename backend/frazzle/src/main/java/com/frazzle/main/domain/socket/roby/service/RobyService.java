@@ -1,12 +1,12 @@
-package com.frazzle.main.domain.game.roby.service;
+package com.frazzle.main.domain.socket.roby.service;
 
 import com.frazzle.main.domain.board.entity.Board;
 import com.frazzle.main.domain.board.repository.BoardRepository;
 import com.frazzle.main.domain.directory.entity.Directory;
 import com.frazzle.main.domain.directory.repository.DirectoryRepository;
-import com.frazzle.main.domain.game.roby.entity.Roby;
-import com.frazzle.main.domain.game.roby.entity.RobyUser;
-import com.frazzle.main.domain.game.roby.listener.RobyEventListener;
+import com.frazzle.main.domain.socket.roby.entity.Roby;
+import com.frazzle.main.domain.socket.roby.entity.RobyUser;
+import com.frazzle.main.domain.socket.roby.listener.RobyEventListener;
 import com.frazzle.main.domain.piece.entity.Piece;
 import com.frazzle.main.domain.piece.repository.PieceRepository;
 import com.frazzle.main.global.exception.CustomException;

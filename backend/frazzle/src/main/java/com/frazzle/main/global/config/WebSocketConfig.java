@@ -1,6 +1,6 @@
 package com.frazzle.main.global.config;
 
-import com.frazzle.main.domain.game.roby.handler.StompHandler;
+import com.frazzle.main.domain.socket.roby.handler.StompHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.ChannelRegistration;
