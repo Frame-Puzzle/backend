@@ -88,7 +88,7 @@ public class BoardService {
 
         String keywordToken[] = null;
 
-        if(board.getKeyword()==null) {
+        if(board.getKeyword()!=null) {
             keywordToken = ParseStringWord.hashTagToStringToken(board.getKeyword());
         }
         String thumbnailer = null;
