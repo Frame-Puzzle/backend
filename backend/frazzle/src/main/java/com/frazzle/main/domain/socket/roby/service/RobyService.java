@@ -44,7 +44,7 @@ public class RobyService {
                     () -> new CustomException(ErrorCode.NOT_EXIST_BOARD)
             );
 
-            Piece piece = pieceRepository.findByBoardOrderByPeopleCountDesc(board);
+            Piece piece = pieceRepository.findByBoardOrderByPeopleCountDesc(board).get(0);
 
 
             Roby roby = Roby.createRoby(boardId, directory.getPeopleNumber(), piece.getImageUrl());
