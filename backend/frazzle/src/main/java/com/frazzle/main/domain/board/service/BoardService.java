@@ -416,7 +416,7 @@ public class BoardService {
         );
 
         //보드와 연관된 퍼즐조각중 사람 수가 가장 많은 거 하나만 가져오기
-        Piece piece = pieceRepository.findByBoardOrderByPeopleCountDesc(board);
+        Piece piece = pieceRepository.findByBoardOrderByPeopleCountDesc(board).get(0);
 
         return FindMaxPeopleResponseDto.createResponseDto(piece.getImageUrl(), directory.getDirectoryName(), board.getBoardInNumber());
     }

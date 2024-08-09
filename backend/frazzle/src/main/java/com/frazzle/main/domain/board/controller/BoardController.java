@@ -115,7 +115,7 @@ public class BoardController {
     }
 
     //게임 대기방 생성시 대표 사진 조회
-    @PutMapping("/{boardID}/games")
+    @GetMapping("/{boardID}/games")
     @Operation(summary = "게임 대기방 생성시 대표 사진 조회", description = "게임 대기방 생성시 대표 사진 조회하기")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "조회에 성공했습니다.",
