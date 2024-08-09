@@ -161,4 +161,8 @@ public class RobyService {
         return robyList.get(robyId);
     }
 
+    public boolean isEmpty(int boardId) {
+        Roby roby = robyList.get(boardId);
+        return roby == null || roby.getRobyUserList().isEmpty();
+    }
 }
