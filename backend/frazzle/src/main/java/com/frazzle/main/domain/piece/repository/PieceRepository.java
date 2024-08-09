@@ -24,5 +24,5 @@ public interface PieceRepository extends JpaRepository<Piece, Integer>, PieceRep
     void deleteAllByBoard(Board board);
     List<Piece> findAllByUser(User user);
 
-    Piece findByBoardOrderByPeopleCountDesc(Board board);
+    List<Piece> findByBoardOrderByPeopleCountDesc(Board board);
 }
