@@ -140,4 +140,8 @@ public class Board {
         this.voteNumber++;
     }
     public void changeBoardInNumber(int number){ this.boardInNumber = number; }
+
+    public Boolean getVote() {
+        return this.isVote;
+    }
 }

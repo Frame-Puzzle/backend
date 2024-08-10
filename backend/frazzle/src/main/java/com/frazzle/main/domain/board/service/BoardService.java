@@ -103,7 +103,8 @@ public class BoardService {
                 board.getBoardSize(),
                 thumbnailer,
                 board.getClearType(),
-                pieceResponseDtoList
+                pieceResponseDtoList,
+                board.getVote()
                 );
 
         return responseDto;
@@ -202,7 +203,7 @@ public class BoardService {
         User user = userPrincipal.getUser();
 
         //투표가 아직 열리지 않았다면
-        if(!board.isVote()) {
+        if(!board.getVote()) {
             board.enableVote(true);
 
             //알림 전송
