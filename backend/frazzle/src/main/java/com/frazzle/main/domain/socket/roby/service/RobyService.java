@@ -43,12 +43,14 @@ public class RobyService {
     private final DirectoryRepository directoryRepository;
     private final PieceRepository pieceRepository;
     private final BoardService boardService;
+    private final NotificationRepository notificationRepository;
+    private final UserDirectoryRepository userDirectoryRepository;
+    private final UserNotificationRepository userNotificationRepository;
 
     @Transactional
     public void createRoby(int boardId, RobyUser robyUser) {
 
         if (!robyList.containsKey(boardId)) {
-
             User user = userRepository.findByUserId(robyUser.getUserId()).orElseThrow(
                     () -> new CustomException(ErrorCode.NOT_EXIST_USER)
             );
@@ -181,5 +183,30 @@ public class RobyService {
     public boolean isEmpty(int boardId) {
         Roby roby = robyList.get(boardId);
         return roby == null || roby.getRobyUserList().isEmpty();
+    }
+
+    @Transactional
+    public void createNotificationWithBoard(String keyword, int type, User user, Board board) {
+
+        Directory directory = board.getDirectory();
+        //알림 생성
+        Notification notification = Notification.createNotificationWithBoard(keyword, type, user, directory, board);
+
+        //알림 저장
+        notificationRepository.save(notification);
+
+        //디렉토리의 참여한 유저들 찾기
+        List<UserDirectory> userDirectoryList = userDirectoryRepository.findByDirectoryAndIsAccept(directory, true);
+
+        List<UserNotification> userNotificationList = new ArrayList<>();
+
+        //유저 알림 저장
+        for(UserDirectory userDirectory: userDirectoryList) {
+            User groupUser = userDirectory.getUser();
+            if(groupUser.getUserId() == user.getUserId()) continue;
+            userNotificationList.add(UserNotification.createUserNotification(groupUser, notification));
+        }
+        //디렉토리에 있는 유저들 모두에게 알림 저장
+        userNotificationRepository.saveAll(userNotificationList);
     }
 }
