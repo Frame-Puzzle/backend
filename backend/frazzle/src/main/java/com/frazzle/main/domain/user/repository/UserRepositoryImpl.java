@@ -1,5 +1,7 @@
 package com.frazzle.main.domain.user.repository;
 
+import com.frazzle.main.domain.board.entity.Board;
+import com.frazzle.main.domain.board.entity.QBoard;
 import com.frazzle.main.domain.directory.entity.Directory;
 import com.frazzle.main.domain.user.dto.UpdateUserNicknameRequestDto;
 import com.frazzle.main.domain.user.dto.UpdateUserProfileRequestDto;
@@ -25,6 +27,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
 
     private QUser user = QUser.user;
     private QUserDirectory userDirectory = QUserDirectory.userDirectory;
+    private QBoard board = QBoard.board;
 
     //이메일로 찾기
     @Override
@@ -87,4 +90,21 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
                 .where(user.in(subQuery))
                 .fetch();
     }
+
+    @Override
+    public List<User> findAllUserByBoardId(int boardId) {
+        JPQLQuery<Directory> subQuery = JPAExpressions
+                .select(board.directory)
+                .from(board)
+                .where(board.boardId.eq(boardId));
+
+
+        return queryFactory.select(userDirectory.user)
+                .from(userDirectory)
+                .where(userDirectory.directory.in(subQuery)
+                        .and(userDirectory.isAccept.eq(true)))
+                .fetch();
+    }
+
+
 }

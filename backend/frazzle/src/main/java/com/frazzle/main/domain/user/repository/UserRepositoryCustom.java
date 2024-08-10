@@ -1,5 +1,6 @@
 package com.frazzle.main.domain.user.repository;
 
+import com.frazzle.main.domain.board.entity.Board;
 import com.frazzle.main.domain.directory.entity.Directory;
 import com.frazzle.main.domain.user.dto.UpdateUserNicknameRequestDto;
 import com.frazzle.main.domain.user.dto.UpdateUserProfileRequestDto;
@@ -21,4 +22,6 @@ public interface UserRepositoryCustom {
     Long updateRefreshToken(User updateUser, String refreshToken);
 
     List<User> findDirectoryUsers(Directory directory, boolean isAccept);
+
+    List<User> findAllUserByBoardId(int boardId);
 }

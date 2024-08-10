@@ -6,8 +6,8 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @ToString
-public class StartRequestDto {
-    private int boardId;
-    private boolean start;
-    private int size;
+public class MoveRequestDto {
+    private int index;
+    private float x;
+    private float y;
 }
