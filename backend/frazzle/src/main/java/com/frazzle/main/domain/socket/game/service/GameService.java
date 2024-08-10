@@ -112,8 +112,8 @@ public class GameService {
                 () -> new CustomException(ErrorCode.NOT_EXIST_USER)
         );
 
-        ReleaseResponseDto responseDto = new ReleaseResponseDto();
-
-        simpMessagingTemplate.convertAndSend("/sub/game/"+boardId+"/puzzle/check/", responseDto);
+//        ReleaseResponseDto responseDto = new ReleaseResponseDto();
+//
+//        simpMessagingTemplate.convertAndSend("/sub/game/"+boardId+"/puzzle/check/", responseDto);
     }
 }

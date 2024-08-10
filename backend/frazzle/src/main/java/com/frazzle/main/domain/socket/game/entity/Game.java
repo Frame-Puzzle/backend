@@ -6,7 +6,6 @@ import java.util.Map;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
 public class Game {
     private int size;
     private GamePuzzle[] gamePuzzle;
