@@ -49,7 +49,6 @@ public class RobyService {
 
     @Transactional
     public void createRoby(int boardId, RobyUser robyUser) {
-
         if (!robyList.containsKey(boardId)) {
             User user = userRepository.findByUserId(robyUser.getUserId()).orElseThrow(
                     () -> new CustomException(ErrorCode.NOT_EXIST_USER)
@@ -63,13 +62,16 @@ public class RobyService {
 
             Piece piece = pieceRepository.findByBoardOrderByPeopleCountDesc(board).get(0);
 
+            // 로비 생성
             Roby roby = Roby.createRoby(boardId, directory.getPeopleNumber(), piece.getImageUrl());
             robyList.put(boardId, roby);
+
             long delay = roby.getEndTime().getTime() - System.currentTimeMillis();
             scheduler.schedule(() -> removeRoby(boardId), delay, TimeUnit.MILLISECONDS);
 
             boardService.createNotificationWithBoard(board.getDirectory().getCategory(), NotificationTypeFlag.CREATE_GAME_ROOM.getValue(), user, board);
 
+            log.info("Roby created for boardId={}", boardId);
         }
     }
 
@@ -82,52 +84,47 @@ public class RobyService {
         }
     }
 
+    @Transactional
     public void addUserToRoby(int boardId, RobyUser robyUser) {
-
         Roby roby = robyList.get(boardId);
 
         if (roby == null) {
             createRoby(boardId, robyUser);
             roby = robyList.get(boardId);
-            roby.updateUser(robyUser);
+            if (roby != null) {
+                roby.updateUser(robyUser);
+            }
         }
 
-        // 유저 리스트에서 닉네임 비교하여 포함 여부 확인
         boolean userExists = roby.getRobyUserList().stream()
                 .anyMatch(existingUser -> existingUser.getNickname().equals(robyUser.getNickname()));
 
-        if (userExists) {
-            return;
+        if (!userExists) {
+            notifyUserAdded(roby, robyUser);
+            roby.addRobyUser(robyUser);
         }
-
-        //없으면 대기방에 속한 유저들에게 알림 주기
-        notifyUserAdded(roby, robyUser);
-        roby.addRobyUser(robyUser);
     }
 
     public void removeUserFromRoby(int robyId, RobyUser inputUser) {
-
         Roby roby = robyList.get(robyId);
-        RobyUser removeUser = null;
         if (roby != null) {
-            List<RobyUser> robyUserList = roby.getRobyUserList();
-            //유저 닉네임 같은 것 찾기
-            for (RobyUser user : robyUserList) {
-                if (inputUser.equals(user)) {
-                    removeUser = user;
-                    break;
+            RobyUser removeUser = roby.getRobyUserList().stream()
+                    .filter(user -> inputUser.equals(user))
+                    .findFirst().orElse(null);
+
+            if (removeUser != null) {
+                roby.getRobyUserList().remove(removeUser);
+                notifyUserRemoved(roby, removeUser);
+
+                if (roby.getKing().equals(inputUser)) {
+                    if (!roby.getRobyUserList().isEmpty()) {
+                        roby.updateUser(roby.getRobyUserList().get(0));
+                    }
                 }
-            }
 
-            robyUserList.remove(removeUser);
-            notifyUserRemoved(roby, removeUser);
-
-            if(roby.getKing().equals(inputUser)) {
-                roby.updateUser(roby.getRobyUserList().get(0));
-            }
-
-            if (roby.getRobyUserList().isEmpty()) {
-                robyList.remove(robyId);
+                if (roby.getRobyUserList().isEmpty()) {
+                    robyList.remove(robyId);
+                }
             }
         }
     }
