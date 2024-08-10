@@ -2,13 +2,23 @@ package com.frazzle.main.domain.socket.roby.service;
 
 import com.frazzle.main.domain.board.entity.Board;
 import com.frazzle.main.domain.board.repository.BoardRepository;
+import com.frazzle.main.domain.board.service.BoardService;
 import com.frazzle.main.domain.directory.entity.Directory;
 import com.frazzle.main.domain.directory.repository.DirectoryRepository;
+import com.frazzle.main.domain.notification.entity.Notification;
+import com.frazzle.main.domain.notification.entity.NotificationTypeFlag;
+import com.frazzle.main.domain.notification.repository.NotificationRepository;
 import com.frazzle.main.domain.socket.roby.entity.Roby;
 import com.frazzle.main.domain.socket.roby.entity.RobyUser;
 import com.frazzle.main.domain.socket.roby.listener.RobyEventListener;
 import com.frazzle.main.domain.piece.entity.Piece;
 import com.frazzle.main.domain.piece.repository.PieceRepository;
+import com.frazzle.main.domain.user.entity.User;
+import com.frazzle.main.domain.user.repository.UserRepository;
+import com.frazzle.main.domain.userdirectory.entity.UserDirectory;
+import com.frazzle.main.domain.userdirectory.repository.UserDirectoryRepository;
+import com.frazzle.main.domain.usernotification.entity.UserNotification;
+import com.frazzle.main.domain.usernotification.repository.UserNotificationRepository;
 import com.frazzle.main.global.exception.CustomException;
 import com.frazzle.main.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -25,18 +35,23 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 @Slf4j
 public class RobyService {
+    private final UserRepository userRepository;
     private final Map<Integer, Roby> robyList = new HashMap<>();
     private final List<RobyEventListener> listeners = new ArrayList<>();
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private final BoardRepository boardRepository;
     private final DirectoryRepository directoryRepository;
     private final PieceRepository pieceRepository;
+    private final BoardService boardService;
 
     @Transactional
-    public void createRoby(int boardId) {
+    public void createRoby(int boardId, RobyUser robyUser) {
 
         if (!robyList.containsKey(boardId)) {
 
+            User user = userRepository.findByUserId(robyUser.getUserId()).orElseThrow(
+                    () -> new CustomException(ErrorCode.NOT_EXIST_USER)
+            );
             Directory directory = directoryRepository.findByBoardId(boardId).orElseThrow(
                     () -> new CustomException(ErrorCode.NOT_EXIST_DIRECTORY)
             );
@@ -46,11 +61,13 @@ public class RobyService {
 
             Piece piece = pieceRepository.findByBoardOrderByPeopleCountDesc(board).get(0);
 
-
             Roby roby = Roby.createRoby(boardId, directory.getPeopleNumber(), piece.getImageUrl());
             robyList.put(boardId, roby);
             long delay = roby.getEndTime().getTime() - System.currentTimeMillis();
             scheduler.schedule(() -> removeRoby(boardId), delay, TimeUnit.MILLISECONDS);
+
+            boardService.createNotificationWithBoard(board.getDirectory().getCategory(), NotificationTypeFlag.CREATE_GAME_ROOM.getValue(), user, board);
+
         }
     }
 
@@ -68,7 +85,7 @@ public class RobyService {
         Roby roby = robyList.get(boardId);
 
         if (roby == null) {
-            createRoby(boardId);
+            createRoby(boardId, robyUser);
             roby = robyList.get(boardId);
             roby.updateUser(robyUser);
         }
