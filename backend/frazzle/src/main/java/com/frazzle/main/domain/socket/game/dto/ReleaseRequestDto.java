@@ -12,5 +12,4 @@ public class ReleaseRequestDto {
     private int downIdx;
     private int leftIdx;
     private int rightIdx;
-
 }

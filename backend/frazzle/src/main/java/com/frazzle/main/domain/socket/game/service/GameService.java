@@ -98,10 +98,6 @@ public class GameService {
         int idx = moveRequestDto.getIndex();
         float x = moveRequestDto.getX();
         float y = moveRequestDto.getY();
-//
-//        Game game = gameMap.get(boardId);
-//        GamePuzzle gamePuzzle = game.getGamePuzzle()[idx];
-//        gamePuzzle.updatePosition(x, y);
 
         MoveResponseDto responseDto = MoveResponseDto.createResponseDto(idx, x, y);
 
