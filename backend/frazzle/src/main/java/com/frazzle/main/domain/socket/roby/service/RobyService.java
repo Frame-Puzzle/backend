@@ -42,7 +42,7 @@ public class RobyService {
     private final BoardRepository boardRepository;
     private final DirectoryRepository directoryRepository;
     private final PieceRepository pieceRepository;
-    private final BoardService boardService;
+//    private final BoardService boardService;
     private final NotificationRepository notificationRepository;
     private final UserDirectoryRepository userDirectoryRepository;
     private final UserNotificationRepository userNotificationRepository;
@@ -69,7 +69,7 @@ public class RobyService {
             long delay = roby.getEndTime().getTime() - System.currentTimeMillis();
             scheduler.schedule(() -> removeRoby(boardId), delay, TimeUnit.MILLISECONDS);
 
-            boardService.createNotificationWithBoard(board.getDirectory().getCategory(), NotificationTypeFlag.CREATE_GAME_ROOM.getValue(), user, board);
+            createNotificationWithBoard(board.getDirectory().getCategory(), NotificationTypeFlag.CREATE_GAME_ROOM.getValue(), user, board);
 
             log.info("Roby created for boardId={}", boardId);
         }
@@ -205,5 +205,9 @@ public class RobyService {
         }
         //디렉토리에 있는 유저들 모두에게 알림 저장
         userNotificationRepository.saveAll(userNotificationList);
+    }
+
+    public Boolean findRoby(int boardId) {
+        return robyList.get(boardId)!=null? true:false;
     }
 }

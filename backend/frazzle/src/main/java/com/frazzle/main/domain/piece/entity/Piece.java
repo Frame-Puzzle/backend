@@ -40,7 +40,7 @@ public class Piece {
     @Column(name = "mission_name", length = 128)
     private String missionName;
 
-    @Column()
+    @Column(name = "content", length = 20)
     private String content;
 
     //사람 수
