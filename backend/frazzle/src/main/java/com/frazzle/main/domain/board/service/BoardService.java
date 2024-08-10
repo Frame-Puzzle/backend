@@ -14,6 +14,7 @@ import com.frazzle.main.domain.notification.service.NotificationService;
 import com.frazzle.main.domain.piece.entity.Piece;
 import com.frazzle.main.domain.piece.repository.PieceRepository;
 import com.frazzle.main.domain.piece.service.PieceService;
+import com.frazzle.main.domain.socket.roby.service.RobyService;
 import com.frazzle.main.domain.user.entity.User;
 import com.frazzle.main.domain.user.repository.UserRepository;
 import com.frazzle.main.domain.userdirectory.entity.UserDirectory;
@@ -48,6 +49,7 @@ public class BoardService {
     private final PieceRepository pieceRepository;
     private final NotificationRepository notificationRepository;
     private final UserNotificationRepository userNotificationRepository;
+    private final RobyService robyService;
 
     //퍼즐판 조회
     public Board findBoardByBoardId(int boardId) {
@@ -420,6 +422,21 @@ public class BoardService {
         Piece piece = pieceRepository.findByBoardOrderByPeopleCountDesc(board).get(0);
 
         return FindMaxPeopleResponseDto.createResponseDto(piece.getImageUrl(), directory.getDirectoryName(), board.getBoardInNumber());
+    }
+
+    public FindGameRoomResponseDto findGameRoom(UserPrincipal userPrincipal, int boardID) {
+
+        User user = userPrincipal.getUser();
+
+        Directory directory = directoryRepository.findByBoardId(boardID).orElseThrow(
+                () -> new CustomException(ErrorCode.DENIED_DIRECTORY)
+        );
+
+        if(robyService.findRoby(boardID)) {
+            return FindGameRoomResponseDto.createResponseDto(true);
+        };
+
+        return FindGameRoomResponseDto.createResponseDto(false);
     }
 }
 
