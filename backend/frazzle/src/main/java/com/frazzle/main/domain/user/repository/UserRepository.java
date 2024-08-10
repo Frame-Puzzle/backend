@@ -1,5 +1,6 @@
 package com.frazzle.main.domain.user.repository;
 
+import com.frazzle.main.domain.board.entity.Board;
 import com.frazzle.main.domain.directory.entity.Directory;
 import com.frazzle.main.domain.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -28,4 +29,7 @@ public interface UserRepository extends JpaRepository<User, Integer>, UserReposi
 
     @Override
     List<User> findDirectoryUsers(Directory directory, boolean isAccept);
+
+    @Override
+    List<User> findAllUserByBoardId(int boardId);
 }
