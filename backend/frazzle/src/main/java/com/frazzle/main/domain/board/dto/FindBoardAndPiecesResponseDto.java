@@ -16,11 +16,12 @@ public class FindBoardAndPiecesResponseDto {
     private int boardSize;
     private String thumbnailer;
     private int boardClearType;
+    private Boolean voteStatus;
 
     private PieceListResponseDto[] pieceList;
 
     @Builder
-    private FindBoardAndPiecesResponseDto(String[] keyword, String category, String directoryName, String boardNum, int boardSize, String thumbnailer, int boardClearType, PieceListResponseDto[] pieceList) {
+    public FindBoardAndPiecesResponseDto(String[] keyword, String category, String directoryName, String boardNum, int boardSize, String thumbnailer, int boardClearType, Boolean voteStatus, PieceListResponseDto[] pieceList) {
         this.keyword = keyword;
         this.category = category;
         this.directoryName = directoryName;
@@ -28,6 +29,7 @@ public class FindBoardAndPiecesResponseDto {
         this.boardSize = boardSize;
         this.thumbnailer = thumbnailer;
         this.boardClearType = boardClearType;
+        this.voteStatus = voteStatus;
         this.pieceList = pieceList;
     }
 
@@ -39,7 +41,8 @@ public class FindBoardAndPiecesResponseDto {
             int boardSize,
             String thumbnailer,
             int boardClearType,
-            PieceListResponseDto[] pieceList) {
+            PieceListResponseDto[] pieceList,
+            Boolean voteStatus) {
         return FindBoardAndPiecesResponseDto.builder()
                 .keyword(keyword)
                 .category(category)
@@ -49,6 +52,7 @@ public class FindBoardAndPiecesResponseDto {
                 .thumbnailer(thumbnailer)
                 .boardClearType(boardClearType)
                 .pieceList(pieceList)
+                .voteStatus(voteStatus)
                 .build();
     }
 }

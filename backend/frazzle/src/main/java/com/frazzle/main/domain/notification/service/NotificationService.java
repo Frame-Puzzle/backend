@@ -106,7 +106,7 @@ public class NotificationService {
     @Transactional
     public void updateVote(Board board, Boolean vote, int notificationId) {
         //퍼즐판 투표가 비활성화 되면
-        if(!board.isVote()) {
+        if(!board.getVote()) {
             throw new CustomException(ErrorCode.VOTE_NOT_FOUND);
         }
         //투표 수락
