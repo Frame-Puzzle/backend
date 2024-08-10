@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class FindGameRoomResponseDto {
-    private boolean exist;
+    private Boolean exist;
 
     @Builder
     private FindGameRoomResponseDto(Boolean exist) {
