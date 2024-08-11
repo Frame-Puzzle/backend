@@ -47,20 +47,20 @@ public class GameController {
 
         String email = (String) accessor.getSessionAttributes().get("senderEmail");
 
-        gameService.movePuzzle(boardId, moveRequestDto);
+        gameService.movePuzzle(boardId, moveRequestDto.getIdx(), email);
     }
 
     // 놓을 때 보여주는 메서드
     @MessageMapping("/release/puzzle/{boardId}")
     public void releasePuzzle(
             @DestinationVariable int boardId,
-            MoveRequestDto releaseRequestDto,
+            ReleaseRequestDto releaseRequestDto,
             SimpMessageHeaderAccessor accessor
     ) {
         log.info("movePuzzle called with boardId={}, index={}, x={}, y={}",
                 boardId, releaseRequestDto.getIndex(), releaseRequestDto.getX(), releaseRequestDto.getY());
 
-        gameService.movePuzzle(boardId, releaseRequestDto);
+        gameService.releasePuzzle(boardId, releaseRequestDto);
         log.info("movePuzzle processing completed for boardId={}", boardId);
     }
 
@@ -68,15 +68,15 @@ public class GameController {
     @MessageMapping("/check/puzzle/{boardId}")
     public void checkPuzzle(
             @DestinationVariable int boardId,
-            ReleaseRequestDto requestDto,
+            CheckRequestDto checkRequestDto,
             SimpMessageHeaderAccessor accessor
     ) {
         // 이메일로부터 사용자 찾기
         String email = (String) accessor.getSessionAttributes().get("senderEmail");
         log.info("checkPuzzle called with boardId={}, email={}, currentIdx={}",
-                boardId, email, requestDto.getCurrentIdx());
+                boardId, email, checkRequestDto.getCurrentIdx());
 
-        gameService.checkPuzzle(boardId, email, requestDto);
+        gameService.checkPuzzle(boardId, email, checkRequestDto);
         log.info("checkPuzzle processing completed for boardId={}", boardId);
     }
 

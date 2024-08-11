@@ -75,10 +75,22 @@ public class GameService {
             );
 
             gameMap.put(boardId, game);
-
         }
 
-        simpMessagingTemplate.convertAndSend("/sub/game/info/"+boardId, gameMap.get(boardId));
+        Game game = gameMap.get(boardId);
+        List<Integer> numList = new ArrayList<>();
+
+        for(int i=0; i<size*size;i++) {
+            numList.add(i);
+        }
+
+        Collections.shuffle(numList);
+
+        int[] numArray = numList.stream().mapToInt(Integer::intValue).toArray();
+
+        game.updateNumArray(numArray);
+
+        simpMessagingTemplate.convertAndSend("/sub/game/info/"+boardId, game);
 
         //스톱워치 시작
         timer(boardId);
@@ -104,11 +116,11 @@ public class GameService {
     }
 
 
-    public void movePuzzle(int boardId, MoveRequestDto moveRequestDto) {
+    public void releasePuzzle(int boardId, ReleaseRequestDto releaseRequestDto) {
 
-        int idx = moveRequestDto.getIndex();
-        float x = moveRequestDto.getX();
-        float y = moveRequestDto.getY();
+        int idx = releaseRequestDto.getIndex();
+        float x = releaseRequestDto.getX();
+        float y = releaseRequestDto.getY();
         Game game = gameMap.get(boardId);
 
         GamePuzzle[] gamePuzzleList = game.getGamePuzzle();
@@ -118,10 +130,10 @@ public class GameService {
 
 //        MoveResponseDto responseDto = MoveResponseDto.createResponseDto(idx, x, y);
 
-        simpMessagingTemplate.convertAndSend("/sub/game/" + boardId+"/puzzle/move", gamePuzzleList);
+        simpMessagingTemplate.convertAndSend("/sub/game/" + boardId+"/puzzle/release", gamePuzzleList);
     }
 
-    public void checkPuzzle(int boardId, String email, ReleaseRequestDto requestDto) {
+    public void checkPuzzle(int boardId, String email, CheckRequestDto requestDto) {
         //유저 찾기
         User user = userRepository.findByEmail(email).orElseThrow(
                 () -> new CustomException(ErrorCode.NOT_EXIST_USER)
@@ -182,7 +194,7 @@ public class GameService {
 
         moveSameGroup(x, y, currentIdx, gamePuzzleList[currentIdx].getGroup(), game, puzzleSize);
 
-        ReleaseResponseDto responseDto = ReleaseResponseDto.createResponseDto(gamePuzzleList);
+        CheckResponseDto responseDto = CheckResponseDto.createResponseDto(gamePuzzleList);
 
         simpMessagingTemplate.convertAndSend("/sub/game/"+boardId+"/puzzle/check/", responseDto);
     }
@@ -202,6 +214,7 @@ public class GameService {
         queue.offer(new PuzzlePosition(curR, curC));
 
         Boolean[][] visited = new Boolean[size][size];
+        visited[curR][curC] = true;
         //현재 위치 x,y좌표 추가
         gamePuzzleList[currentIdx].updatePosition(x, y);
 
@@ -213,7 +226,7 @@ public class GameService {
                 int nr = curIdx.r + dr[d];
                 int nc = curIdx.c + dc[d];
 
-                if(nr < 0 || nr >= size || nc < 0 || nc >= size) continue;
+                if(nr < 0 || nr >= size || nc < 0 || nc >= size || visited[nr][nc]) continue;
 
                 int nextIdx = nr*size + nc;
 
@@ -271,6 +284,21 @@ public class GameService {
         else if(parentB > parentA) {
             parent[parentB].updateGroup(parentA);
         }
+    }
+
+    public void movePuzzle(int boardId, int idx, String email) {
+        //유저 찾기
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new CustomException(ErrorCode.NOT_EXIST_USER)
+        );
+
+        Game game = gameMap.get(boardId);
+        GamePuzzle[] gamePuzzleList = game.getGamePuzzle();
+        int group = gamePuzzleList[idx].getGroup();
+
+        MoveResponseDto responseDto = MoveResponseDto.createResponseDto(group, user);
+
+        simpMessagingTemplate.convertAndSend("/sub/game/"+ boardId+"/puzzle/move", responseDto);
     }
 
     private class PuzzlePosition {

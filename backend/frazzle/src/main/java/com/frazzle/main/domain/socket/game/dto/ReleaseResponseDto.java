@@ -1,22 +1,27 @@
 package com.frazzle.main.domain.socket.game.dto;
 
-import com.frazzle.main.domain.socket.game.entity.GamePuzzle;
 import lombok.*;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString
 public class ReleaseResponseDto {
-    private GamePuzzle[] gamePuzzleList;
+    private int index;
+    private float x;
+    private float y;
 
     @Builder
-    private ReleaseResponseDto(GamePuzzle[] gamePuzzleList) {
-        this.gamePuzzleList = gamePuzzleList;
+    private ReleaseResponseDto(int index, float x, float y) {
+        this.index = index;
+        this.x = x;
+        this.y = y;
     }
 
-    public static ReleaseResponseDto createResponseDto(GamePuzzle[] gamePuzzleList) {
+    public static ReleaseResponseDto createResponseDto(int index, float x, float y) {
         return ReleaseResponseDto.builder()
-                .gamePuzzleList(gamePuzzleList)
+                .index(index)
+                .x(x)
+                .y(y)
                 .build();
     }
 }
