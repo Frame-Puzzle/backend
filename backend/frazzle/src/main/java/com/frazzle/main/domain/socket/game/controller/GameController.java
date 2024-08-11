@@ -76,4 +76,18 @@ public class GameController {
         log.info("checkPuzzle processing completed for boardId={}", boardId);
     }
 
+    // 퍼즐 연결했을 때 메서드
+    @MessageMapping("/end/puzzle/{boardId}")
+    public void endPuzzle(
+            @DestinationVariable int boardId,
+            EndRequestDto requestDto,
+            SimpMessageHeaderAccessor accessor
+    ) {
+        // 이메일로부터 사용자 찾기
+        String email = (String) accessor.getSessionAttributes().get("senderEmail");
+
+        gameService.endPuzzle(boardId, email, requestDto);
+        log.info("checkPuzzle processing completed for boardId={}", boardId);
+    }
+
 }

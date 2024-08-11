@@ -1,5 +1,6 @@
 package com.frazzle.main.domain.socket.game.service;
 
+import com.frazzle.main.domain.board.entity.Board;
 import com.frazzle.main.domain.board.repository.BoardRepository;
 import com.frazzle.main.domain.directory.repository.DirectoryRepository;
 import com.frazzle.main.domain.socket.game.dto.*;
@@ -287,6 +288,51 @@ public class GameService {
         MoveResponseDto responseDto = MoveResponseDto.createResponseDto(group, user);
 
         simpMessagingTemplate.convertAndSend("/sub/game/"+ boardId+"/puzzle/move", responseDto);
+    }
+
+    public void endPuzzle(int boardId, String email, EndRequestDto requestDto) {
+        //유저 찾기
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new CustomException(ErrorCode.NOT_EXIST_USER)
+        );
+
+        Board board = boardRepository.findByBoardId(boardId).orElseThrow(
+                () -> new CustomException(ErrorCode.NOT_EXIST_BOARD)
+        );
+
+        Game game = gameMap.get(boardId);
+        Map<Integer, GamePlayer> gamePlayerMap = game.getGamePlayerMap();
+
+        List<EndUserDto> endUserDtoList = new ArrayList<>();
+
+        for (GamePlayer gamePlayer : gamePlayerMap.values()) {
+            EndUserDto endUserDto = EndUserDto.createEndUserDto(gamePlayer.getNickname(), gamePlayer.getCount(), gamePlayer.getUserId());
+            endUserDtoList.add(endUserDto);
+        }
+
+        //채운 순서로 내림차순 정렬
+        endUserDtoList.sort((o1, o2) -> Integer.compare(o1.getCount(), o2.getCount()) * -1);
+
+        Long time = timers.get(boardId).getDelay(TimeUnit.SECONDS);
+
+        EndResponseDto endResponseDto = EndResponseDto.createEndResponseDto(time, endUserDtoList);
+
+        simpMessagingTemplate.convertAndSend("/sub/game/"+boardId+"/puzzle/end/", endResponseDto);
+
+        //썸네일러 선정
+        int firstUserId = endUserDtoList.get(0).getUserId();
+
+        User firstUser = userRepository.findByUserId(firstUserId).orElseThrow(
+                () -> new CustomException(ErrorCode.NOT_EXIST_USER)
+        );
+
+        //썸네일러 업데이트
+        board.updateUser(firstUser);
+        boardRepository.save(board);
+
+        //삭제
+        timers.remove(boardId);
+        gameMap.remove(game);
     }
 
     private class PuzzlePosition {
