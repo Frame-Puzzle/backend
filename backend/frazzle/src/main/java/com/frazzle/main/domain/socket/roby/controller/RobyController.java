@@ -106,10 +106,11 @@ public class RobyController {
         log.info("message: " + sendMessageDto.getMessage());
         log.info("user.getUserId: "+user.getUserId());
 
+        chatService.exitChat(robyUser, boardId, sendMessageDto);
+
         // /sub/message를 구독한 메서드에 메시지 보냄
         simpMessagingTemplate.convertAndSend("/sub/message/" + boardId, sendMessageDto);
 
-        chatService.exitChat(robyUser, boardId, sendMessageDto);
 
         // 타이머 종료 (모든 사용자가 나간 경우)
         if (robyService.isEmpty(boardId)) {
