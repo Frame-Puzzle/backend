@@ -7,9 +7,7 @@ import lombok.*;
 @AllArgsConstructor
 @ToString
 public class ReleaseRequestDto {
-    private int currentIdx;
-    private int[] nextIdxList;
+    private int index;
     private float x;
     private float y;
-    private int puzzleSize;
 }
