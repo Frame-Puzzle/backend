@@ -2,6 +2,9 @@ package com.frazzle.main.domain.socket.game.controller;
 
 import com.frazzle.main.domain.socket.game.dto.*;
 import com.frazzle.main.domain.socket.game.service.GameService;
+import com.frazzle.main.domain.user.entity.User;
+import com.frazzle.main.global.exception.CustomException;
+import com.frazzle.main.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -41,6 +44,7 @@ public class GameController {
             MoveRequestDto moveRequestDto,
             SimpMessageHeaderAccessor accessor
     ) {
+
         String email = (String) accessor.getSessionAttributes().get("senderEmail");
 
         gameService.movePuzzle(boardId, moveRequestDto.getIdx(), email);
@@ -60,19 +64,19 @@ public class GameController {
         log.info("movePuzzle processing completed for boardId={}", boardId);
     }
 
-    // 퍼즐 연결했을 때 메서드
+    // 사용자가 놓아줄 때 메서드
     @MessageMapping("/check/puzzle/{boardId}")
     public void checkPuzzle(
             @DestinationVariable int boardId,
-            CheckRequestDto requestDto,
+            CheckRequestDto checkRequestDto,
             SimpMessageHeaderAccessor accessor
     ) {
         // 이메일로부터 사용자 찾기
         String email = (String) accessor.getSessionAttributes().get("senderEmail");
         log.info("checkPuzzle called with boardId={}, email={}, currentIdx={}",
-                boardId, email, requestDto.getCurrentIdx());
+                boardId, email, checkRequestDto.getCurrentIdx());
 
-        gameService.checkPuzzle(boardId, email, requestDto);
+        gameService.checkPuzzle(boardId, email, checkRequestDto);
         log.info("checkPuzzle processing completed for boardId={}", boardId);
     }
 

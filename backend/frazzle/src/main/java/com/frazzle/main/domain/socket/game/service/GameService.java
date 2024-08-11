@@ -1,7 +1,10 @@
 package com.frazzle.main.domain.socket.game.service;
 
+import com.frazzle.main.domain.board.entity.Board;
 import com.frazzle.main.domain.board.repository.BoardRepository;
 import com.frazzle.main.domain.directory.repository.DirectoryRepository;
+import com.frazzle.main.domain.piece.entity.Piece;
+import com.frazzle.main.domain.piece.repository.PieceRepository;
 import com.frazzle.main.domain.socket.game.dto.*;
 import com.frazzle.main.domain.socket.game.entity.Game;
 import com.frazzle.main.domain.socket.game.entity.GamePlayer;
@@ -26,6 +29,7 @@ public class GameService {
     private final UserRepository userRepository;
     private final BoardRepository boardRepository;
     private final DirectoryRepository directoryRepository;
+    private final PieceRepository pieceRepository;
     private final Map<Integer, Game> gameMap;
     private final Map<Integer, ScheduledFuture<?>> timers = new ConcurrentHashMap<>();
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(10);
@@ -55,8 +59,16 @@ public class GameService {
                 gamePuzzleList[i] = GamePuzzle.createGamePuzzle(i);
             }
 
+            Board board = boardRepository.findByBoardId(boardId).orElseThrow(
+                    () -> new CustomException(ErrorCode.NOT_EXIST_BOARD)
+            );
+
+            //보드와 연관된 퍼즐조각중 사람 수가 가장 많은 거 하나만 가져오기
+            Piece piece = pieceRepository.findByBoardOrderByPeopleCountDesc(board).get(0);
+
             //게임 생성 후
             Game game = Game.createGame(
+                    piece.getImageUrl(),
                     size,
                     gamePuzzleList,
                     gamePlayerMap
