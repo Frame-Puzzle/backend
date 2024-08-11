@@ -6,8 +6,10 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @ToString
-public class ReleaseRequestDto {
-    private int index;
+public class CheckRequestDto {
+    private int currentIdx;
+    private int[] nextIdxList;
     private float x;
     private float y;
+    private int puzzleSize;
 }

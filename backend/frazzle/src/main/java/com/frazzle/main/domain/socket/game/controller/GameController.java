@@ -1,13 +1,7 @@
 package com.frazzle.main.domain.socket.game.controller;
 
-import com.frazzle.main.domain.socket.game.dto.MoveRequestDto;
-import com.frazzle.main.domain.socket.game.dto.ReleaseRequestDto;
-import com.frazzle.main.domain.socket.game.dto.StartRequestDto;
-import com.frazzle.main.domain.socket.game.dto.StartResponseDto;
+import com.frazzle.main.domain.socket.game.dto.*;
 import com.frazzle.main.domain.socket.game.service.GameService;
-import com.frazzle.main.domain.user.entity.User;
-import com.frazzle.main.global.exception.CustomException;
-import com.frazzle.main.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -47,18 +41,30 @@ public class GameController {
             MoveRequestDto moveRequestDto,
             SimpMessageHeaderAccessor accessor
     ) {
-        log.info("movePuzzle called with boardId={}, index={}, x={}, y={}",
-                boardId, moveRequestDto.getIndex(), moveRequestDto.getX(), moveRequestDto.getY());
+        String email = (String) accessor.getSessionAttributes().get("senderEmail");
 
-        gameService.movePuzzle(boardId, moveRequestDto);
+        gameService.movePuzzle(boardId, moveRequestDto.getIdx(), email);
+    }
+
+    // 놓을 때 보여주는 메서드
+    @MessageMapping("/release/puzzle/{boardId}")
+    public void releasePuzzle(
+            @DestinationVariable int boardId,
+            ReleaseRequestDto releaseRequestDto,
+            SimpMessageHeaderAccessor accessor
+    ) {
+        log.info("movePuzzle called with boardId={}, index={}, x={}, y={}",
+                boardId, releaseRequestDto.getIndex(), releaseRequestDto.getX(), releaseRequestDto.getY());
+
+        gameService.releasePuzzle(boardId, releaseRequestDto);
         log.info("movePuzzle processing completed for boardId={}", boardId);
     }
 
-    // 사용자가 놓아줄 때 메서드
+    // 퍼즐 연결했을 때 메서드
     @MessageMapping("/check/puzzle/{boardId}")
     public void checkPuzzle(
             @DestinationVariable int boardId,
-            ReleaseRequestDto requestDto,
+            CheckRequestDto requestDto,
             SimpMessageHeaderAccessor accessor
     ) {
         // 이메일로부터 사용자 찾기

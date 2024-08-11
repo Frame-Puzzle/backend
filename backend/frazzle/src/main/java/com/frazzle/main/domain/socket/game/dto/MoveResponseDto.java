@@ -1,27 +1,33 @@
 package com.frazzle.main.domain.socket.game.dto;
 
-import lombok.*;
+import com.frazzle.main.domain.user.entity.User;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@ToString
 public class MoveResponseDto {
-    private int index;
-    private float x;
-    private float y;
+    private int group;
+    private String nickname;
+    private int userId;
+
 
     @Builder
-    private MoveResponseDto(int index, float x, float y) {
-        this.index = index;
-        this.x = x;
-        this.y = y;
+    private MoveResponseDto(int group, String nickname, int userId) {
+        this.group = group;
+        this.nickname = nickname;
+        this.userId = userId;
     }
 
-    public static MoveResponseDto createResponseDto(int index, float x, float y) {
+
+
+    public static MoveResponseDto createResponseDto(int group, User user) {
         return MoveResponseDto.builder()
-                .index(index)
-                .x(x)
-                .y(y)
+                .group(group)
+                .nickname(user.getNickname())
+                .userId(user.getUserId())
                 .build();
     }
 }
