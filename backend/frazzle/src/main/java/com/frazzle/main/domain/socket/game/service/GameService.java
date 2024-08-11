@@ -42,9 +42,7 @@ public class GameService {
             //유저들 추가
             Map<Integer, GamePlayer> gamePlayerMap = new HashMap<>();
             for (User user : userList) {
-                int userId = user.getUserId();
-
-                GamePlayer gamePlayer = GamePlayer.createGamePlayer(userId);
+                GamePlayer gamePlayer = GamePlayer.createGamePlayer(user);
 
 
                 gamePlayerMap.put(user.getUserId(), gamePlayer);
