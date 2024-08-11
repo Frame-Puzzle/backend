@@ -98,19 +98,22 @@ public class RobyController {
         //유저 제거
         robyService.removeUserFromRoby(boardId, robyUser);
 
+
         //대기방에 메시지 보내기
-        Roby roby = robyService.getRoby(boardId);
-        RobyNotification notification = RobyNotification.createRoomNotification("퇴장", roby);
-        simpMessagingTemplate.convertAndSend("/sub/roby/" + boardId, notification);
+        //로비가 안비어있으면
+        if(!robyService.isEmpty(boardId)) {
+            Roby roby = robyService.getRoby(boardId);
+            RobyNotification notification = RobyNotification.createRoomNotification("퇴장", roby);
+            simpMessagingTemplate.convertAndSend("/sub/roby/" + boardId, notification);
 
-        log.info("message: " + sendMessageDto.getMessage());
-        log.info("user.getUserId: "+user.getUserId());
+            chatService.exitChat(robyUser, boardId, sendMessageDto);
 
-        chatService.exitChat(robyUser, boardId, sendMessageDto);
+            log.info("message: " + sendMessageDto.getMessage());
+            log.info("user.getUserId: " + user.getUserId());
 
-        // /sub/message를 구독한 메서드에 메시지 보냄
-        simpMessagingTemplate.convertAndSend("/sub/message/" + boardId, sendMessageDto);
-
+            // /sub/message를 구독한 메서드에 메시지 보냄
+            simpMessagingTemplate.convertAndSend("/sub/message/" + boardId, sendMessageDto);
+        }
 
         // 타이머 종료 (모든 사용자가 나간 경우)
         if (robyService.isEmpty(boardId)) {
