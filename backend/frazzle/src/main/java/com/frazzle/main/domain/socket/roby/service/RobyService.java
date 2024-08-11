@@ -106,15 +106,17 @@ public class RobyService {
     }
 
     public void removeUserFromRoby(int robyId, RobyUser inputUser) {
+        //로비 정보 출력
         Roby roby = robyList.get(robyId);
         if (roby != null) {
-            RobyUser removeUser = roby.getRobyUserList().stream()
+            //로비 유저 찾기
+            Optional<RobyUser> removeUser = roby.getRobyUserList().stream()
                     .filter(user -> inputUser.equals(user))
-                    .findFirst().orElse(null);
+                    .findFirst();
 
-            if (removeUser != null) {
-                roby.getRobyUserList().remove(removeUser);
-                notifyUserRemoved(roby, removeUser);
+            if (removeUser.isPresent()) {
+                roby.getRobyUserList().remove(removeUser.get());
+                notifyUserRemoved(roby, removeUser.get());
 
                 if (roby.getKing().equals(inputUser)) {
                     if (!roby.getRobyUserList().isEmpty()) {

@@ -26,4 +26,8 @@ public class GamePuzzle {
         this.x = x;
         this.y = y;
     }
+
+    public void updateGroup(int idx) {
+        this.group = idx;
+    }
 }

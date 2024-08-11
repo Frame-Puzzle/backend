@@ -8,8 +8,8 @@ import lombok.*;
 @ToString
 public class ReleaseRequestDto {
     private int currentIdx;
-    private int upIdx;
-    private int downIdx;
-    private int leftIdx;
-    private int rightIdx;
+    private int[] nextIdxList;
+    private float x;
+    private float y;
+    private int puzzleSize;
 }

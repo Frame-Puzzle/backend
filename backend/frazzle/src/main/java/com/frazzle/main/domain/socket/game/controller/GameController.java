@@ -29,11 +29,13 @@ public class GameController {
             StartRequestDto startRequestDto,
             SimpMessageHeaderAccessor accessor) {
 
-        simpMessagingTemplate.convertAndSend("/sub/start/" + boardId);
-
+        log.info("시작");
         gameService.startGame(startRequestDto);
+
+        simpMessagingTemplate.convertAndSend("/sub/start/" + boardId);
     }
 
+    //움직임 보여주는 메서드
     @MessageMapping("/move/puzzle/{boardId}")
     public void movePuzzle(
             @DestinationVariable int boardId,
@@ -43,6 +45,7 @@ public class GameController {
         gameService.movePuzzle(boardId, moveRequestDto);
     }
 
+    //사용자가 놓아줄 때 메서드
     @MessageMapping("/check/puzzle/{boardId}")
     public void checkPuzzle(
             @DestinationVariable int boardId,
