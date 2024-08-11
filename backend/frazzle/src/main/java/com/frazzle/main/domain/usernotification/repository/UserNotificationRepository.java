@@ -22,5 +22,8 @@ public interface UserNotificationRepository extends JpaRepository<UserNotificati
     @Override
     void deleteByBoard(Board board);
 
+    @Override
+    void deleteByDirectoryAndUser(Directory directory, User user);
+
     void deleteByNotification(Notification notification);
 }

@@ -21,13 +21,25 @@ public class UserNotificationRepositoryImpl implements UserNotificationRepositor
     private final QNotification notification = QNotification.notification;
 
     @Override
-    public void  deleteByDirectory(Directory directory) {
+    public void deleteByDirectory(Directory directory) {
         JPQLQuery<Notification> subQuery = JPAExpressions
                 .selectFrom(notification)
                 .where(notification.directory.eq(directory));
 
         queryFactory.delete(userNotification)
                 .where(userNotification.notification.in(subQuery))
+                .execute();
+    }
+
+    @Override
+    public void  deleteByDirectoryAndUser(Directory directory, User user) {
+        JPQLQuery<Notification> subQuery = JPAExpressions
+                .selectFrom(notification)
+                .where(notification.directory.eq(directory));
+
+        queryFactory.delete(userNotification)
+                .where(userNotification.notification.in(subQuery)
+                        .and(userNotification.user.eq(user)))
                 .execute();
     }
 
