@@ -42,4 +42,26 @@ public class ChatService {
         sendMessageDto.entryMessage(user.getNickname()+"님이 입장하였습니다.");
         return sendMessageDto;
     }
+
+    @Transactional
+    public SendMessageDto exitChat(RobyUser robyUser, int boardId, SendMessageDto sendMessageDto) {
+
+        Directory directory = directoryRepository.findByBoardId(boardId).orElseThrow(
+                () -> new CustomException(ErrorCode.NOT_EXIST_DIRECTORY)
+        );
+
+        User user = userRepository.findByUserId(robyUser.getUserId()).orElseThrow(
+                () -> new CustomException(ErrorCode.NOT_EXIST_USER)
+        );
+
+        if(!userDirectoryRepository.existsByDirectoryAndUserAndIsAccept(directory, user, true)){
+            throw new CustomException(ErrorCode.DENIED_PLAY_CHAT);
+        }
+
+        String nickname = user.getNickname();
+        sendMessageDto.changeNickname(nickname);
+        sendMessageDto.changeUserId(user.getUserId());
+        sendMessageDto.entryMessage(user.getNickname()+"님이 퇴장하였습니다.");
+        return sendMessageDto;
+    }
 }
