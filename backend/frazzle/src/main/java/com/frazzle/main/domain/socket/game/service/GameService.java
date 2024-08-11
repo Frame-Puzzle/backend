@@ -97,10 +97,16 @@ public class GameService {
         int idx = moveRequestDto.getIndex();
         float x = moveRequestDto.getX();
         float y = moveRequestDto.getY();
+        Game game = gameMap.get(boardId);
 
-        MoveResponseDto responseDto = MoveResponseDto.createResponseDto(idx, x, y);
+        GamePuzzle[] gamePuzzleList = game.getGamePuzzle();
+        int puzzleSize = game.getSize();
 
-        simpMessagingTemplate.convertAndSend("/sub/game/" + boardId+"/puzzle/move", responseDto);
+        moveSameGroup(x, y, idx, gamePuzzleList[idx].getGroup(), game, puzzleSize);
+
+//        MoveResponseDto responseDto = MoveResponseDto.createResponseDto(idx, x, y);
+
+        simpMessagingTemplate.convertAndSend("/sub/game/" + boardId+"/puzzle/move", gamePuzzleList);
     }
 
     public void checkPuzzle(int boardId, String email, ReleaseRequestDto requestDto) {
