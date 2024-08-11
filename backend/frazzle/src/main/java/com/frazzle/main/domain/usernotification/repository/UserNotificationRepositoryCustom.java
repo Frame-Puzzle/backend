@@ -10,6 +10,7 @@ import java.util.List;
 public interface UserNotificationRepositoryCustom {
 
     void deleteByDirectory(Directory directory);
+    void deleteByDirectoryAndUser(Directory directory, User user);
     void deleteByBoard(Board board);
     void updateCancelUserNotification(int notificationId);
     void updateMemberCancel(User user, Directory directory);
