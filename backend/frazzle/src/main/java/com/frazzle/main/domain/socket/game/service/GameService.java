@@ -74,7 +74,7 @@ public class GameService {
         Game game = gameMap.get(boardId);
         List<Integer> numList = new ArrayList<>();
 
-        for(int i=1; i<=size*size;i++) {
+        for(int i=0; i<size*size;i++) {
             numList.add(i);
         }
 
