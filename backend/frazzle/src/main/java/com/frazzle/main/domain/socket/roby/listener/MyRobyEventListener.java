@@ -17,7 +17,7 @@ public class MyRobyEventListener implements RobyEventListener {
 
     @Override
     public void onUserAdded(Roby roby, RobyUser robyUser) {
-        robyService.addUserToRoby(roby.getRobyId(), robyUser);
+        robyService.addUserToRoby(roby.getRobyId(), robyUser, roby.getSize());
         RobyNotification robyNotification = RobyNotification.createRoomNotification("입장", roby);
         messagingTemplate.convertAndSend("/sub/room/" + roby.getRobyId(), roby);
     }
