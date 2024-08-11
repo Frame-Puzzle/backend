@@ -117,9 +117,9 @@ public class GameService {
 
         moveSameGroup(x, y, idx, gamePuzzleList[idx].getGroup(), game, puzzleSize);
 
-//        MoveResponseDto responseDto = MoveResponseDto.createResponseDto(idx, x, y);
+        ReleaseResponseDto responseDto = ReleaseResponseDto.createResponseDto(gamePuzzleList[idx].getGroup(), gamePuzzleList);
 
-        simpMessagingTemplate.convertAndSend("/sub/game/" + boardId+"/puzzle/release", gamePuzzleList);
+        simpMessagingTemplate.convertAndSend("/sub/game/" + boardId+"/puzzle/release", responseDto);
     }
 
     public void checkPuzzle(int boardId, String email, CheckRequestDto requestDto) {
@@ -183,7 +183,7 @@ public class GameService {
 
         moveSameGroup(x, y, currentIdx, gamePuzzleList[currentIdx].getGroup(), game, puzzleSize);
 
-        CheckResponseDto responseDto = CheckResponseDto.createResponseDto(gamePuzzleList);
+        CheckResponseDto responseDto = CheckResponseDto.createResponseDto(gamePuzzleList[currentIdx].getGroup(), gamePuzzleList);
 
         simpMessagingTemplate.convertAndSend("/sub/game/"+boardId+"/puzzle/check/", responseDto);
     }
@@ -191,8 +191,10 @@ public class GameService {
 
 
     //위치 옮기기
-    private void moveSameGroup(float x, float y, int currentIdx, int group, Game game, int puzzleSize) {
+    private int moveSameGroup(float x, float y, int currentIdx, int group, Game game, int puzzleSize) {
         Queue<PuzzlePosition> queue = new ArrayDeque<>();
+
+        int cnt = 0;
 
         int size = game.getSize();
         GamePuzzle[] gamePuzzleList = game.getGamePuzzle();
@@ -201,6 +203,7 @@ public class GameService {
         int curC = currentIdx % size;
 
         queue.offer(new PuzzlePosition(curR, curC));
+        cnt += 1;
 
         Boolean[][] visited = new Boolean[size][size];
         visited[curR][curC] = true;
@@ -248,8 +251,13 @@ public class GameService {
                 }
 
                 gamePuzzleList[nextIdx].updatePosition(nextX, nextY);
+                queue.offer(new PuzzlePosition(nr, nc));
+                visited[nr][nc] = true;
+                cnt += 1;
             }
         }
+
+        return cnt;
     }
 
     private int[] dr = {-1, 1, 0, 0};

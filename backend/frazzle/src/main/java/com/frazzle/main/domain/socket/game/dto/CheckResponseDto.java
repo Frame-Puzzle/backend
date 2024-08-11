@@ -7,15 +7,19 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString
 public class CheckResponseDto {
+    private int group;
     private GamePuzzle[] gamePuzzleList;
 
     @Builder
-    private CheckResponseDto(GamePuzzle[] gamePuzzleList) {
+    private CheckResponseDto(int group, GamePuzzle[] gamePuzzleList) {
+        this.group = group;
         this.gamePuzzleList = gamePuzzleList;
     }
 
-    public static CheckResponseDto createResponseDto(GamePuzzle[] gamePuzzleList) {
+
+    public static CheckResponseDto createResponseDto(int group, GamePuzzle[] gamePuzzleList) {
         return CheckResponseDto.builder()
+                .group(group)
                 .gamePuzzleList(gamePuzzleList)
                 .build();
     }

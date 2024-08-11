@@ -14,7 +14,7 @@ public class EndResponseDto {
     private List<EndUserDto> endUserDtoList;
 
     @Builder
-    public EndResponseDto(Long time, List<EndUserDto> endUserDtoList) {
+    private EndResponseDto(Long time, List<EndUserDto> endUserDtoList) {
         this.time = time;
         this.endUserDtoList = endUserDtoList;
     }
