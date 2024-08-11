@@ -64,9 +64,27 @@ public class GameService {
 
             gameMap.put(boardId, game);
 
+            Random random = new Random();
+
+
+
+
         }
 
-        simpMessagingTemplate.convertAndSend("/sub/game/info/"+boardId, gameMap.get(boardId));
+        Game game = gameMap.get(boardId);
+        List<Integer> numList = new ArrayList<>();
+
+        for(int i=0; i<size*size;i++) {
+            numList.add(i);
+        }
+
+        Collections.shuffle(numList);
+
+        int[] numArray = numList.stream().mapToInt(Integer::intValue).toArray();
+
+        game.updateNumArray(numArray);
+
+        simpMessagingTemplate.convertAndSend("/sub/game/info/"+boardId, game);
 
         //스톱워치 시작
         timer(boardId);

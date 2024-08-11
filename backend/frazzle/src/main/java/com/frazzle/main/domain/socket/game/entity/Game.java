@@ -10,6 +10,7 @@ public class Game {
     private int size;
     private GamePuzzle[] gamePuzzle;
     private Map<Integer, GamePlayer> gamePlayerMap;
+    private int[] numArray;
 
     @Builder
     private Game(int size, GamePuzzle[] gamePuzzle, Map<Integer, GamePlayer> gamePlayerMap) {
@@ -23,5 +24,9 @@ public class Game {
                 .gamePuzzle(gamePuzzleList)
                 .gamePlayerMap(gamePlayerMap)
                 .build();
+    }
+
+    public void updateNumArray(int[] array) {
+        this.numArray = array;
     }
 }
