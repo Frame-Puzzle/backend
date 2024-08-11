@@ -1,9 +1,6 @@
 package com.frazzle.main.domain.socket.game.controller;
 
-import com.frazzle.main.domain.socket.game.dto.MoveRequestDto;
-import com.frazzle.main.domain.socket.game.dto.ReleaseRequestDto;
-import com.frazzle.main.domain.socket.game.dto.StartRequestDto;
-import com.frazzle.main.domain.socket.game.dto.StartResponseDto;
+import com.frazzle.main.domain.socket.game.dto.*;
 import com.frazzle.main.domain.socket.game.service.GameService;
 import com.frazzle.main.domain.user.entity.User;
 import com.frazzle.main.global.exception.CustomException;
@@ -47,10 +44,23 @@ public class GameController {
             MoveRequestDto moveRequestDto,
             SimpMessageHeaderAccessor accessor
     ) {
-        log.info("movePuzzle called with boardId={}, index={}, x={}, y={}",
-                boardId, moveRequestDto.getIndex(), moveRequestDto.getX(), moveRequestDto.getY());
+
+        String email = (String) accessor.getSessionAttributes().get("senderEmail");
 
         gameService.movePuzzle(boardId, moveRequestDto);
+    }
+
+    // 놓을 때 보여주는 메서드
+    @MessageMapping("/release/puzzle/{boardId}")
+    public void releasePuzzle(
+            @DestinationVariable int boardId,
+            MoveRequestDto releaseRequestDto,
+            SimpMessageHeaderAccessor accessor
+    ) {
+        log.info("movePuzzle called with boardId={}, index={}, x={}, y={}",
+                boardId, releaseRequestDto.getIndex(), releaseRequestDto.getX(), releaseRequestDto.getY());
+
+        gameService.movePuzzle(boardId, releaseRequestDto);
         log.info("movePuzzle processing completed for boardId={}", boardId);
     }
 
