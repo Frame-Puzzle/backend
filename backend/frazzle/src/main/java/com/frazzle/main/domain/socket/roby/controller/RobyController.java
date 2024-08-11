@@ -2,6 +2,7 @@ package com.frazzle.main.domain.socket.roby.controller;
 
 import com.frazzle.main.domain.socket.chat.dto.SendMessageDto;
 import com.frazzle.main.domain.socket.chat.service.ChatService;
+import com.frazzle.main.domain.socket.roby.dto.EntryRobyRequestDto;
 import com.frazzle.main.domain.socket.roby.entity.Roby;
 import com.frazzle.main.domain.socket.roby.entity.RobyNotification;
 import com.frazzle.main.domain.socket.roby.entity.RobyUser;
@@ -37,7 +38,7 @@ public class RobyController {
     @MessageMapping("/roby/entry/{boardId}")
     public void entryChat(
             @DestinationVariable int boardId,
-            SendMessageDto sendMessageDto,
+            EntryRobyRequestDto sendMessageDto,
             SimpMessageHeaderAccessor accessor) {
 
         //jwt로 부터 이메일을 얻어 유저를 얻음
@@ -51,7 +52,7 @@ public class RobyController {
         RobyUser robyUser = RobyUser.createRoomUser(user.getUserId(), user.getNickname(), user.getProfileImg());
 
         //퍼즐판의 id를 통해 대기방을 만들거고 유저 추가
-        robyService.addUserToRoby(boardId, robyUser);
+        robyService.addUserToRoby(boardId, robyUser, sendMessageDto.getSize());
 
         //보드id를 통해 대기방 정보 찾기
         Roby roby = robyService.getRoby(boardId);

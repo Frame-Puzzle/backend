@@ -48,7 +48,7 @@ public class RobyService {
     private final UserNotificationRepository userNotificationRepository;
 
     @Transactional
-    public void createRoby(int boardId, RobyUser robyUser) {
+    public void createRoby(int boardId, RobyUser robyUser, int size) {
         if (!robyList.containsKey(boardId)) {
             User user = userRepository.findByUserId(robyUser.getUserId()).orElseThrow(
                     () -> new CustomException(ErrorCode.NOT_EXIST_USER)
@@ -63,7 +63,7 @@ public class RobyService {
             Piece piece = pieceRepository.findByBoardOrderByPeopleCountDesc(board).get(0);
 
             // 로비 생성
-            Roby roby = Roby.createRoby(boardId, directory.getPeopleNumber(), piece.getImageUrl());
+            Roby roby = Roby.createRoby(boardId, directory.getPeopleNumber(), piece.getImageUrl(), size);
             robyList.put(boardId, roby);
 
             long delay = roby.getEndTime().getTime() - System.currentTimeMillis();
@@ -85,11 +85,11 @@ public class RobyService {
     }
 
     @Transactional
-    public void addUserToRoby(int boardId, RobyUser robyUser) {
+    public void addUserToRoby(int boardId, RobyUser robyUser, int size) {
         Roby roby = robyList.get(boardId);
 
         if (roby == null) {
-            createRoby(boardId, robyUser);
+            createRoby(boardId, robyUser, size);
             roby = robyList.get(boardId);
             if (roby != null) {
                 roby.updateUser(robyUser);
