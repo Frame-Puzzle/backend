@@ -397,7 +397,7 @@ public class DirectoryService {
         //3-2. 유저 디렉토리 삭제
         userDirectoryRepository.delete(userDirectory);
         //3-3. 유저 알림 삭제
-        userNotificationRepository.deleteByDirectory(directory);
+        userNotificationRepository.deleteByDirectoryAndUser(directory, user);
         //3-4. 디렉토리 유저 카운트 -1
         directory.changePeopleNumber(-1);
 
@@ -429,6 +429,7 @@ public class DirectoryService {
     @Transactional
     protected void deleteDirectoryData(int directoryId, Directory directory) {
         //1. 알림 삭제
+        userNotificationRepository.deleteByDirectory(directory);
         notificationRepository.deleteAllByDirectory(directory);
 
         //2. 퍼즐판 및 퍼즐 조각 삭제
