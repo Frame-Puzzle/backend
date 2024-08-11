@@ -68,6 +68,8 @@ public class GameService {
 
         }
 
+        simpMessagingTemplate.convertAndSend("/sub/game/info/"+boardId, gameMap.get(boardId));
+
         //스톱워치 시작
         timer(boardId);
     }

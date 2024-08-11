@@ -30,9 +30,11 @@ public class GameController {
             SimpMessageHeaderAccessor accessor) {
 
         log.info("시작");
-        gameService.startGame(startRequestDto);
 
         simpMessagingTemplate.convertAndSend("/sub/start/" + boardId);
+
+        gameService.startGame(startRequestDto);
+
     }
 
     // 움직임 보여주는 메서드
