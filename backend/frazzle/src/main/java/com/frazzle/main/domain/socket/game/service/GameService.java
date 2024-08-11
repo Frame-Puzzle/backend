@@ -63,12 +63,6 @@ public class GameService {
             );
 
             gameMap.put(boardId, game);
-
-            Random random = new Random();
-
-
-
-
         }
 
         Game game = gameMap.get(boardId);
