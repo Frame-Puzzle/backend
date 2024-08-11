@@ -433,10 +433,11 @@ public class BoardService {
         );
 
         if(robyService.findRoby(boardID)) {
-            return FindGameRoomResponseDto.createResponseDto(true);
+            int size = robyService.getRoby(boardID).getSize();
+            return FindGameRoomResponseDto.createResponseDto(true, size);
         };
 
-        return FindGameRoomResponseDto.createResponseDto(false);
+        return FindGameRoomResponseDto.createResponseDto(false, 0);
     }
 }
 

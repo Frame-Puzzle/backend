@@ -9,15 +9,20 @@ import lombok.NoArgsConstructor;
 @Getter
 public class FindGameRoomResponseDto {
     private Boolean exist;
+    private int size;
+
 
     @Builder
-    private FindGameRoomResponseDto(Boolean exist) {
+    private FindGameRoomResponseDto(Boolean exist, int size) {
         this.exist = exist;
+        this.size = size;
     }
 
-    public static FindGameRoomResponseDto createResponseDto(Boolean exist) {
+
+    public static FindGameRoomResponseDto createResponseDto(Boolean exist, int size) {
         return FindGameRoomResponseDto.builder()
                 .exist(exist)
+                .size(size)
                 .build();
     }
 }

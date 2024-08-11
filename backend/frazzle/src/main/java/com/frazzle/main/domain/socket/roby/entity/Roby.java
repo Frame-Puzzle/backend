@@ -28,10 +28,11 @@ public class Roby {
     private Date startTime;
     private Date endTime;
     private RobyUser king;
+    private int size;
 
 
     @Builder
-    public Roby(int robyId, String imgUrl, int maxPeople, List<RobyUser> robyUserList, Date startTime, Date endTime, RobyUser king) {
+    private Roby(int robyId, String imgUrl, int maxPeople, List<RobyUser> robyUserList, Date startTime, Date endTime, RobyUser king, int size) {
         this.robyId = robyId;
         this.imgUrl = imgUrl;
         this.maxPeople = maxPeople;
@@ -39,10 +40,11 @@ public class Roby {
         this.startTime = startTime;
         this.endTime = endTime;
         this.king = king;
+        this.size = size;
     }
 
     //객체 생성 후 10분동안만 가능
-    public static Roby createRoby(int robyId, int maxPeople, String imgUrl) {
+    public static Roby createRoby(int robyId, int maxPeople, String imgUrl, int size) {
         Date startTime = new Date();
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(startTime);
@@ -55,6 +57,7 @@ public class Roby {
                 .endTime(calendar.getTime())
                 .maxPeople(maxPeople)
                 .imgUrl(imgUrl)
+                .size(size)
                 .build();
     }
 
