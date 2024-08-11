@@ -169,15 +169,7 @@ public class GameService {
         simpMessagingTemplate.convertAndSend("/sub/game/"+boardId+"/puzzle/check/", responseDto);
     }
 
-    private class PuzzlePosition {
-        int r;
-        int c;
 
-        PuzzlePosition(int r, int c) {
-            this.r = r;
-            this.c = c;
-        }
-    }
 
     //위치 옮기기
     private void moveSameGroup(float x, float y, int currentIdx, int group, Game game, int puzzleSize) {
@@ -260,6 +252,16 @@ public class GameService {
 
         else if(parentB > parentA) {
             parent[parentB].updateGroup(parentA);
+        }
+    }
+
+    private class PuzzlePosition {
+        int r;
+        int c;
+
+        PuzzlePosition(int r, int c) {
+            this.r = r;
+            this.c = c;
         }
     }
 }
