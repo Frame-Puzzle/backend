@@ -243,7 +243,7 @@ public class DirectoryService {
         //5. 현재 진행 중인 퍼즐판 여부
         boolean isCurrentBoard = false;
         if(boards.size()>0){
-            isCurrentBoard = boards.get(0).getClearType() == 0 ? true : false;
+            isCurrentBoard = boards.get(0).getClearType() != 2 ? true : false;
         }
 
         //6. responseDto로 가공
