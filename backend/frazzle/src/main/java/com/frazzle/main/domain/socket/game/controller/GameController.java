@@ -3,6 +3,7 @@ package com.frazzle.main.domain.socket.game.controller;
 import com.frazzle.main.domain.socket.game.dto.MoveRequestDto;
 import com.frazzle.main.domain.socket.game.dto.ReleaseRequestDto;
 import com.frazzle.main.domain.socket.game.dto.StartRequestDto;
+import com.frazzle.main.domain.socket.game.dto.StartResponseDto;
 import com.frazzle.main.domain.socket.game.service.GameService;
 import com.frazzle.main.domain.user.entity.User;
 import com.frazzle.main.global.exception.CustomException;
@@ -32,7 +33,9 @@ public class GameController {
         log.info("시작");
         gameService.startGame(startRequestDto);
 
-        simpMessagingTemplate.convertAndSend("/sub/start/" + boardId);
+        StartResponseDto responseDto = StartResponseDto.createResponseDto();
+
+        simpMessagingTemplate.convertAndSend("/sub/start/" + boardId, responseDto);
     }
 
     // 움직임 보여주는 메서드
