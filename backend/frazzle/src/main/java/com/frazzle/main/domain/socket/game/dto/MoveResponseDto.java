@@ -9,23 +9,23 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class MoveResponseDto {
-    private int idx;
+    private int group;
     private String nickname;
     private int userId;
 
 
     @Builder
-    private MoveResponseDto(int idx, String nickname, int userId) {
-        this.idx = idx;
+    private MoveResponseDto(int group, String nickname, int userId) {
+        this.group = group;
         this.nickname = nickname;
         this.userId = userId;
     }
 
 
 
-    public static MoveResponseDto createResponseDto(int idx, User user) {
+    public static MoveResponseDto createResponseDto(int group, User user) {
         return MoveResponseDto.builder()
-                .idx(idx)
+                .group(group)
                 .nickname(user.getNickname())
                 .userId(user.getUserId())
                 .build();

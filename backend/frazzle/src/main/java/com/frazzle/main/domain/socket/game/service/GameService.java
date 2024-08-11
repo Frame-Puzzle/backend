@@ -280,7 +280,11 @@ public class GameService {
                 () -> new CustomException(ErrorCode.NOT_EXIST_USER)
         );
 
-        MoveResponseDto responseDto = MoveResponseDto.createResponseDto(idx, user);
+        Game game = gameMap.get(boardId);
+        GamePuzzle[] gamePuzzleList = game.getGamePuzzle();
+        int group = gamePuzzleList[idx].getGroup();
+
+        MoveResponseDto responseDto = MoveResponseDto.createResponseDto(group, user);
 
         simpMessagingTemplate.convertAndSend("/sub/game/"+ boardId+"/puzzle/move", responseDto);
     }
