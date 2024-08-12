@@ -119,8 +119,9 @@ public class GameService {
                 () -> new CustomException(ErrorCode.NOT_EXIST_BOARD)
         );
 
-        timers.get(boardId).cancel(true);
         Long time = timers.get(boardId).getDelay(TimeUnit.SECONDS);
+
+        timers.get(boardId).cancel(true);
 
         EndResponseDto responseDto = EndResponseDto.createEndResponseDto(time, user.getNickname());
 
