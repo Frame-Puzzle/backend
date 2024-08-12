@@ -1,5 +1,6 @@
 package com.frazzle.main.domain.socket.game.entity;
 
+import com.frazzle.main.domain.socket.roby.entity.RobyUser;
 import com.frazzle.main.domain.user.entity.User;
 import lombok.*;
 
@@ -23,7 +24,7 @@ public class GamePlayer {
 
 
 
-    public static GamePlayer createGamePlayer(User user) {
+    public static GamePlayer createGamePlayer(RobyUser user) {
         return GamePlayer.builder()
                 .userId(user.getUserId())
                 .nickname(user.getNickname())

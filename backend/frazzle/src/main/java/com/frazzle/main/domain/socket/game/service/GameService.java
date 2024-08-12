@@ -9,6 +9,8 @@ import com.frazzle.main.domain.socket.game.dto.*;
 import com.frazzle.main.domain.socket.game.entity.Game;
 import com.frazzle.main.domain.socket.game.entity.GamePlayer;
 import com.frazzle.main.domain.socket.game.entity.GamePuzzle;
+import com.frazzle.main.domain.socket.roby.entity.RobyUser;
+import com.frazzle.main.domain.socket.roby.service.RobyService;
 import com.frazzle.main.domain.user.entity.User;
 import com.frazzle.main.domain.user.repository.UserRepository;
 import com.frazzle.main.global.exception.CustomException;
@@ -34,6 +36,7 @@ public class GameService {
     private final Map<Integer, ScheduledFuture<?>> timers = new ConcurrentHashMap<>();
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(10);
     private final SimpMessagingTemplate simpMessagingTemplate;
+    private final RobyService robyService;
 
 
     public void startGame(StartRequestDto requestDto) {
@@ -41,11 +44,13 @@ public class GameService {
         int size = requestDto.getSize();
 
         if (!gameMap.containsKey(boardId)) {
-            log.info("");
-            List<User> userList = userRepository.findAllUserByBoardId(boardId);
+//            List<User> userList = userRepository.findAllUserByBoardId(boardId);
+
+            List<RobyUser> userList = robyService.getUsersInRoby(boardId);
+
             //유저들 추가
             Map<Integer, GamePlayer> gamePlayerMap = new HashMap<>();
-            for (User user : userList) {
+            for (RobyUser user : userList) {
                 GamePlayer gamePlayer = GamePlayer.createGamePlayer(user);
 
                 gamePlayerMap.put(user.getUserId(), gamePlayer);
@@ -74,20 +79,22 @@ public class GameService {
             );
 
             gameMap.put(boardId, game);
+
+            List<Integer> numList = new ArrayList<>();
+
+            for(int i=0; i<size*size;i++) {
+                numList.add(i);
+            }
+
+            Collections.shuffle(numList);
+
+            int[] numArray = numList.stream().mapToInt(Integer::intValue).toArray();
+
+            game.updateNumArray(numArray);
+
         }
 
         Game game = gameMap.get(boardId);
-        List<Integer> numList = new ArrayList<>();
-
-        for(int i=0; i<size*size;i++) {
-            numList.add(i);
-        }
-
-        Collections.shuffle(numList);
-
-        int[] numArray = numList.stream().mapToInt(Integer::intValue).toArray();
-
-        game.updateNumArray(numArray);
 
 
         StartResponseDto responseDto = StartResponseDto.createResponseDto();
@@ -96,7 +103,9 @@ public class GameService {
 
         log.info(game.toString());
 
-        simpMessagingTemplate.convertAndSend("/sub/game/info/"+boardId, game);
+        GameResponseDto gameResponseDto = GameResponseDto.createResponseDto(game);
+
+        simpMessagingTemplate.convertAndSend("/sub/game/info/"+boardId, gameResponseDto);
 
         //스톱워치 시작
         timer(boardId);
@@ -235,16 +244,17 @@ public class GameService {
         Map<Integer, GamePlayer> gamePlayerMap = game.getGamePlayerMap();
         GamePlayer gamePlayer = gamePlayerMap.get(user.getUserId());
 
-        int size = game.getSize();
+//        int size = game.getSize();
+        int size = 4;
 
         for(int i=0; i<4;i++) {
             boolean flag = false;
             //비어있는게 아닐 경우
-            if(nextIdx[i]!= 0) {
+            if(nextIdx[i]!= -1) {
                 switch (i) {
                     //상
                     case 0:
-                        if(nextIdx[i]+size==currentIdx) {
+                        if( nextIdx[i]+size==currentIdx) {
                             flag = true;
                         }
                         break;
@@ -256,13 +266,13 @@ public class GameService {
                         break;
                     //좌
                     case 2:
-                        if(nextIdx[i]+1==currentIdx) {
+                        if((currentIdx % size !=0 ) || nextIdx[i]+1==currentIdx) {
                             flag = true;
                         }
                         break;
                     //우
                     case 3:
-                        if(nextIdx[i]-1==currentIdx) {
+                        if((currentIdx % size !=size-1 ) || nextIdx[i]-1==currentIdx) {
                             flag = true;
                         }
                         break;
@@ -283,7 +293,9 @@ public class GameService {
 
         CheckResponseDto responseDto = CheckResponseDto.createResponseDto(gamePuzzleList[currentIdx].getGroup(), gamePuzzleList);
 
-        simpMessagingTemplate.convertAndSend("/sub/game/"+boardId+"/puzzle/check/", responseDto);
+        log.info(Arrays.toString(gamePuzzleList));
+
+        simpMessagingTemplate.convertAndSend("/sub/game/"+boardId+"/puzzle/check", responseDto);
     }
 
 
@@ -294,7 +306,8 @@ public class GameService {
 
         int cnt = 0;
 
-        int size = game.getSize();
+//        int size = game.getSize();
+        int size = 4;
         GamePuzzle[] gamePuzzleList = game.getGamePuzzle();
 
         int curR = currentIdx / size;
@@ -316,13 +329,13 @@ public class GameService {
                 int nr = curIdx.r + dr[d];
                 int nc = curIdx.c + dc[d];
 
-                log.info("nr, nc " +nr+" "+nc);
+//                log.info("nr, nc " +nr+" "+nc);
 
                 if(nr < 0 || nr >= size || nc < 0 || nc >= size || visited[nr][nc]) continue;
 
                 int nextIdx = nr*size + nc;
 
-                log.info("nextIdx "+nextIdx);
+//                log.info("nextIdx "+nextIdx);
 
                 //같은 그룹만 되게
                 if(gamePuzzleList[nextIdx].getGroup()!= group) continue;
@@ -333,8 +346,8 @@ public class GameService {
                 float curX = gamePuzzleList[curIdx.r*size+curIdx.c].getX();
                 float curY = gamePuzzleList[curIdx.r*size+curIdx.c].getY();
 
-                log.info("curX "+curX+" curY "+curY);
-                log.info("nextX "+nextX+" nextY "+nextY);
+//                log.info("curX "+curX+" curY "+curY);
+//                log.info("nextX "+nextX+" nextY "+nextY);
 
                 switch (d) {
                     case 0:
