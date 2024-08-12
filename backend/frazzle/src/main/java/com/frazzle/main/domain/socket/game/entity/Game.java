@@ -9,20 +9,23 @@ import java.util.Map;
 @ToString
 public class Game {
     private int size;
+    private String imgUrl;
     private GamePuzzle[] gamePuzzle;
     private Map<Integer, GamePlayer> gamePlayerMap;
     private int[] numArray;
 
     @Builder
-    private Game(int size, GamePuzzle[] gamePuzzle, Map<Integer, GamePlayer> gamePlayerMap) {
+    private Game(int size, String imgUrl, GamePuzzle[] gamePuzzle, Map<Integer, GamePlayer> gamePlayerMap, int[] numArray) {
         this.size = size;
+        this.imgUrl = imgUrl;
         this.gamePuzzle = gamePuzzle;
         this.gamePlayerMap = gamePlayerMap;
+        this.numArray = numArray;
     }
 
-    public static Game createGame(int size, GamePuzzle[] gamePuzzleList, Map<Integer, GamePlayer> gamePlayerMap) {
+    public static Game createGame(String imgUrl, int size, GamePuzzle[] gamePuzzleList, Map<Integer, GamePlayer> gamePlayerMap) {
         return Game.builder()
-                .size(size)
+                .imgUrl(imgUrl)
                 .gamePuzzle(gamePuzzleList)
                 .gamePlayerMap(gamePlayerMap)
                 .build();
