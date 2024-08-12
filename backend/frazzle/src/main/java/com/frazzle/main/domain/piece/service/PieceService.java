@@ -24,6 +24,7 @@ import com.frazzle.main.global.exception.ErrorCode;
 import com.frazzle.main.global.models.UserPrincipal;
 import com.frazzle.main.global.utils.FindPeopleCountFromImg;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -41,6 +42,7 @@ public class PieceService {
     private final DirectoryRepository directoryRepository;
     private final UserDirectoryRepository userDirectoryRepository;
     private final AwsService awsService;
+    private final PeopleService peopleService;
     private final FindPeopleCountFromImg findPeopleCountFromImg;
     private final NotificationRepository notificationRepository;
     private final UserNotificationRepository userNotificationRepository;
@@ -117,8 +119,10 @@ public class PieceService {
             return true;
         }
 
-        //3. Face Detection : 사람 수 파악
-        int peopleCount = findPeopleCountFromImg.analyzeImageFile(imgFile);
+//        //3. Face Detection : 사람 수 파악
+//        int peopleCount = findPeopleCountFromImg.analyzeImageFile(imgFile);
+
+        peopleService.findPeople(imgFile, piece);
 
         //4. 퍼즐 조각 이미지 업로드 전 삭제
         String imageUrl = piece.getImageUrl();
@@ -133,7 +137,7 @@ public class PieceService {
         String url = awsService.getImageUrl(imageUrl);
 
         //5. 퍼즐 조각 수정
-        piece.updatePieceDto(url, comment, user, peopleCount);
+        piece.updatePieceDto(url, comment, user);
 
         //6. 퍼즐판 완성 체크
         Board board = piece.getBoard();
@@ -154,6 +158,15 @@ public class PieceService {
         }
 
         return false;
+    }
+
+    @Async
+    @Transactional
+    public void findPeople(MultipartFile imgFile, Piece piece) {
+        //3. Face Detection : 사람 수 파악
+        int peopleCount = findPeopleCountFromImg.analyzeImageFile(imgFile);
+        piece.updatePeopleCount(peopleCount);
+        pieceRepository.save(piece);
     }
 
     @Transactional

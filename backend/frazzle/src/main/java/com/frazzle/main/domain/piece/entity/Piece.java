@@ -69,12 +69,11 @@ public class Piece {
                 .build();
     }
 
-    public void updatePieceDto(String imageUrl, String content, User user, int peopleCount) {
+    public void updatePieceDto(String imageUrl, String content, User user) {
         //사용자 유저 정보가 없을때, 혹은 같을 때 수정 가능(서비스 쪽에서 처리)
         this.imageUrl = imageUrl;
         this.content = content;
         this.user = user;
-        this.peopleCount = peopleCount;
         this.modifiedAt = LocalDateTime.now();
     }
 
@@ -88,5 +87,9 @@ public class Piece {
 
     public void updateContent(String content){
         this.content = content;
+    }
+
+    public void updatePeopleCount(int peopleCount) {
+        this.peopleCount = peopleCount;
     }
 }
