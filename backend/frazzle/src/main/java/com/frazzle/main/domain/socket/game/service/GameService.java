@@ -1,6 +1,7 @@
 package com.frazzle.main.domain.socket.game.service;
 
 import com.frazzle.main.domain.board.entity.Board;
+import com.frazzle.main.domain.board.entity.BoardClearTypeFlag;
 import com.frazzle.main.domain.board.repository.BoardRepository;
 import com.frazzle.main.domain.directory.repository.DirectoryRepository;
 import com.frazzle.main.domain.piece.entity.Piece;
@@ -120,7 +121,6 @@ public class GameService {
         );
 
 
-
         timers.get(boardId).cancel(true);
 
         EndResponseDto responseDto = EndResponseDto.createEndResponseDto(time, user.getNickname());
@@ -129,6 +129,7 @@ public class GameService {
 
         //썸네일러 업데이트
         board.updateUser(user);
+        board.changeClearType(BoardClearTypeFlag.PUZZLE_GAME_CLEARED);
         boardRepository.save(board);
 
         //삭제
