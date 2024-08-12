@@ -6,6 +6,7 @@ import java.util.Map;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@ToString
 public class Game {
     private int size;
     private String imgUrl;

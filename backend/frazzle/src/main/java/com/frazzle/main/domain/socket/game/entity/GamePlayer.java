@@ -5,6 +5,7 @@ import lombok.*;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@ToString
 public class GamePlayer {
     private int userId;
     private int count;

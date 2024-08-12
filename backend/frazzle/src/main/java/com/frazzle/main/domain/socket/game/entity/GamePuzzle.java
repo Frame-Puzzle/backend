@@ -4,6 +4,7 @@ import lombok.*;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@ToString
 public class GamePuzzle {
     private float x;
     private float y;

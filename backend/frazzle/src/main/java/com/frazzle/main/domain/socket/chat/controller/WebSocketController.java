@@ -1,4 +1,4 @@
-package com.frazzle.main.domain.chat.controller;
+package com.frazzle.main.domain.socket.chat.controller;
 
 
 import com.frazzle.main.domain.socket.chat.dto.SendMessageDto;

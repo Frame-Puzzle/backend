@@ -29,10 +29,6 @@ public class GameController {
 
         log.info("시작");
 
-        StartResponseDto responseDto = StartResponseDto.createResponseDto();
-
-        simpMessagingTemplate.convertAndSend("/sub/start/" + boardId, responseDto);
-
         gameService.startGame(startRequestDto);
 
     }
@@ -78,6 +74,33 @@ public class GameController {
 
         gameService.checkPuzzle(boardId, email, checkRequestDto);
         log.info("checkPuzzle processing completed for boardId={}", boardId);
+    }
+
+    // 퍼즐 완료했을 때 메서드
+    @MessageMapping("/end/puzzle/{boardId}")
+    public void endPuzzle(
+            @DestinationVariable int boardId,
+            EndRequestDto requestDto,
+            SimpMessageHeaderAccessor accessor
+    ) {
+        // 이메일로부터 사용자 찾기
+        String email = (String) accessor.getSessionAttributes().get("senderEmail");
+
+        gameService.endPuzzle(boardId, email, requestDto);
+        log.info("checkPuzzle processing completed for boardId={}", boardId);
+    }
+
+    // 퍼즐 완료했을 때 메서드
+    @MessageMapping("/exit/puzzle/{boardId}")
+    public void exitPuzzle(
+            @DestinationVariable int boardId,
+            SimpMessageHeaderAccessor accessor
+    ) {
+        // 이메일로부터 사용자 찾기
+        String email = (String) accessor.getSessionAttributes().get("senderEmail");
+        log.info("방 나가기");
+        gameService.exitPuzzle(boardId, email);
+
     }
 
 }
