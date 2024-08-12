@@ -6,6 +6,7 @@ import java.util.Map;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@ToString
 public class Game {
     private int size;
     private GamePuzzle[] gamePuzzle;
@@ -21,6 +22,7 @@ public class Game {
 
     public static Game createGame(int size, GamePuzzle[] gamePuzzleList, Map<Integer, GamePlayer> gamePlayerMap) {
         return Game.builder()
+                .size(size)
                 .gamePuzzle(gamePuzzleList)
                 .gamePlayerMap(gamePlayerMap)
                 .build();

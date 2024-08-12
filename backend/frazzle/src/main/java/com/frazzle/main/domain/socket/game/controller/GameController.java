@@ -26,10 +26,6 @@ public class GameController {
 
         log.info("시작");
 
-        StartResponseDto responseDto = StartResponseDto.createResponseDto();
-
-        simpMessagingTemplate.convertAndSend("/sub/start/" + boardId, responseDto);
-
         gameService.startGame(startRequestDto);
 
     }
