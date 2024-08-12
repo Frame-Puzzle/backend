@@ -343,6 +343,24 @@ public class GameService {
         gameMap.remove(game);
     }
 
+    public void exitPuzzle(int boardId, String email) {
+        //유저 찾기
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new CustomException(ErrorCode.NOT_EXIST_USER)
+        );
+
+        Game game = gameMap.get(boardId);
+        Map<Integer, GamePlayer> gamePlayerMap = game.getGamePlayerMap();
+        gamePlayerMap.remove(user.getUserId());
+
+        //모두 다 나가면
+        if(gamePlayerMap.isEmpty()) {
+            timers.remove(boardId);
+            gameMap.remove(boardId);
+        }
+
+    }
+
     private class PuzzlePosition {
         int r;
         int c;
