@@ -25,6 +25,7 @@ public class Game {
 
     public static Game createGame(String imgUrl, int size, GamePuzzle[] gamePuzzleList, Map<Integer, GamePlayer> gamePlayerMap) {
         return Game.builder()
+                .size(size)
                 .imgUrl(imgUrl)
                 .gamePuzzle(gamePuzzleList)
                 .gamePlayerMap(gamePlayerMap)

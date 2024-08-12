@@ -53,11 +53,11 @@ public class GameController {
             ReleaseRequestDto releaseRequestDto,
             SimpMessageHeaderAccessor accessor
     ) {
-        log.info("movePuzzle called with boardId={}, index={}, x={}, y={}",
+        log.info("releasePuzzle called with boardId={}, index={}, x={}, y={}",
                 boardId, releaseRequestDto.getIndex(), releaseRequestDto.getX(), releaseRequestDto.getY());
 
         gameService.releasePuzzle(boardId, releaseRequestDto);
-        log.info("movePuzzle processing completed for boardId={}", boardId);
+        log.info("releasePuzzle processing completed for boardId={}", boardId);
     }
 
     // 사용자가 놓아줄 때 메서드
