@@ -30,7 +30,6 @@ public class GameService {
 
     private final UserRepository userRepository;
     private final BoardRepository boardRepository;
-    private final DirectoryRepository directoryRepository;
     private final Map<Integer, Game> gameMap = new HashMap<>();
     private final PieceRepository pieceRepository;
     private final Map<Integer, ScheduledFuture<?>> timers = new ConcurrentHashMap<>();
@@ -44,7 +43,6 @@ public class GameService {
         int size = requestDto.getSize();
 
         if (!gameMap.containsKey(boardId)) {
-//            List<User> userList = userRepository.findAllUserByBoardId(boardId);
 
             List<RobyUser> userList = robyService.getUsersInRoby(boardId);
 
@@ -111,23 +109,7 @@ public class GameService {
         timer(boardId);
     }
 
-    public void movePuzzle(int boardId, int idx, String email) {
-        //유저 찾기
-        User user = userRepository.findByEmail(email).orElseThrow(
-                () -> new CustomException(ErrorCode.NOT_EXIST_USER)
-        );
-
-        Game game = gameMap.get(boardId);
-        GamePuzzle[] gamePuzzleList = game.getGamePuzzle();
-        int group = gamePuzzleList[idx].getGroup();
-
-        MoveResponseDto responseDto = MoveResponseDto.createResponseDto(group, user);
-
-        simpMessagingTemplate.convertAndSend("/sub/game/"+ boardId+"/puzzle/move", responseDto);
-
-    }
-
-    public void endPuzzle(int boardId, String email, EndRequestDto requestDto) {
+    public void endPuzzle(int boardId, String email) {
         //유저 찾기
         User user = userRepository.findByEmail(email).orElseThrow(
                 () -> new CustomException(ErrorCode.NOT_EXIST_USER)
@@ -137,39 +119,20 @@ public class GameService {
                 () -> new CustomException(ErrorCode.NOT_EXIST_BOARD)
         );
 
-        Game game = gameMap.get(boardId);
-        Map<Integer, GamePlayer> gamePlayerMap = game.getGamePlayerMap();
-
-        List<EndUserDto> endUserDtoList = new ArrayList<>();
-
-        for (GamePlayer gamePlayer : gamePlayerMap.values()) {
-            EndUserDto endUserDto = EndUserDto.createEndUserDto(gamePlayer.getNickname(), gamePlayer.getCount(), gamePlayer.getUserId());
-            endUserDtoList.add(endUserDto);
-        }
-
-        //채운 순서로 내림차순 정렬
-        endUserDtoList.sort((o1, o2) -> Integer.compare(o1.getCount(), o2.getCount()) * -1);
-
+        timers.get(boardId).cancel(true);
         Long time = timers.get(boardId).getDelay(TimeUnit.SECONDS);
 
-        EndResponseDto endResponseDto = EndResponseDto.createEndResponseDto(time, endUserDtoList);
+        EndResponseDto responseDto = EndResponseDto.createEndResponseDto(time, user.getNickname());
 
-        simpMessagingTemplate.convertAndSend("/sub/game/"+boardId+"/puzzle/end/", endResponseDto);
-
-        //썸네일러 선정
-        int firstUserId = endUserDtoList.get(0).getUserId();
-
-        User firstUser = userRepository.findByUserId(firstUserId).orElseThrow(
-                () -> new CustomException(ErrorCode.NOT_EXIST_USER)
-        );
+        simpMessagingTemplate.convertAndSend("/sub/game/"+ boardId+"/puzzle/end", responseDto);
 
         //썸네일러 업데이트
-        board.updateUser(firstUser);
+        board.updateUser(user);
         boardRepository.save(board);
 
         //삭제
         timers.remove(boardId);
-        gameMap.remove(game);
+        gameMap.remove(boardId);
     }
 
     public void exitPuzzle(int boardId, String email) {
@@ -209,205 +172,4 @@ public class GameService {
         log.info("Timer started for boardId={}", boardId);
     }
 
-
-    public void releasePuzzle(int boardId, ReleaseRequestDto releaseRequestDto) {
-
-        int idx = releaseRequestDto.getIndex();
-        float x = releaseRequestDto.getX();
-        float y = releaseRequestDto.getY();
-        Game game = gameMap.get(boardId);
-
-        GamePuzzle[] gamePuzzleList = game.getGamePuzzle();
-        int puzzleSize = releaseRequestDto.getPuzzleSize();
-
-        moveSameGroup(x, y, idx, gamePuzzleList[idx].getGroup(), game, puzzleSize);
-
-        ReleaseResponseDto responseDto = ReleaseResponseDto.createResponseDto(gamePuzzleList[idx].getGroup(), gamePuzzleList);
-
-        log.info(responseDto.getGamePuzzleList()[idx].toString());
-
-        simpMessagingTemplate.convertAndSend("/sub/game/" + boardId+"/puzzle/release", responseDto);
-    }
-
-    public void checkPuzzle(int boardId, String email, CheckRequestDto requestDto) {
-        //유저 찾기
-        User user = userRepository.findByEmail(email).orElseThrow(
-                () -> new CustomException(ErrorCode.NOT_EXIST_USER)
-        );
-
-        int currentIdx = requestDto.getCurrentIdx();
-        int[] nextIdx = requestDto.getNextIdxList();
-        int puzzleSize = requestDto.getPuzzleSize();
-        Game game = gameMap.get(boardId);
-
-        GamePuzzle[] gamePuzzleList = game.getGamePuzzle();
-        Map<Integer, GamePlayer> gamePlayerMap = game.getGamePlayerMap();
-        GamePlayer gamePlayer = gamePlayerMap.get(user.getUserId());
-
-//        int size = game.getSize();
-        int size = 4;
-
-        for(int i=0; i<4;i++) {
-            boolean flag = false;
-            //비어있는게 아닐 경우
-            if(nextIdx[i]!= -1) {
-                switch (i) {
-                    //상
-                    case 0:
-                        if( nextIdx[i]+size==currentIdx) {
-                            flag = true;
-                        }
-                        break;
-                    //하
-                    case 1:
-                        if(nextIdx[i]-size==currentIdx) {
-                            flag = true;
-                        }
-                        break;
-                    //좌
-                    case 2:
-                        if((currentIdx % size !=0 ) || nextIdx[i]+1==currentIdx) {
-                            flag = true;
-                        }
-                        break;
-                    //우
-                    case 3:
-                        if((currentIdx % size !=size-1 ) || nextIdx[i]-1==currentIdx) {
-                            flag = true;
-                        }
-                        break;
-                }
-            }
-            if(flag) {
-                //그룹화
-                union(currentIdx, nextIdx[i], gamePuzzleList);
-                //현재 플레이어 맞춘 횟수 +1
-                gamePlayer.upCount();
-            }
-        }
-
-        float x = requestDto.getX();
-        float y = requestDto.getY();
-
-        moveSameGroup(x, y, currentIdx, gamePuzzleList[currentIdx].getGroup(), game, puzzleSize);
-
-        CheckResponseDto responseDto = CheckResponseDto.createResponseDto(gamePuzzleList[currentIdx].getGroup(), gamePuzzleList);
-
-        log.info(Arrays.toString(gamePuzzleList));
-
-        simpMessagingTemplate.convertAndSend("/sub/game/"+boardId+"/puzzle/check", responseDto);
-    }
-
-
-
-    //위치 옮기기
-    private void moveSameGroup(float x, float y, int currentIdx, int group, Game game, int puzzleSize) {
-        Queue<PuzzlePosition> queue = new ArrayDeque<>();
-
-        int cnt = 0;
-
-//        int size = game.getSize();
-        int size = 4;
-        GamePuzzle[] gamePuzzleList = game.getGamePuzzle();
-
-        int curR = currentIdx / size;
-        int curC = currentIdx % size;
-
-        queue.offer(new PuzzlePosition(curR, curC));
-        cnt += 1;
-
-        boolean[][] visited = new boolean[size][size];
-        visited[curR][curC] = true;
-        //현재 위치 x,y좌표 추가
-        gamePuzzleList[currentIdx].updatePosition(x, y);
-
-
-        while (!queue.isEmpty()) {
-            PuzzlePosition curIdx = queue.poll();
-
-            for(int d=0; d<4; d++) {
-                int nr = curIdx.r + dr[d];
-                int nc = curIdx.c + dc[d];
-
-//                log.info("nr, nc " +nr+" "+nc);
-
-                if(nr < 0 || nr >= size || nc < 0 || nc >= size || visited[nr][nc]) continue;
-
-                int nextIdx = nr*size + nc;
-
-//                log.info("nextIdx "+nextIdx);
-
-                //같은 그룹만 되게
-                if(gamePuzzleList[nextIdx].getGroup()!= group) continue;
-
-                //상 하 좌 우
-                float nextX = 0;
-                float nextY = 0;
-                float curX = gamePuzzleList[curIdx.r*size+curIdx.c].getX();
-                float curY = gamePuzzleList[curIdx.r*size+curIdx.c].getY();
-
-//                log.info("curX "+curX+" curY "+curY);
-//                log.info("nextX "+nextX+" nextY "+nextY);
-
-                switch (d) {
-                    case 0:
-                        nextX = curX - puzzleSize;
-                        nextY = curY;
-                        break;
-                    case 1:
-                        nextX = curX + puzzleSize;
-                        nextY = curY;
-                        break;
-                    case 2:
-                        nextX = curX;
-                        nextY = curY - puzzleSize;
-                        break;
-                    case 3:
-                        nextX = curX;
-                        nextY = curY + puzzleSize;
-                        break;
-                }
-
-                gamePuzzleList[nextIdx].updatePosition(nextX, nextY);
-                queue.offer(new PuzzlePosition(nr, nc));
-                visited[nr][nc] = true;
-                cnt += 1;
-            }
-        }
-    }
-
-    private int[] dr = {-1, 1, 0, 0};
-    private int[] dc = {0, 0, -1, 1};
-
-    //그룹 찾기
-    private int findParent(int x, GamePuzzle[] parent) {
-        if(parent[x].getGroup() != x) parent[x].updateGroup(findParent(parent[x].getGroup(), parent));
-        return parent[x].getGroup();
-    }
-
-    //그룹 합치기
-    private void union(int a, int b, GamePuzzle[] parent) {
-        int parentA = findParent(a, parent);
-        int parentB = findParent(b, parent);
-
-        if(parentA > parentB) {
-            parent[parentA].updateGroup(parentB);
-        }
-
-        else if(parentB > parentA) {
-            parent[parentB].updateGroup(parentA);
-        }
-    }
-
-
-
-    private class PuzzlePosition {
-        int r;
-        int c;
-
-        PuzzlePosition(int r, int c) {
-            this.r = r;
-            this.c = c;
-        }
-    }
 }

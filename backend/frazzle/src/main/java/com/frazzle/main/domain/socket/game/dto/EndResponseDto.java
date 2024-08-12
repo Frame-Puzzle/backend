@@ -11,18 +11,18 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class EndResponseDto {
     private Long time;
-    private List<EndUserDto> endUserDtoList;
+    private String nickname;
 
     @Builder
-    private EndResponseDto(Long time, List<EndUserDto> endUserDtoList) {
+    private EndResponseDto(Long time, String nickname) {
         this.time = time;
-        this.endUserDtoList = endUserDtoList;
+        this.nickname = nickname;
     }
 
-    public static EndResponseDto createEndResponseDto(Long time, List<EndUserDto> endUserDtoList) {
+    public static EndResponseDto createEndResponseDto(Long time, String nickname) {
         return EndResponseDto.builder()
                 .time(time)
-                .endUserDtoList(endUserDtoList)
+                .nickname(nickname)
                 .build();
     }
 }
