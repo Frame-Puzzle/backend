@@ -244,8 +244,8 @@ public class GameService {
         Map<Integer, GamePlayer> gamePlayerMap = game.getGamePlayerMap();
         GamePlayer gamePlayer = gamePlayerMap.get(user.getUserId());
 
-//        int size = game.getSize();
-        int size = 4;
+        int size = game.getSize();
+        // int size = 4;
 
         for(int i=0; i<4;i++) {
             boolean flag = false;
@@ -306,8 +306,8 @@ public class GameService {
 
         int cnt = 0;
 
-//        int size = game.getSize();
-        int size = 4;
+        int size = game.getSize();
+//        int size = 4;
         GamePuzzle[] gamePuzzleList = game.getGamePuzzle();
 
         int curR = currentIdx / size;
