@@ -10,16 +10,16 @@ import java.util.List;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class EndResponseDto {
-    private Long time;
+    private int time;
     private String nickname;
 
     @Builder
-    private EndResponseDto(Long time, String nickname) {
+    private EndResponseDto(int time, String nickname) {
         this.time = time;
         this.nickname = nickname;
     }
 
-    public static EndResponseDto createEndResponseDto(Long time, String nickname) {
+    public static EndResponseDto createEndResponseDto(int time, String nickname) {
         return EndResponseDto.builder()
                 .time(time)
                 .nickname(nickname)

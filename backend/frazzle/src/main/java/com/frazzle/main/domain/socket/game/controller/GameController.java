@@ -33,12 +33,13 @@ public class GameController {
     @MessageMapping("/end/puzzle/{boardId}")
     public void endPuzzle(
             @DestinationVariable int boardId,
+            EndRequestDto endRequestDto,
             SimpMessageHeaderAccessor accessor
     ) {
         // 이메일로부터 사용자 찾기
         String email = (String) accessor.getSessionAttributes().get("senderEmail");
 
-        gameService.endPuzzle(boardId, email);
+        gameService.endPuzzle(boardId, email, endRequestDto.getTime());
         log.info("checkPuzzle processing completed for boardId={}", boardId);
     }
 

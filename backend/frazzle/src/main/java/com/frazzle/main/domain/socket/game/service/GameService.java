@@ -109,7 +109,7 @@ public class GameService {
         timer(boardId);
     }
 
-    public void endPuzzle(int boardId, String email) {
+    public void endPuzzle(int boardId, String email, int time) {
         //유저 찾기
         User user = userRepository.findByEmail(email).orElseThrow(
                 () -> new CustomException(ErrorCode.NOT_EXIST_USER)
@@ -119,7 +119,7 @@ public class GameService {
                 () -> new CustomException(ErrorCode.NOT_EXIST_BOARD)
         );
 
-        Long time = timers.get(boardId).getDelay(TimeUnit.SECONDS);
+
 
         timers.get(boardId).cancel(true);
 
@@ -162,7 +162,7 @@ public class GameService {
             return;
         }
 
-        final long[] elapsedTime = {0}; // 경과 시간
+        final long[] elapsedTime = {5}; // 경과 시간
 
         ScheduledFuture<?> future = scheduler.scheduleAtFixedRate(() -> {
             elapsedTime[0]++;
