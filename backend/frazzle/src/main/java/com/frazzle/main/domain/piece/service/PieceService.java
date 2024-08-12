@@ -120,8 +120,6 @@ public class PieceService {
         }
 
 //        //3. Face Detection : 사람 수 파악
-//        int peopleCount = findPeopleCountFromImg.analyzeImageFile(imgFile);
-
         peopleService.findPeople(imgFile, piece);
 
         //4. 퍼즐 조각 이미지 업로드 전 삭제

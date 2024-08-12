@@ -16,10 +16,11 @@ public class PeopleService {
     private final FindPeopleCountFromImg findPeopleCountFromImg;
     private final PieceRepository pieceRepository;
 
+    //비동기 처리
     @Async
     @Transactional
     public void findPeople(MultipartFile imgFile, Piece piece) {
-        //3. Face Detection : 사람 수 파악
+        //Face Detection : 사람 수 파악
         int peopleCount = findPeopleCountFromImg.analyzeImageFile(imgFile);
         piece.updatePeopleCount(peopleCount);
         pieceRepository.save(piece);
