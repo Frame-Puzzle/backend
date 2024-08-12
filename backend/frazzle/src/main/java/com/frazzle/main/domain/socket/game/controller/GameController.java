@@ -19,78 +19,30 @@ import org.springframework.web.bind.annotation.RestController;
 public class GameController {
 
     private final GameService gameService;
-    private final SimpMessagingTemplate simpMessagingTemplate;
 
     @MessageMapping("/start/{boardId}")
     public void startGame(
             @DestinationVariable int boardId,
             StartRequestDto startRequestDto,
             SimpMessageHeaderAccessor accessor) {
-
         log.info("시작");
-
         gameService.startGame(startRequestDto);
-
-    }
-
-    // 움직임 보여주는 메서드
-    @MessageMapping("/move/puzzle/{boardId}")
-    public void movePuzzle(
-            @DestinationVariable int boardId,
-            MoveRequestDto moveRequestDto,
-            SimpMessageHeaderAccessor accessor
-    ) {
-
-        String email = (String) accessor.getSessionAttributes().get("senderEmail");
-
-        gameService.movePuzzle(boardId, moveRequestDto.getIdx(), email);
-    }
-
-    // 놓을 때 보여주는 메서드
-    @MessageMapping("/release/puzzle/{boardId}")
-    public void releasePuzzle(
-            @DestinationVariable int boardId,
-            ReleaseRequestDto releaseRequestDto,
-            SimpMessageHeaderAccessor accessor
-    ) {
-        log.info("releasePuzzle called with boardId={}, index={}, x={}, y={}",
-                boardId, releaseRequestDto.getIndex(), releaseRequestDto.getX(), releaseRequestDto.getY());
-
-        gameService.releasePuzzle(boardId, releaseRequestDto);
-        log.info("releasePuzzle processing completed for boardId={}", boardId);
-    }
-
-    // 사용자가 놓아줄 때 메서드
-    @MessageMapping("/check/puzzle/{boardId}")
-    public void checkPuzzle(
-            @DestinationVariable int boardId,
-            CheckRequestDto checkRequestDto,
-            SimpMessageHeaderAccessor accessor
-    ) {
-        // 이메일로부터 사용자 찾기
-        String email = (String) accessor.getSessionAttributes().get("senderEmail");
-        log.info("checkPuzzle called with boardId={}, email={}, currentIdx={}",
-                boardId, email, checkRequestDto.getCurrentIdx());
-
-        gameService.checkPuzzle(boardId, email, checkRequestDto);
-        log.info("checkPuzzle processing completed for boardId={}", boardId);
     }
 
     // 퍼즐 완료했을 때 메서드
     @MessageMapping("/end/puzzle/{boardId}")
     public void endPuzzle(
             @DestinationVariable int boardId,
-            EndRequestDto requestDto,
             SimpMessageHeaderAccessor accessor
     ) {
         // 이메일로부터 사용자 찾기
         String email = (String) accessor.getSessionAttributes().get("senderEmail");
 
-        gameService.endPuzzle(boardId, email, requestDto);
+        gameService.endPuzzle(boardId, email);
         log.info("checkPuzzle processing completed for boardId={}", boardId);
     }
 
-    // 퍼즐 완료했을 때 메서드
+    // 퍼즐 나갔을 때 메서드
     @MessageMapping("/exit/puzzle/{boardId}")
     public void exitPuzzle(
             @DestinationVariable int boardId,
@@ -100,7 +52,6 @@ public class GameController {
         String email = (String) accessor.getSessionAttributes().get("senderEmail");
         log.info("방 나가기");
         gameService.exitPuzzle(boardId, email);
-
     }
 
 }
