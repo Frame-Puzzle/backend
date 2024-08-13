@@ -119,9 +119,6 @@ public class PieceService {
             return true;
         }
 
-//        //3. Face Detection : 사람 수 파악
-        peopleService.findPeople(imgFile, piece);
-
         //4. 퍼즐 조각 이미지 업로드 전 삭제
         String imageUrl = piece.getImageUrl();
         if(imageUrl != null) {
@@ -136,6 +133,9 @@ public class PieceService {
 
         //5. 퍼즐 조각 수정
         piece.updatePieceDto(url, comment, user);
+
+        //3. Face Detection : 사람 수 파악
+        peopleService.findPeople(imgFile, piece.getPieceId());
 
         //6. 퍼즐판 완성 체크
         Board board = piece.getBoard();

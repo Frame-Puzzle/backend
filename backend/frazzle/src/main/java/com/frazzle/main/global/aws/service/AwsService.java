@@ -42,7 +42,7 @@ public class AwsService {
             }
 
             //uuid로 랜덤
-            String uniqueFileName = UUID.randomUUID().toString()+extension;
+            String uniqueFileName = UUID.randomUUID()+extension;
 
             s3Client.putObject(new PutObjectRequest(name, uniqueFileName, fileObj));
             fileObj.delete();
