@@ -34,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -355,28 +356,33 @@ public class BoardService {
     }
 
     //퍼즐판 전체조회 시 퍼즐 조각이 어떤 상태인지 확인하는 메소드
-    private int checkAuthority(int userId, Piece piece){
+    private int checkAuthority(int userId, Piece piece) {
         int result = 0;
 
-        User pieceUser = piece.getUser();
+        Optional<User> pieceUser = Optional.ofNullable(piece.getUser());
         String imageUrl = piece.getImageUrl();
         String content = piece.getContent();
 
         //1. 전부 비어있는 상태
-        if(pieceUser == null && imageUrl == null && content == null){
+        if (!pieceUser.isPresent() && imageUrl == null && content == null) {
             result = Authority.EMPTY.getValue();
-        } //2. 자신만 수정 가능한 상태
-        else if(pieceUser.getUserId() == userId){
+        }
+        //2. 자신만 수정 가능한 상태
+        else if (pieceUser.isPresent() && pieceUser.get().getUserId() == userId) {
             result = Authority.UPDATE_ONLY_ME.getValue();
-        } //3. 사진을 넣었던 유저가 사라진 상태
-        else if(pieceUser == null && (imageUrl != null || content != null)){
+        }
+        //3. 사진을 넣었던 유저가 사라진 상태
+        else if (!pieceUser.isPresent() && (imageUrl != null || content != null)) {
             result = Authority.UPDATABLE.getValue();
-        } //4. 다른 유저가 사진을 넣어서 수정할 수 없음
-        else if(userId != pieceUser.getUserId() && imageUrl != null){
+        }
+        //4. 다른 유저가 사진을 넣어서 수정할 수 없음
+        else if (pieceUser.isPresent() && userId != pieceUser.get().getUserId() && imageUrl != null) {
             result = Authority.CANNOT_UPDATE.getValue();
         }
+
         return result;
     }
+
 
     @Transactional
     public void createNotificationWithBoard(String keyword, int type, User user, Board board) {
