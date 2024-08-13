@@ -94,7 +94,7 @@ public class BoardController {
 
     //썸네일 생성 및 수정
     @PutMapping("/{boardID}/thumbnails")
-    @Operation(summary = "퍼즐판 쎔네일 사진 수정하기", description = "완료 퍼즐판에서 쎔네일 사진을 조회")
+    @Operation(summary = "퍼즐판 썸네일 사진 수정하기", description = "완료 퍼즐판에서 썸네일 사진을 조회")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "수정에 성공했습니다.",
                     content = @Content(schema = @Schema(implementation = ResultDto.class))),
@@ -112,6 +112,27 @@ public class BoardController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ResultDto.res(HttpStatus.OK.value(),
                         "썸네일 수정 성공"));
+    }
+
+    //썸네일 조회
+    @GetMapping("/{boardID}/thumbnails")
+    @Operation(summary = "퍼즐판 썸네일 사진 조회하기", description = "완료 퍼즐판에서 썸네일 사진을 조회하기")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "조회에 성공했습니다.",
+                    content = @Content(schema = @Schema(implementation = ResultDto.class))),
+            @ApiResponse(responseCode = "404", description = "조회에 실패했습니다.",
+                    content = @Content(schema = @Schema(implementation = ResultDto.class)))
+    })
+    public ResponseEntity<ResultDto> findBoardThumbnails(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable("boardID") int boardID
+    ){
+
+        FindThumbnailResponseDto responseDto = boardService.findThumbnailUrl(userPrincipal, boardID);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ResultDto.res(HttpStatus.OK.value(),
+                        "썸네일 조회 성공", responseDto));
     }
 
     //게임 대기방 생성시 대표 사진 조회

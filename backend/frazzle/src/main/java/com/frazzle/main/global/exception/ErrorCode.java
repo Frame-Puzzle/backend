@@ -34,7 +34,8 @@ public enum ErrorCode {
     CANNOT_BE_NEGATIVE("난수에 음수값은 사용할 수 없습니다. ", HttpStatus.BAD_REQUEST),
     IMAGE_NOT_FOUND("이미지가 존재하지 않습니다.", HttpStatus.NOT_FOUND),
     VOTE_NOT_FOUND("투표가 비활성화 되었습니다.", HttpStatus.NOT_FOUND),
-    NOTIFICATION_NOT_FOUND("존재하지 않는 초대 요청입니다.", HttpStatus.NOT_FOUND)
+    NOTIFICATION_NOT_FOUND("존재하지 않는 초대 요청입니다.", HttpStatus.NOT_FOUND),
+    NOT_COMPLETE_GAME("게임을 클리어하지 않았습니다.", HttpStatus.NOT_FOUND)
     ;
 
     private final String message;

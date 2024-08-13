@@ -10,5 +10,5 @@ import org.springframework.web.multipart.MultipartFile;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class UpdateBoardThumbnailRequestDto {
     @NotBlank
-    MultipartFile thumbnailUrl;
+    private String thumbnailUrl;
 }

@@ -175,17 +175,8 @@ public class BoardService {
 
         //게임을 클리어했는지 판단, 유저가 등록되어있는지 판단.
         if((board.getClearType() == BoardClearTypeFlag.PUZZLE_GAME_CLEARED.getValue()) && board.getUser() != null){
-
-            //기존 이미지가 존재하면 삭제한다.
-            String imageUrl = board.getThumbnailUrl();
-
-            if(imageUrl != null){
-                awsService.deleteImage(imageUrl);
-            }
-
-            imageUrl = awsService.uploadFile(requestDto.getThumbnailUrl());
-
-            board.changeImageUrl(imageUrl);
+            board.changeImageUrl(requestDto.getThumbnailUrl());
+            boardRepository.save(board);
         }
     }
 
@@ -462,6 +453,24 @@ public class BoardService {
 
         return FindInGameResponseDto.createResponseDto(false);
 
+    }
+
+    public FindThumbnailResponseDto findThumbnailUrl(UserPrincipal userPrincipal, int boardID) {
+        User user = userPrincipal.getUser();
+
+        Board board = boardRepository.findByBoardId(boardID).orElseThrow(
+                () -> new CustomException(ErrorCode.NOT_EXIST_BOARD)
+        );
+
+        if(board.getClearType()!=BoardClearTypeFlag.PUZZLE_GAME_CLEARED.getValue()) {
+            return FindThumbnailResponseDto.createResponseDto(null);
+        }
+
+        if(board.getThumbnailUrl()==null) {
+            return FindThumbnailResponseDto.createResponseDto(null);
+        }
+
+        return FindThumbnailResponseDto.createResponseDto(board.getThumbnailUrl());
     }
 }
 
