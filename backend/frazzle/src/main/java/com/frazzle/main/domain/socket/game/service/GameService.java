@@ -10,6 +10,8 @@ import com.frazzle.main.domain.socket.game.dto.*;
 import com.frazzle.main.domain.socket.game.entity.Game;
 import com.frazzle.main.domain.socket.game.entity.GamePlayer;
 import com.frazzle.main.domain.socket.game.entity.GamePuzzle;
+import com.frazzle.main.domain.socket.roby.controller.RobyController;
+import com.frazzle.main.domain.socket.roby.entity.Roby;
 import com.frazzle.main.domain.socket.roby.entity.RobyUser;
 import com.frazzle.main.domain.socket.roby.service.RobyService;
 import com.frazzle.main.domain.user.entity.User;
@@ -37,6 +39,7 @@ public class GameService {
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(10);
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final RobyService robyService;
+    private final RobyController robyController;
 
 
     public void startGame(StartRequestDto requestDto) {
@@ -149,6 +152,10 @@ public class GameService {
 
         //모두 다 나가면
         if(gamePlayerMap.isEmpty()) {
+            log.info("모두 나감");
+
+            robyService.removeRoby(boardId);
+            timers.get(boardId).cancel(true);
             timers.remove(boardId);
             gameMap.remove(boardId);
         }
@@ -163,7 +170,7 @@ public class GameService {
             return;
         }
 
-        final long[] elapsedTime = {5}; // 경과 시간
+        final long[] elapsedTime = {0}; // 경과 시간
 
         ScheduledFuture<?> future = scheduler.scheduleAtFixedRate(() -> {
             elapsedTime[0]++;

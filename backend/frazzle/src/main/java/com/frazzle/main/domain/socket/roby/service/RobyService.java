@@ -75,7 +75,7 @@ public class RobyService {
         }
     }
 
-    private void removeRoby(int robyId) {
+    public void removeRoby(int robyId) {
         Roby roby = robyList.remove(robyId);
         if (roby != null) {
             for (RobyUser user : roby.getRobyUserList()) {
