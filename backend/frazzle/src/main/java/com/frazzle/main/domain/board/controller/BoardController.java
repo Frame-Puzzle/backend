@@ -175,4 +175,24 @@ public class BoardController {
                 .body(ResultDto.res(HttpStatus.OK.value(),
                         "게임 대기방 조회 성공", responseDto));
     }
+
+    //인게임 존재 여부 조회
+    @Operation(summary = "게임 진행중 존재 여부 조회하기", description = "게임 진행중 존재 여부 조회하기")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "조회에 성공했습니다.",
+                    content = @Content(schema = @Schema(implementation = ResultDto.class))),
+            @ApiResponse(responseCode = "404", description = "조회에 실패했습니다.",
+                    content = @Content(schema = @Schema(implementation = ResultDto.class)))
+    })
+    @GetMapping("/{boardID}/games/in-game")
+    public ResponseEntity<ResultDto> findInGame(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable("boardID") int boardID)
+    {
+        FindInGameResponseDto responseDto = boardService.findInGame(userPrincipal, boardID);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ResultDto.res(HttpStatus.OK.value(),
+                        "인게임 존재 여부 조회 성공", responseDto));
+    }
 }

@@ -181,4 +181,10 @@ public class GameService {
         log.info("Timer started for boardId={}", boardId);
     }
 
+    public boolean findGame(int boardId) {
+        if(gameMap.containsKey(boardId)) {
+            return true;
+        }
+        return false;
+    }
 }
