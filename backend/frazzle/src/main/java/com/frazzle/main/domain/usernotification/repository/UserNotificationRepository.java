@@ -13,7 +13,7 @@ import java.util.Optional;
 
 @Repository
 public interface UserNotificationRepository extends JpaRepository<UserNotification, Integer>, UserNotificationRepositoryCustom {
-    List<UserNotification> findByUser(User user);
+
     Optional<UserNotification> findByUserAndNotification(User user, Notification notification);
 
     @Override
@@ -26,4 +26,9 @@ public interface UserNotificationRepository extends JpaRepository<UserNotificati
     void deleteByDirectoryAndUser(Directory directory, User user);
 
     void deleteByNotification(Notification notification);
+
+    @Override
+    List<UserNotification> findByUserNotNull(User user);
+
+    List<UserNotification> findByUser(User user);
 }

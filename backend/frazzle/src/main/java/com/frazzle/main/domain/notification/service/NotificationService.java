@@ -44,7 +44,7 @@ public class NotificationService {
         //1. 유저 정보 확인
         User user = userPrincipal.getUser();
 
-        return userNotificationRepository.findByUser(user);
+        return userNotificationRepository.findByUserNotNull(user);
     }
 
     @Transactional

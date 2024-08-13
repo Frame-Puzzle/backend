@@ -4,6 +4,7 @@ import com.frazzle.main.domain.board.entity.Board;
 import com.frazzle.main.domain.directory.entity.Directory;
 import com.frazzle.main.domain.notification.entity.Notification;
 import com.frazzle.main.domain.user.entity.User;
+import com.frazzle.main.domain.usernotification.entity.UserNotification;
 
 import java.util.List;
 
@@ -14,4 +15,5 @@ public interface UserNotificationRepositoryCustom {
     void deleteByBoard(Board board);
     void updateCancelUserNotification(int notificationId);
     void updateMemberCancel(User user, Directory directory);
+    List<UserNotification> findByUserNotNull(User user);
 }

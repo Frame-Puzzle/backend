@@ -6,6 +6,7 @@ import com.frazzle.main.domain.notification.entity.Notification;
 import com.frazzle.main.domain.notification.entity.QNotification;
 import com.frazzle.main.domain.user.entity.User;
 import com.frazzle.main.domain.usernotification.entity.QUserNotification;
+import com.frazzle.main.domain.usernotification.entity.UserNotification;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -77,5 +78,17 @@ public class UserNotificationRepositoryImpl implements UserNotificationRepositor
                 .execute();
     }
 
+    @Override
+    public List<UserNotification> findByUserNotNull(User user) {
+        JPQLQuery<Notification> subQuery = JPAExpressions
+                .selectFrom(notification)
+                .where(notification.user.isNotNull());
+
+        return queryFactory.select(userNotification)
+                .from(userNotification)
+                .where(userNotification.notification.in(subQuery)
+                        .and(userNotification.user.eq(user))
+                ).fetch();
+    }
 
 }
