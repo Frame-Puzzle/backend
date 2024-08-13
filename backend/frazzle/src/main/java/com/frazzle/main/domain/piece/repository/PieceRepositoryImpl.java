@@ -42,4 +42,13 @@ public class PieceRepositoryImpl implements PieceRepositoryCustom{
                     piece.board.in(subQuery).and(piece.user.userId.eq(userId))
                 ).execute();
     }
+
+    @Override
+    public void updatePieceByPeopleCount(int pieceId, int peopleCount) {
+        queryFactory.update(piece)
+                .set(piece.peopleCount, peopleCount)
+                .where(piece.pieceId.eq(pieceId))
+                .execute();
+    }
+
 }

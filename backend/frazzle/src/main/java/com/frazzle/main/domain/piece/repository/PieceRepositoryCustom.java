@@ -7,4 +7,6 @@ public interface PieceRepositoryCustom {
     void deletePieceByDirectory(int directoryId);
 
     void nullifyUserInPiecesByDirectoryAndUser(int userId, int directoryId);
+
+    void updatePieceByPeopleCount(int pieceId, int peopleCount);
 }

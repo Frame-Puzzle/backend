@@ -27,7 +27,6 @@ public class PeopleService {
         Piece piece = pieceRepository.findPieceByPieceId(pieceId).orElseThrow(
                 () -> new CustomException(ErrorCode.NOT_EXIST_PIECE)
         );
-        piece.updatePeopleCount(peopleCount);
-        pieceRepository.save(piece);
+        pieceRepository.updatePieceByPeopleCount(pieceId, peopleCount);
     }
 }

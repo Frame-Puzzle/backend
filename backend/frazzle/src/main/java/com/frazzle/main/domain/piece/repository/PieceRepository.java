@@ -25,4 +25,7 @@ public interface PieceRepository extends JpaRepository<Piece, Integer>, PieceRep
     List<Piece> findAllByUser(User user);
 
     List<Piece> findByBoardOrderByPeopleCountDesc(Board board);
+
+    @Override
+    void updatePieceByPeopleCount(int pieceId, int peopleCount);
 }
