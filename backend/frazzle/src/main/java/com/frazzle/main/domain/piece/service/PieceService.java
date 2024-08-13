@@ -71,6 +71,12 @@ public class PieceService {
         //유저검증
         checkUserAndDirectory(user, checkDirectory(piece.getBoard().getDirectory().getDirectoryId()));
 
+        User pieceUser = piece.getUser();
+
+        if(pieceUser != null && (user.getUserId() != pieceUser.getUserId())){
+            throw new CustomException(ErrorCode.DENIED_FIND);
+        }
+
         return FindPieceResponseDto.createPieceDto(piece.getMissionName(), piece.getImageUrl(), piece.getContent());
     }
 
