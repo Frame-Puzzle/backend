@@ -436,5 +436,23 @@ public class BoardService {
 
         return FindGameRoomResponseDto.createResponseDto(false, 0);
     }
+
+    public FindThumbnailResponseDto findThumbnailUrl(UserPrincipal userPrincipal, int boardID) {
+        User user = userPrincipal.getUser();
+
+        Board board = boardRepository.findByBoardId(boardID).orElseThrow(
+                () -> new CustomException(ErrorCode.NOT_EXIST_BOARD)
+        );
+
+        if(board.getClearType()!=BoardClearTypeFlag.PUZZLE_GAME_CLEARED.getValue()) {
+            return FindThumbnailResponseDto.createResponseDto(null);
+        }
+
+        if(board.getThumbnailUrl()==null) {
+            return FindThumbnailResponseDto.createResponseDto(null);
+        }
+
+        return FindThumbnailResponseDto.createResponseDto(board.getThumbnailUrl());
+    }
 }
 
