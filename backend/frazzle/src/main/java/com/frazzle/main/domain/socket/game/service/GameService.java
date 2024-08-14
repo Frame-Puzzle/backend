@@ -94,6 +94,17 @@ public class GameService {
 
             game.updateNumArray(numArray);
 
+
+            // 20분 후 게임 삭제 스케줄러 등록
+            scheduler.schedule(() -> {
+                for (GamePlayer gamePlayer : gamePlayerMap.values()) {
+                    User user = userRepository.findByUserId(gamePlayer.getUserId()).orElseThrow(
+                            () -> new CustomException(ErrorCode.NOT_EXIST_USER)
+                    );
+                    exitPuzzle(boardId, user.getEmail());
+                }
+
+            }, 20, TimeUnit.MINUTES);
         }
 
         Game game = gameMap.get(boardId);
@@ -147,6 +158,7 @@ public class GameService {
         );
 
         Game game = gameMap.get(boardId);
+        if(game == null) return;
         Map<Integer, GamePlayer> gamePlayerMap = game.getGamePlayerMap();
         gamePlayerMap.remove(user.getUserId());
 
