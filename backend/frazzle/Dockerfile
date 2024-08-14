@@ -6,4 +6,4 @@ COPY build/libs/*.jar application.jar
 
 EXPOSE 8080
  
-ENTRYPOINT ["java","-jar","/app/application.jar"]
+ENTRYPOINT ["java","-Duser.timezone=Asia/Seoul","-jar","/app/application.jar"]
