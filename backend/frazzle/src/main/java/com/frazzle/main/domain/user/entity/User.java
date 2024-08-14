@@ -92,4 +92,6 @@ public class User {
     public void updateUserNickname(String nickname) {
         this.nickname = nickname;
     }
+
+
 }

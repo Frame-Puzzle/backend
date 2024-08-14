@@ -40,6 +40,7 @@ public class GameService {
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final RobyService robyService;
     private final RobyController robyController;
+    private final Map<Integer, List<GamePlayer>> gamePlayerList = new HashMap<>();
 
 
     public void startGame(StartRequestDto requestDto) {
@@ -162,6 +163,16 @@ public class GameService {
         Map<Integer, GamePlayer> gamePlayerMap = game.getGamePlayerMap();
         gamePlayerMap.remove(user.getUserId());
 
+        List<GamePlayer> userList = gamePlayerList.get(boardId);
+        GamePlayer gamePlayer = GamePlayer.createGamePlayer(user);
+        userList.remove(gamePlayer);
+
+        FindGameResponseDto responseDto = FindGameResponseDto.builder()
+                .userList(userList)
+                .build();
+
+        simpMessagingTemplate.convertAndSend("/sub/game/user-info/"+boardId, responseDto);
+
         //모두 다 나가면
         if(gamePlayerMap.isEmpty()) {
             log.info("모두 나감");
@@ -170,6 +181,7 @@ public class GameService {
             timers.get(boardId).cancel(true);
             timers.remove(boardId);
             gameMap.remove(boardId);
+            gamePlayerList.remove(boardId);
         }
 
     }
@@ -198,5 +210,23 @@ public class GameService {
             return true;
         }
         return false;
+    }
+
+    public void entryGame(int boardId, String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new CustomException(ErrorCode.NOT_EXIST_USER)
+        );
+        if(!gamePlayerList.containsKey(boardId)) {
+            List<GamePlayer> list = new ArrayList<>();
+            gamePlayerList.put(boardId, list);
+        }
+        GamePlayer gamePlayer = GamePlayer.createGamePlayer(user);
+
+        gamePlayerList.get(boardId).add(gamePlayer);
+
+        FindGameResponseDto responseDto = FindGameResponseDto.createResponseDto(gamePlayerList.get(boardId));
+
+        simpMessagingTemplate.convertAndSend("/sub/game/user-info/"+boardId, responseDto);
+
     }
 }

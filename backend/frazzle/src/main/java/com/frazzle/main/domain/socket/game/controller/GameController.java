@@ -55,4 +55,15 @@ public class GameController {
         gameService.exitPuzzle(boardId, email);
     }
 
+    @MessageMapping("/game/entry/{boardId}")
+    public void findGameInfo(
+            @DestinationVariable int boardId,
+            SimpMessageHeaderAccessor accessor
+    ) {
+        // 이메일로부터 사용자 찾기
+        String email = (String) accessor.getSessionAttributes().get("senderEmail");
+        log.info("게임 정보");
+        gameService.entryGame(boardId, email);
+    }
+
 }
