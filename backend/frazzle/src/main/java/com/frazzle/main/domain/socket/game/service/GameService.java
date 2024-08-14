@@ -165,8 +165,10 @@ public class GameService {
 
         List<GamePlayer> userList = gamePlayerList.get(boardId);
         GamePlayer gamePlayer = GamePlayer.createGamePlayer(user);
-        userList.remove(gamePlayer);
 
+        if(userList.contains(userList)) {
+            userList.remove(gamePlayer);
+        }
         FindGameResponseDto responseDto = FindGameResponseDto.builder()
                 .userList(userList)
                 .build();
@@ -222,8 +224,9 @@ public class GameService {
         }
         GamePlayer gamePlayer = GamePlayer.createGamePlayer(user);
 
-        gamePlayerList.get(boardId).add(gamePlayer);
-
+        if(!gamePlayerList.get(boardId).contains(gamePlayer)) {
+            gamePlayerList.get(boardId).add(gamePlayer);
+        }
         FindGameResponseDto responseDto = FindGameResponseDto.createResponseDto(gamePlayerList.get(boardId));
 
         simpMessagingTemplate.convertAndSend("/sub/game/user-info/"+boardId, responseDto);
