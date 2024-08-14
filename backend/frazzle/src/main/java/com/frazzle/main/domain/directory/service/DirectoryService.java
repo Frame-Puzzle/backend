@@ -11,6 +11,7 @@ import com.frazzle.main.domain.notification.service.NotificationService;
 import com.frazzle.main.domain.notification.entity.Notification;
 import com.frazzle.main.domain.notification.entity.NotificationTypeFlag;
 import com.frazzle.main.domain.notification.repository.NotificationRepository;
+import com.frazzle.main.domain.piece.entity.Piece;
 import com.frazzle.main.domain.piece.repository.PieceRepository;
 import com.frazzle.main.domain.user.entity.User;
 import com.frazzle.main.domain.user.repository.UserRepository;
@@ -429,17 +430,32 @@ public class DirectoryService {
     @Transactional
     protected void deleteDirectoryData(int directoryId, Directory directory) {
         //1. 알림 삭제
+        log.info("유저알림");
         userNotificationRepository.deleteByDirectory(directory);
+        log.info("알림");
         notificationRepository.deleteAllByDirectory(directory);
 
         //2. 퍼즐판 및 퍼즐 조각 삭제
+        log.info("퍼즐");
         pieceRepository.deletePieceByDirectory(directoryId);
-        boardRepository.deleteBoardByDirectory(directory);
+        log.info("보드");
+        List<Board> boardList = boardRepository.findByDirectoryDirectoryId(directoryId);
+        for (Board board : boardList) {
+            //보드와 관련된 알림조회
+            List<Notification> notificationList = notificationRepository.findAllByBoard(board);
+            for (Notification notification : notificationList) {
+                userNotificationRepository.deleteByNotification(notification);
+                notificationRepository.deleteById(notification.getNotificationId());
+            }
+            boardRepository.delete(board);
+        }
 
         //3. 유저디렉토리 삭제
+        log.info("ud");
         userDirectoryRepository.deleteByDirectory(directory);
 
         //4. 디렉토리 삭제
+        log.info("d");
         directoryRepository.delete(directory);
     }
 

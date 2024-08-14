@@ -122,6 +122,16 @@ public class UserService {
             directoryService.leaveDirectory(userPrincipal, id);
         }
 
+        List<Notification> notificationsList = notificationRepository.findAllByUser(user);
+        if(!notificationsList.isEmpty()) {
+            for (Notification notification : notificationsList) {
+                userNotificationRepository.deleteByNotification(notification);
+                notification.updateUser(null);
+                log.info("여기야?");
+                notificationRepository.delete(notification);
+            }
+        }
+
         List<UserNotification> userNotificationList = userNotificationRepository.findByUser(user);
         if(!userNotificationList.isEmpty()) {
             userNotificationRepository.deleteAll(userNotificationList);
