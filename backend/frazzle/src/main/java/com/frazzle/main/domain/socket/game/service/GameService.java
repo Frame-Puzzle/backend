@@ -94,6 +94,9 @@ public class GameService {
 
             game.updateNumArray(numArray);
 
+            // 게임 시작 후, 20분 타이머를 설정하여 게임을 제거하도록 스케줄링
+            scheduleGameRemoval(boardId, 20); // 20분 후에 게임 제거
+
         }
 
         Game game = gameMap.get(boardId);
@@ -187,4 +190,23 @@ public class GameService {
         }
         return false;
     }
+
+    private void scheduleGameRemoval(int boardId, int minutes) {
+        ScheduledFuture<?> removalTask = scheduler.schedule(() -> {
+            Game game = gameMap.get(boardId);
+            if (game != null) {
+                log.info("20분이 경과하여 게임이 자동으로 제거되었습니다. boardId={}", boardId);
+
+                gameMap.remove(boardId);
+                timers.remove(boardId);
+
+                robyService.removeRoby(boardId);
+
+                simpMessagingTemplate.convertAndSend("/sub/game/" + boardId + "/timeout", "게임이 자동으로 종료되었습니다.");
+            }
+        }, minutes, TimeUnit.MINUTES);
+
+        timers.put(boardId, removalTask); // 게임 타이머와 같이 관리
+    }
+
 }
