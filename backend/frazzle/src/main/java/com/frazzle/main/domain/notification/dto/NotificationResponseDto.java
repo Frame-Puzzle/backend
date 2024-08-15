@@ -25,9 +25,11 @@ public class NotificationResponseDto {
     private int boardId;
     private String profileImg;
     private int boardNum;
+    private int directoryId;
+
 
     @Builder
-    public NotificationResponseDto(int notificationId, LocalDateTime createTime, int type, String directoryName, String category, String createUserName, Boolean isRead, int acceptStatus, int boardId, String profileImg, int boardNum) {
+    private NotificationResponseDto(int notificationId, LocalDateTime createTime, int type, String directoryName, String category, String createUserName, Boolean isRead, int acceptStatus, int boardId, String profileImg, int boardNum, int directoryId) {
         this.notificationId = notificationId;
         this.createTime = createTime;
         this.type = type;
@@ -39,6 +41,7 @@ public class NotificationResponseDto {
         this.boardId = boardId;
         this.profileImg = profileImg;
         this.boardNum = boardNum;
+        this.directoryId = directoryId;
     }
 
 
@@ -63,6 +66,7 @@ public class NotificationResponseDto {
                     .boardId(notification.getBoard().getBoardId())
                     .boardNum(notification.getBoard().getBoardInNumber())
                     .profileImg(notification.getUser().getProfileImg())
+                    .directoryId(directory.getDirectoryId())
                     .build();
         }
 
