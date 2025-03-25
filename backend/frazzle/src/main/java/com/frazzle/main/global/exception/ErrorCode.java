@@ -35,7 +35,8 @@ public enum ErrorCode {
     IMAGE_NOT_FOUND("이미지가 존재하지 않습니다.", HttpStatus.NOT_FOUND),
     VOTE_NOT_FOUND("투표가 비활성화 되었습니다.", HttpStatus.NOT_FOUND),
     NOTIFICATION_NOT_FOUND("존재하지 않는 초대 요청입니다.", HttpStatus.NOT_FOUND),
-    NOT_COMPLETE_GAME("게임을 클리어하지 않았습니다.", HttpStatus.NOT_FOUND)
+    NOT_COMPLETE_GAME("게임을 클리어하지 않았습니다.", HttpStatus.NOT_FOUND),
+    CONCURRENT_UPDATE_PIECE("다른 사용자가 먼저 퍼즐 조각을 업로드하였습니다.", HttpStatus.CONFLICT)
     ;
 
     private final String message;

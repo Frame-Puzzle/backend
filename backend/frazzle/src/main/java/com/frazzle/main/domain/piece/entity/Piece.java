@@ -30,6 +30,10 @@ public class Piece {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Version
+    @Column(name = "version")
+    private Integer version;
+
     @UpdateTimestamp
     @Column(name = "modified_at", columnDefinition = "TIMESTAMP")
     private LocalDateTime modifiedAt;

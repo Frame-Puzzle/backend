@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -23,6 +24,18 @@ public class GlobalExceptionHandler {
         );
 
         return new ResponseEntity<>(response, ex.getErrorCode().getHttpStatus());
+    }
+
+    @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
+    public ResponseEntity<ResultDto<Object>> handleOptimisticLockingException(Exception ex) {
+        logger.error("[OptimisticException] message: " + ex.getMessage());
+
+        ResultDto<Object> response = ResultDto.res(
+                ErrorCode.CONCURRENT_UPDATE_PIECE.getHttpStatus().value(),
+                ErrorCode.CONCURRENT_UPDATE_PIECE.getMessage()
+        );
+
+        return new ResponseEntity<>(response, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(RuntimeException.class)
